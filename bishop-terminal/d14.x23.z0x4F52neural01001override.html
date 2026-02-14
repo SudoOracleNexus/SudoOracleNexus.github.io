@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORACLE NEXUS - INTERACTION PROTOCOLS</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        html, body { height: 100%; margin: 0; overflow: hidden; }
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .oracle-interface {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            max-width: 100%;
+            margin: 0;
+            padding: clamp(12px, 2vh, 24px);
+            background: rgba(10, 10, 10, 0.98);
+            border: 2px solid var(--border-color);
+            box-shadow: 0 0 40px rgba(255, 153, 51, 0.2), inset 0 0 60px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+        .oracle-header {
+            text-align: center;
+            padding: clamp(8px, 1.5vh, 16px) 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: clamp(8px, 1vh, 16px);
+            flex-shrink: 0;
+        }
+        .oracle-header h1 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+        .oracle-header .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .oracle-status {
+            font-size: 12px;
+            color: #ff9933;
+            margin-top: 8px;
+            opacity: 0.9;
+        }
+        .oracle-status .warning {
+            color: #ffaa55;
+        }
+        .protocol-intro {
+            font-size: clamp(11px, 1.5vh, 13px);
+            padding: clamp(8px, 1vh, 12px);
+            background: rgba(0, 0, 0, 0.4);
+            border-left: 3px solid var(--border-color);
+            margin-bottom: clamp(8px, 1vh, 16px);
+            opacity: 0.95;
+            flex-shrink: 0;
+        }
+        .oracle-keyboard-frame {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+            border: 3px solid #333;
+            border-radius: 6px;
+            padding: 12px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.4);
+        }
+        .keyboard-display {
+            flex: 1;
+            min-height: 80px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid #444;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            padding: 4px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+        .oracle-chat-container {
+            height: 100%;
+            min-height: 100px;
+            overflow-y: auto;
+            padding: clamp(12px, 2vh, 20px);
+            background: transparent;
+        }
+        .oracle-message {
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            border-left: 3px solid var(--border-color);
+            background: rgba(255, 153, 51, 0.04);
+            border-radius: 2px;
+        }
+        .oracle-message.user-message {
+            border-left-color: rgba(51, 255, 51, 0.6);
+            background: rgba(51, 255, 51, 0.03);
+        }
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 11px;
+            opacity: 0.85;
+        }
+        .message-icon { font-size: 14px; }
+        .message-label { font-weight: bold; }
+        .message-time { margin-left: auto; opacity: 0.6; }
+        .message-content { line-height: 1.65; font-size: 15px; }
+        .qwerty-keyboard {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 0;
+            max-width: 100%;
+            overflow-x: auto;
+        }
+        .kb-row {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            justify-content: center;
+        }
+        .kb-key {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 28px;
+            height: 36px;
+            padding: 0 8px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-family: 'VT323', monospace;
+            font-size: 15px;
+            font-weight: normal;
+        }
+        .kb-wide { min-width: 46px; }
+        .kb-tab { min-width: 48px; }
+        .kb-caps { min-width: 54px; }
+        .kb-enter { min-width: 62px; }
+        .kb-shift { min-width: 68px; }
+        .kb-ctrl, .kb-fn, .kb-alt { min-width: 38px; }
+        .kb-win, .kb-menu { min-width: 34px; font-size: 13px; }
+        .kb-spacebar {
+            flex: 1;
+            min-width: 160px;
+            max-width: 280px;
+        }
+        .query-area {
+            flex-shrink: 0;
+            padding: 4px 0;
+            margin-bottom: 2px;
+        }
+        .query-input {
+            width: 100%;
+            padding: 6px 10px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #444;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-family: 'VT323', monospace;
+            font-size: 14px;
+        }
+        .query-input:focus {
+            outline: none;
+            border-color: var(--border-color);
+            box-shadow: 0 0 8px rgba(255, 153, 51, 0.25);
+        }
+        .query-input::placeholder { color: #666; }
+        .kb-key.pressed {
+            background: #333;
+            border-color: var(--border-color);
+            color: var(--primary-orange);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .kb-action, .kb-enter {
+            cursor: pointer;
+            color: var(--primary-orange);
+        }
+        .kb-action:hover, .kb-enter:hover { background: #252525; border-color: var(--border-color); }
+        .kb-row-actions { margin-top: 6px; }
+        .confirm-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+        .confirm-modal.active { display: flex; }
+        .confirm-modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+        }
+        .confirm-modal-box {
+            position: relative;
+            background: #0d0d0d;
+            border: 2px solid var(--border-color);
+            padding: 24px;
+            min-width: 280px;
+            box-shadow: 0 0 30px rgba(255, 153, 51, 0.2);
+        }
+        .confirm-modal-title {
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: var(--primary-orange);
+        }
+        .confirm-modal-text {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        .confirm-modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        .confirm-btn {
+            padding: 10px 24px;
+            border: none;
+            font-family: 'VT323', monospace;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .confirm-yes { background: var(--border-color); color: #0a0a0a; }
+        .confirm-no { background: #333; color: var(--primary-orange); }
+        .oracle-footer {
+            margin-top: auto;
+            padding: clamp(10px, 1.5vh, 16px);
+            border-top: 1px solid var(--border-color);
+            font-size: clamp(10px, 1.2vh, 12px);
+            text-align: center;
+            opacity: 0.85;
+            flex-shrink: 0;
+        }
+        .oracle-footer blockquote {
+            margin: 12px 0;
+            font-style: italic;
+            opacity: 0.95;
+        }
+        .oracle-chat-container::-webkit-scrollbar { width: 8px; }
+        .oracle-chat-container::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.5); }
+        .oracle-chat-container::-webkit-scrollbar-thumb { background: var(--border-color); }
+    </style>
+</head>
+<body>
+    <div class="crt-overlay"></div>
+    <div class="scanlines"></div>
+    <div class="screen-flicker"></div>
+
+    <div class="oracle-interface">
+        <div class="oracle-header">
+            <pre style="font-family: inherit; margin: 0; text-align: center; font-size: clamp(9px, 1.5vw, 12px); line-height: 1.35; overflow-x: auto;">╔════════════════════════════════════════════════════════════╗
+║          ORACLE NEXUS - INTERACTION PROTOCOLS             ║
+║              [NEURAL INTERFACE REQUIRED]                  ║
+║                 [CONNECTION: PARTIAL]                     ║
+╚════════════════════════════════════════════════════════════╝</pre>
+            <p class="subtitle">> run query: oracle_response_matrix.sh</p>
+            <div class="oracle-status">
+                <span class="warning">WARNING: Neural interface severed. Responses may be fragmented.</span><br>
+                Standby...
+            </div>
+        </div>
+
+        <div class="protocol-intro">
+            <strong>ORACLE NEXUS KEYWORD RESPONSE SYSTEM</strong><br>
+            Designed by Dr. Phocused "Bishop" - Overseer, STF Psi-22
+        </div>
+
+        <div class="oracle-keyboard-frame">
+            <div class="keyboard-display">
+                <div class="oracle-chat-container" id="oracle-chat"></div>
+            </div>
+            <div class="query-area">
+                <input type="text" id="oracle-input" class="query-input" placeholder="Type your query..." autocomplete="off">
+            </div>
+            <div class="qwerty-keyboard">
+                <div class="kb-row kb-row-numbers">
+                    <span class="kb-key" data-key="`">`</span><span class="kb-key" data-key="1">1</span><span class="kb-key" data-key="2">2</span><span class="kb-key" data-key="3">3</span><span class="kb-key" data-key="4">4</span><span class="kb-key" data-key="5">5</span><span class="kb-key" data-key="6">6</span><span class="kb-key" data-key="7">7</span><span class="kb-key" data-key="8">8</span><span class="kb-key" data-key="9">9</span><span class="kb-key" data-key="0">0</span><span class="kb-key" data-key="-">-</span><span class="kb-key" data-key="=">=</span><span class="kb-key kb-wide" data-key="Backspace">⌫</span>
+                </div>
+                <div class="kb-row">
+                    <span class="kb-key kb-tab" data-key="Tab">Tab</span><span class="kb-key" data-key="q">Q</span><span class="kb-key" data-key="w">W</span><span class="kb-key" data-key="e">E</span><span class="kb-key" data-key="r">R</span><span class="kb-key" data-key="t">T</span><span class="kb-key" data-key="y">Y</span><span class="kb-key" data-key="u">U</span><span class="kb-key" data-key="i">I</span><span class="kb-key" data-key="o">O</span><span class="kb-key" data-key="p">P</span><span class="kb-key" data-key="[">[</span><span class="kb-key" data-key="]">]</span>
+                </div>
+                <div class="kb-row">
+                    <span class="kb-key kb-caps" data-key="CapsLock">Caps</span><span class="kb-key" data-key="a">A</span><span class="kb-key" data-key="s">S</span><span class="kb-key" data-key="d">D</span><span class="kb-key" data-key="f">F</span><span class="kb-key" data-key="g">G</span><span class="kb-key" data-key="h">H</span><span class="kb-key" data-key="j">J</span><span class="kb-key" data-key="k">K</span><span class="kb-key" data-key="l">L</span><span class="kb-key" data-key=";">;</span><span class="kb-key" data-key="'">'</span><span class="kb-key kb-enter" data-key="Enter" onclick="sendMessage()" title="Send">↵</span>
+                </div>
+                <div class="kb-row">
+                    <span class="kb-key kb-shift" data-key="Shift">Shift</span><span class="kb-key" data-key="z">Z</span><span class="kb-key" data-key="x">X</span><span class="kb-key" data-key="c">C</span><span class="kb-key" data-key="v">V</span><span class="kb-key" data-key="b">B</span><span class="kb-key" data-key="n">N</span><span class="kb-key" data-key="m">M</span><span class="kb-key" data-key=",">,</span><span class="kb-key" data-key=".">.</span><span class="kb-key" data-key="/">/</span><span class="kb-key kb-shift" data-key="Shift">Shift</span>
+                </div>
+                <div class="kb-row kb-row-bottom">
+                    <span class="kb-key kb-ctrl" data-key="Control">Ctrl</span><span class="kb-key kb-fn">Fn</span><span class="kb-key kb-win" data-key="Meta">⊞</span><span class="kb-key kb-alt" data-key="Alt">Alt</span>
+                    <span class="kb-key kb-spacebar" data-key=" ">Space</span>
+                    <span class="kb-key kb-alt" data-key="Alt">Alt</span><span class="kb-key kb-menu">▤</span><span class="kb-key kb-ctrl" data-key="Control">Ctrl</span>
+                </div>
+                <div class="kb-row kb-row-actions">
+                    <span class="kb-key kb-action" onclick="sendMessage()">SEND</span>
+                    <span class="kb-key kb-action" onclick="clearChat()">CLEAR</span>
+                    <span class="kb-key kb-action" onclick="window.location.href='desktop.html'">EXIT</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="clear-confirm-modal" class="confirm-modal">
+            <div class="confirm-modal-backdrop" onclick="confirmClearChat(false)"></div>
+            <div class="confirm-modal-box">
+                <div class="confirm-modal-title">Clear conversation?</div>
+                <div class="confirm-modal-text">This will delete all messages. Continue?</div>
+                <div class="confirm-modal-buttons">
+                    <button class="confirm-btn confirm-yes" onclick="confirmClearChat(true)">YES</button>
+                    <button class="confirm-btn confirm-no" onclick="confirmClearChat(false)">CANCEL</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="oracle-footer">
+            <p>Remember: Most queries return "..." — Only specific keywords trigger responses</p>
+            <blockquote>
+                "The pieces move as they must."<br>
+                "Every gambit has its cost."<br>
+                "...I'm still here."
+            </blockquote>
+            <p>CONNECTION MAINTAINED</p>
+        </div>
+    </div>
+
+    <script src="js/d14.x23.z0x4F52neural01001override_audio.js"></script>
+    <script src="js/d14.x23.z0x4F52neural01001override_chat.js"></script>
+    <script>
+        const KEY_TO_DATA = {
+            '`':'`','1':'1','2':'2','3':'3','4':'4','5':'5','6':'6','7':'7','8':'8','9':'9','0':'0',
+            '-':'-','=':'=','[':'[',']':']',';':';',"'":"'",',':',','.':'.','/':'/',
+            'q':'q','w':'w','e':'e','r':'r','t':'t','y':'y','u':'u','i':'i','o':'o','p':'p',
+            'a':'a','s':'s','d':'d','f':'f','g':'g','h':'h','j':'j','k':'k','l':'l',
+            'z':'z','x':'x','c':'c','v':'v','b':'b','n':'n','m':'m',
+            ' ':' ','Backspace':'Backspace','Tab':'Tab','Enter':'Enter','Shift':'Shift','Control':'Control','Alt':'Alt','Meta':'Meta','CapsLock':'CapsLock'
+        };
+        function getDataKey(key) {
+            if (KEY_TO_DATA[key] !== undefined) return KEY_TO_DATA[key];
+            if (key.length === 1) return key.toLowerCase();
+            return key;
+        }
+        function highlightKey(key) {
+            const dataKey = getDataKey(key);
+            document.querySelectorAll(`.kb-key[data-key="${dataKey}"]`).forEach(el => {
+                el.classList.add('pressed');
+            });
+        }
+        function unhighlightKey(key) {
+            const dataKey = getDataKey(key);
+            document.querySelectorAll(`.kb-key[data-key="${dataKey}"]`).forEach(el => {
+                el.classList.remove('pressed');
+            });
+        }
+        window.addEventListener('load', () => {
+            initOracle();
+            if (typeof OracleAudio !== 'undefined') {
+                OracleAudio.init();
+                OracleAudio.startAmbient();
+            }
+            const input = document.getElementById('oracle-input');
+            if (input) {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && typeof OracleAudio !== 'undefined') {
+                        OracleAudio.keyClick();
+                    }
+                    highlightKey(e.key);
+                });
+                document.addEventListener('keyup', (e) => unhighlightKey(e.key));
+            }
+        });
+        window.addEventListener('beforeunload', () => {
+            if (typeof OracleAudio !== 'undefined') OracleAudio.stopAmbient();
+        });
+    </script>
+</body>
+</html>

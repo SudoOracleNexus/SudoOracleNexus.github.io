@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLASSIFIED ACCESS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- CRT Screen Overlay -->
+    <div class="crt-overlay"></div>
+    <div class="scanlines"></div>
+    <div class="screen-flicker"></div>
+
+    <!-- Boot sequence: Phase 1-4 -->
+    <div class="boot-click-start" id="boot-click-start">
+        <span>Click to start</span>
+    </div>
+    <div class="boot-sequence hidden" id="boot-sequence">
+        <button class="boot-skip-btn" id="boot-skip-btn" title="Skip boot">SKIP</button>
+        <!-- Phase 1: Black screen + cursor (during boot sound) -->
+        <div class="boot-stage boot-stage-1" id="boot-stage-1">
+            <span class="boot-cursor">█</span>
+        </div>
+        <!-- Phase 2: BIOS/POST screen -->
+        <div class="boot-stage boot-stage-2 hidden" id="boot-stage-2">
+            <pre class="bios-text">AEGIS FOUNDATION SYSTEMS v4.7.23
+BIOS Version 08.02.2026
+Initializing...
+
+CPU: Quantum Processor Unit detected
+RAM: 14-Dimensional Memory Array [OK]
+Neural Interface: [SEVERED]
+
+Press DEL to enter SETUP<span class="boot-cursor">█</span></pre>
+        </div>
+        <!-- Phase 3: Scrolling boot text -->
+        <div class="boot-stage boot-stage-3 hidden" id="boot-stage-3">
+            <div class="boot-text-container" id="boot-text-container"></div>
+        </div>
+    </div>
+
+    <div class="login-screen" id="login-screen">
+        <div class="login-container">
+            <div class="classification-header">
+                <span class="classification-level">TOP SECRET</span>
+                <span class="session-id">SESSION: VSA-${Math.random().toString(36).substr(2, 9).toUpperCase()}</span>
+            </div>
+            
+            <div class="login-header">
+                <h1>╔════════════════════════════════════════╗</h1>
+                <h1>║  VANTAGE SYSTEMS AUTHORITY - ACCESS   ║</h1>
+                <h1>╚════════════════════════════════════════╝</h1>
+            </div>
+            
+            <div class="login-content">
+                <p class="access-prompt">ENTER AUTHORIZATION CODE</p>
+                <div class="code-display" id="code-display">
+                    <span>█</span>
+                    <span>█</span>
+                    <span>█</span>
+                    <span>█</span>
+                </div>
+                <div class="number-pad">
+                    <button class="num-btn" data-num="1">1</button>
+                    <button class="num-btn" data-num="2">2</button>
+                    <button class="num-btn" data-num="3">3</button>
+                    <button class="num-btn" data-num="4">4</button>
+                    <button class="num-btn" data-num="5">5</button>
+                    <button class="num-btn" data-num="6">6</button>
+                    <button class="num-btn" data-num="7">7</button>
+                    <button class="num-btn" data-num="8">8</button>
+                    <button class="num-btn" data-num="9">9</button>
+                    <button class="num-btn clear-btn" data-num="clear">CLEAR</button>
+                    <button class="num-btn" data-num="0">0</button>
+                    <button class="num-btn enter-btn" data-num="enter">ENTER</button>
+                </div>
+                <div class="login-message-area" id="login-message-slot">
+                    <p class="error-message" id="error-message">⚠ ACCESS DENIED - INVALID CODE ⚠</p>
+                    <div class="login-attempts" id="login-attempts">
+                        <span>FAILED ATTEMPTS: <span id="attempt-count">0</span>/5</span>
+                    </div>
+                </div>
+                <p class="hint-text">Hint: The temperature of perfection... × 100</p>
+            </div>
+            
+            <div class="classification-footer">
+                <span>UNAUTHORIZED ACCESS IS PROHIBITED</span>
+                <span>ALL ACTIVITY IS MONITORED AND LOGGED</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio elements (optional) -->
+    <audio id="ambient-hum" loop>
+        <source src="assets/audio/ambient.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="beep-sound">
+        <source src="assets/audio/beep.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="error-sound">
+        <source src="assets/audio/error.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="js/boot.js"></script>
+</body>
+</html>
