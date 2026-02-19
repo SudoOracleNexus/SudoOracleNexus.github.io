@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resilience Stands</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Cormorant+Garamond:wght@300;400&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #061209;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Share Tech Mono', monospace;
+    overflow: hidden;
+    gap: 0;
+  }
+
+  /* Deep vignette */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 70% at 50% 50%, transparent 30%, #020704 100%);
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  #headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 0.85rem;
+    letter-spacing: 0.55em;
+    text-transform: uppercase;
+    color: #c8a840;
+    opacity: 0.75;
+    margin-bottom: 1.4rem;
+    z-index: 20;
+  }
+
+  #canvas-wrap {
+    position: relative;
+  }
+
+  #grid {
+    display: block;
+    font-size: 12px;
+    line-height: 1.04;
+    letter-spacing: 0.10em;
+    white-space: pre;
+    user-select: none;
+  }
+
+  /* Atmospheric glow behind grid */
+  #glow {
+    position: absolute;
+    inset: -20px;
+    pointer-events: none;
+    background: radial-gradient(ellipse 60% 50% at 50% 50%,
+      rgba(0,60,0,0.22) 0%,
+      rgba(160,120,0,0.08) 40%,
+      transparent 70%
+    );
+    mix-blend-mode: screen;
+    z-index: -1;
+  }
+</style>
+</head>
+<body>
+
+<div id="headline">Resilience Stands</div>
+<div id="canvas-wrap">
+  <div id="glow"></div>
+  <div id="grid"></div>
+</div>
+
+<script>
+const COLS = 80;
+const ROWS = 48;
+const COL_ASPECT = 2.15;
+
+const OUTER_CARDINAL  = 17.0;
+const OUTER_DIAGONAL  = 13.5;
+const INNER_R         = 5.8;
+const CENTER_R        = 3.5;
+
+const DENSE  = '█▓▒░';
+const MED    = '@#$%&*';
+const STAR   = '✦✧⊛◈★◇';
+const LIGHT  = '·:;!|/\\-+~`^';
+
+const cx = COLS / 2;
+const cy = ROWS / 2;
+
+const cells = [];
+for (let r = 0; r < ROWS; r++) {
+  for (let c = 0; c < COLS; c++) {
+    const dx = (c - cx) / COL_ASPECT;
+    const dy = (r - cy);
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const rawAngle = Math.atan2(dy, dx);
+    const deg = ((rawAngle * 180 / Math.PI) + 360) % 360;
+
+    const toCard = deg % 90 < 45 ? deg % 90 : 90 - deg % 90;
+    const isCardinal = toCard < 22.5;
+
+    const sectorF = (deg / 45);
+    const sectorFloor = Math.floor(sectorF) % 8;
+    const sectorFrac = sectorF - Math.floor(sectorF);
+    const tipA = (sectorFloor % 2 === 0) ? OUTER_CARDINAL : OUTER_DIAGONAL;
+    const tipB = ((sectorFloor + 1) % 2 === 0) ? OUTER_CARDINAL : OUTER_DIAGONAL;
+    const t = sectorFrac;
+    let starR;
+    if (t < 0.5) {
+      const u = t * 2;
+      starR = tipA + (INNER_R - tipA) * (1 - Math.cos(u * Math.PI)) / 2;
+    } else {
+      const u = (t - 0.5) * 2;
+      starR = INNER_R + (tipB - INNER_R) * (1 - Math.cos(u * Math.PI)) / 2;
+    }
+
+    const inStar   = dist < starR;
+    const inCenter = dist < CENTER_R;
+    const inInner  = dist < INNER_R;
+
+    cells.push({ r, c, dist, angle: rawAngle, deg, starR, isCardinal, inStar, inCenter, inInner });
+  }
+}
+
+function pick(str, n) {
+  const i = ((Math.floor(n) % str.length) + str.length) % str.length;
+  return str[i];
+}
+
+const gridEl = document.getElementById('grid');
+let lastT = 0;
+
+function render(timestamp) {
+  if (timestamp - lastT < 100) {
+    requestAnimationFrame(render);
+    return;
+  }
+  lastT = timestamp;
+  const time = timestamp * 0.001;
+  const lines = [];
+
+  for (let r = 0; r < ROWS; r++) {
+    let line = '';
+    for (let c = 0; c < COLS; c++) {
+      const cell = cells[r * COLS + c];
+      const { dist, angle, starR, isCardinal, inStar, inCenter, inInner } = cell;
+
+      if (!inStar) {
+        const overflow = dist - starR;
+        if (overflow < 3.0 && overflow > 0) {
+          const fade = Math.pow(1 - overflow / 3.0, 2);
+          const ch = pick(LIGHT, time * 2 + dist + angle);
+          const g = Math.floor(fade * 55);
+          const rv = Math.floor(fade * 8);
+          line += `<span style="color:rgb(${rv},${g},${rv})">${ch}</span>`;
+        } else {
+          line += ' ';
+        }
+        continue;
+      }
+
+      const w1 = Math.sin(time * 1.4 + dist * 0.45 + angle * 2.0);
+      const w2 = Math.sin(time * 0.8 - dist * 0.55 + angle * 1.7);
+      const w3 = Math.sin(time * 2.2 + angle * 2.8 - dist * 0.25);
+      const wave = (w1 * 0.6 + w2 * 0.3 + w3 * 0.1);
+      const waveNorm = (wave + 1) / 2;
+
+      let char, rv, gv, bv;
+
+      if (inCenter) {
+        rv = Math.floor(220 + w1 * 25);
+        gv = Math.floor(190 + w2 * 30);
+        bv = Math.floor(20  + w3 * 15);
+        char = waveNorm > 0.6 ? pick(DENSE, time * 5 + dist)
+             : waveNorm > 0.3 ? pick(MED,   time * 3 + angle * 3)
+             : pick(STAR, time * 2);
+      } else if (inInner) {
+        const blend = (Math.sin(time * 1.2 + angle * 4) + 1) / 2;
+        rv = Math.floor(150 * blend + w1 * 20);
+        gv = Math.floor(130 + 60 * blend + w2 * 25);
+        bv = Math.floor(w3 * 10 + 5);
+        char = waveNorm > 0.5 ? pick(MED, time * 2 + dist + angle)
+             : pick(STAR, time * 1.5 + dist);
+      } else if (isCardinal) {
+        const tipFade = dist / starR;
+        const intensity = waveNorm * (1 - tipFade * 0.5);
+        rv = Math.floor(0  + intensity * 15  + w2 * 6);
+        gv = Math.floor(55 + intensity * 130 + w1 * 35);
+        bv = Math.floor(0  + intensity * 12  + w3 * 4);
+        if (tipFade < 0.4) {
+          char = intensity > 0.6 ? pick(DENSE, time * 2 + dist + angle) : pick(MED, time * 2 + dist);
+        } else if (tipFade < 0.75) {
+          char = intensity > 0.5 ? pick(MED, time * 2 + dist) : pick(LIGHT, time * 3 + dist + angle);
+        } else {
+          char = pick(LIGHT, time * 3 + angle * 5 + dist);
+        }
+      } else {
+        const tipFade = dist / starR;
+        const intensity = waveNorm * (1 - tipFade * 0.4);
+        rv = Math.floor(140 + intensity * 90  + w1 * 22);
+        gv = Math.floor(95  + intensity * 85  + w2 * 20);
+        bv = Math.floor(0   + intensity * 22  + w3 * 8);
+        if (tipFade < 0.4) {
+          char = intensity > 0.6 ? pick(DENSE, time * 2 + dist + angle) : pick(MED, time * 2 + dist);
+        } else if (tipFade < 0.75) {
+          char = intensity > 0.5 ? pick(MED, time * 2.5 + dist) : pick(STAR, time * 1.5 + dist);
+        } else {
+          char = intensity > 0.4 ? pick(STAR, time * 1.5 + dist + angle) : pick(LIGHT, time * 3 + dist);
+        }
+      }
+
+      rv = Math.max(0, Math.min(255, rv));
+      gv = Math.max(0, Math.min(255, gv));
+      bv = Math.max(0, Math.min(255, bv));
+
+      line += `<span style="color:rgb(${rv},${gv},${bv})">${char}</span>`;
+    }
+    lines.push(line);
+  }
+
+  gridEl.innerHTML = lines.join('\n');
+  requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+</script>
+</body>
+</html>
