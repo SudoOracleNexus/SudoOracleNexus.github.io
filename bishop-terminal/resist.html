@@ -7,7 +7,7 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Cormorant+Garamond:wght@300&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { width: 100%; height: 100%; background: #061209; overflow: hidden; cursor: crosshair; }
+  html, body { width: 100%; height: 100%; background: #060d14; overflow: hidden; cursor: crosshair; }
 
   /* Main canvas fills the screen */
   #c { position: fixed; inset: 0; display: block; }
@@ -16,23 +16,23 @@
   #bloom {
     position: fixed; inset: 0; display: block;
     pointer-events: none;
-    filter: blur(7px) brightness(2.0);
-    opacity: 0.30;
+    filter: blur(10px) brightness(2.8);
+    opacity: 0.42;
     mix-blend-mode: screen;
   }
 
   /* Vignette overlay */
   #vignette {
     position: fixed; inset: 0; pointer-events: none; z-index: 5;
-    background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 20%, #010603 100%);
+    background: radial-gradient(ellipse 70% 70% at 50% 50%, transparent 10%, #010508 100%);
   }
 
-  /* Scanlines */
+  /* Scanlines — heavier for a more oppressive feel */
   #scanlines {
     position: fixed; inset: 0; pointer-events: none; z-index: 6;
     background: repeating-linear-gradient(
-      to bottom, transparent 0px, transparent 3px,
-      rgba(0,0,0,0.10) 3px, rgba(0,0,0,0.10) 4px
+      to bottom, transparent 0px, transparent 2px,
+      rgba(0,0,0,0.18) 2px, rgba(0,0,0,0.18) 4px
     );
   }
 
@@ -40,12 +40,12 @@
     position: fixed; top: 1.5rem; left: 50%; transform: translateX(-50%);
     font-family: 'Cormorant Garamond', serif; font-weight: 300;
     font-size: 0.82rem; letter-spacing: 0.6em; text-transform: uppercase;
-    color: #c8a840; opacity: 0; z-index: 10;
+    color: #4aaa55; opacity: 0; z-index: 10;
     transition: opacity 1s ease;
-    text-shadow: 0 0 30px rgba(200,168,64,0.4);
+    text-shadow: 0 0 30px rgba(40,160,60,0.5);
     white-space: nowrap;
   }
-  #headline.on { opacity: 0.78; }
+  #headline.on { opacity: 0.70; }
 
   #controls {
     position: fixed; bottom: 1.8rem; left: 50%; transform: translateX(-50%);
@@ -57,18 +57,18 @@
   .btn {
     font-family: 'Share Tech Mono', monospace; font-size: 0.6rem;
     letter-spacing: 0.3em; text-transform: uppercase;
-    color: #c8a840; background: transparent;
-    border: 1px solid rgba(200,168,64,0.25);
+    color: #4aaa55; background: transparent;
+    border: 1px solid rgba(50,160,70,0.22);
     padding: 0.45rem 0.9rem; cursor: pointer;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
-  .btn:hover { border-color: rgba(200,168,64,0.6); box-shadow: 0 0 12px rgba(200,168,64,0.15); }
-  .btn.on { color: #fff; border-color: #c8a840; box-shadow: 0 0 16px rgba(200,168,64,0.3); }
+  .btn:hover { border-color: rgba(50,180,70,0.55); box-shadow: 0 0 12px rgba(30,140,50,0.2); }
+  .btn.on { color: #aaffbb; border-color: #4aaa55; box-shadow: 0 0 16px rgba(40,160,60,0.35); }
 
   #gif-status {
     position: fixed; bottom: 4.5rem; left: 50%; transform: translateX(-50%);
     font-family: 'Share Tech Mono', monospace;
-    font-size: 0.55rem; letter-spacing: 0.25em; color: #c8a840;
+    font-size: 0.55rem; letter-spacing: 0.25em; color: #4aaa55;
     opacity: 0; z-index: 10; transition: opacity 0.3s; white-space: nowrap;
   }
 </style>
@@ -95,20 +95,19 @@ const ctx    = canvas.getContext('2d');
 const bctx   = bloom.getContext('2d');
 
 const FONT_SIZE = 13;
-const LINE_H    = FONT_SIZE * 1.56; // ~20.28px per row
-let   CHAR_W    = 8;                // measured after font load
+const LINE_H    = FONT_SIZE * 1.56;
+let   CHAR_W    = 8;
 
-// Character sets
-const DENSE = '█▓▒░';
-const MED   = '@#$%&*';
-const STAR  = '✦✧⊛◈★◇';
-const LIGHT = '·:;!|/\\-+~`^';
+// Character sets — heavier, more angular and menacing
+const DENSE = '█▓▓▒░▓█';
+const MED   = '†‡×#@%▒';
+const STAR  = '✦⊛◈☩✕⊕◈';
+const LIGHT = '·:!|\\†+~^`×';
 
-// ─── GEOMETRY — recomputed on resize ─────────────────────────────────────────
-let W, H, COLS, ROWS, CX, CY;   // screen px, grid cols/rows, center col/row
-let cells = [];                  // flat array, length = COLS*ROWS
+// ─── GEOMETRY ────────────────────────────────────────────────────────────────
+let W, H, COLS, ROWS, CX, CY;
+let cells = [];
 
-// Star pixel radius scales with viewport so flower always fills ~40% of short side
 function STAR_BASE() { return Math.min(W, H) * 0.30; }
 
 function buildGeometry() {
@@ -117,19 +116,19 @@ function buildGeometry() {
 
   COLS = Math.ceil(W / CHAR_W) + 1;
   ROWS = Math.ceil(H / LINE_H) + 1;
-  CX   = W / 2;   // pixel center X
-  CY   = H / 2;   // pixel center Y
+  CX   = W / 2;
+  CY   = H / 2;
 
-  const BASE   = STAR_BASE();
-  const OC     = BASE;           // outer cardinal spike
-  const OD     = BASE * 0.79;   // outer diagonal spike
-  const INNER  = BASE * 0.34;
-  const CENTER = BASE * 0.20;
+  const BASE    = STAR_BASE();
+  const OC      = BASE;
+  const OD      = BASE;
+  const INNER   = BASE * 0.28;
+  const CENTER  = BASE * 0.08;
+  const DIAMOND = BASE * 0.14;
 
   cells = [];
   for (let row = 0; row < ROWS; row++) {
     for (let col = 0; col < COLS; col++) {
-      // Pixel center of this character cell
       const px = col * CHAR_W + CHAR_W * 0.5 - CX;
       const py = row * LINE_H  + LINE_H  * 0.5 - CY;
       const dist  = Math.sqrt(px*px + py*py);
@@ -139,7 +138,6 @@ function buildGeometry() {
       const toCard    = deg % 90 < 45 ? deg % 90 : 90 - deg % 90;
       const isCardinal = toCard < 22.5;
 
-      // Star boundary at this angle
       const sF     = deg / 45;
       const sFloor = Math.floor(sF) % 8;
       const sFrac  = sF - Math.floor(sF);
@@ -149,14 +147,48 @@ function buildGeometry() {
         ? tipA  + (INNER - tipA)  * (1 - Math.cos(sFrac * 2 * Math.PI)) / 2
         : INNER + (tipB  - INNER) * (1 - Math.cos((sFrac-0.5)*2*Math.PI)) / 2;
 
+      const orbitA = BASE * 1.35;
+      const orbitB = BASE * 0.38;
+      const ringThick = LINE_H * 1.4;
+
+      function inOrbit(tiltDeg) {
+        const tilt = tiltDeg * Math.PI / 180;
+        const cos  = Math.cos(tilt), sin = Math.sin(tilt);
+        const ex = px * cos + py * sin;
+        const ey = -px * sin + py * cos;
+        const ellipseVal = (ex/orbitA)**2 + (ey/orbitB)**2;
+        const sqrtVal = Math.sqrt(ellipseVal);
+        const arcDist = Math.abs(sqrtVal - 1) * Math.min(orbitA, orbitB);
+        return arcDist < ringThick * 0.5;
+      }
+
+      const onOrbit2 = inOrbit(-30);
+
+      // Compute parametric angle on the ellipse for animated ring drift
+      let orbitT = 0;
+      if (onOrbit2) {
+        const tilt = -30 * Math.PI / 180;
+        const cosT = Math.cos(tilt), sinT = Math.sin(tilt);
+        const ex = px * cosT + py * sinT;
+        const ey = -px * sinT + py * cosT;
+        orbitT = Math.atan2(ey / orbitB, ex / orbitA);
+      }
+
+      // Stable per-cell random seed for background scatter
+      const bgSeed = Math.sin(col * 127.1 + row * 311.7) * 43758.5453;
+      const bgRand = bgSeed - Math.floor(bgSeed); // 0..1
+
       cells.push({
-        px, py,         // pixel offset from screen center
-        dist, angle,
+        px, py, dist, angle,
         starR, isCardinal,
-        inStar:   dist < starR,
-        inCenter: dist < CENTER,
-        inInner:  dist < INNER,
-        spawnT:   dist / BASE    // fade-in timing (0=center, 1=star edge)
+        inStar:    dist < starR,
+        inDiamond: dist < DIAMOND,
+        inCenter:  dist < CENTER,
+        inInner:   dist < INNER,
+        onOrbit:   onOrbit2,
+        orbitT,
+        spawnT:    dist / BASE,
+        bgRand
       });
     }
   }
@@ -164,7 +196,6 @@ function buildGeometry() {
 
 // ─── FONT MEASUREMENT ────────────────────────────────────────────────────────
 function measureFont(cb) {
-  // Wait for Share Tech Mono to be available, then measure
   const tryMeasure = () => {
     const mc = document.createElement('canvas').getContext('2d');
     mc.font = `${FONT_SIZE}px "Share Tech Mono", monospace`;
@@ -177,16 +208,14 @@ function measureFont(cb) {
 
 // ─── RIPPLES ─────────────────────────────────────────────────────────────────
 const ripples = [];
-const RIPPLE_SPEED = 350; // px/s
-const RIPPLE_W     = 40;  // ring thickness px
+const RIPPLE_SPEED = 350;
+const RIPPLE_W     = 40;
 
 function addRipple(isOrange) {
   const maxR = Math.sqrt(CX*CX + CY*CY) * 1.05;
   ripples.push({ t0: performance.now(), orange: isOrange, maxR });
 }
 
-// Returns [r,g,b, alpha] boost for a cell at pixel-distance dist
-// alpha is 0..1 — caller multiplies into opacity
 function rippleColor(dist, nowMs) {
   let br=0, bg=0, bb=0, ba=0;
   for (let i = ripples.length-1; i >= 0; i--) {
@@ -194,22 +223,77 @@ function rippleColor(dist, nowMs) {
     const age  = (nowMs - rip.t0) * 0.001;
     const front = age * RIPPLE_SPEED;
     if (front > rip.maxR + RIPPLE_W) { ripples.splice(i,1); continue; }
-    const diff = dist - front;           // +ve = ahead of wave, -ve = behind
+    const diff = dist - front;
     if (diff > RIPPLE_W*0.25 || diff < -RIPPLE_W) continue;
     const norm = (diff + RIPPLE_W) / (RIPPLE_W * 1.25);
     const str  = Math.sin(Math.max(0, Math.min(1, norm)) * Math.PI);
     const prog = front / rip.maxR;
     const fade = prog < 0.88 ? 1 : Math.max(0, 1-(prog-0.88)/0.12);
     const s = str * fade;
-    if (rip.orange) { br += s*170; bg += s*50;  bb += s*0;   }
-    else            { br += s*150; bg += s*110;  bb += s*5;   }
-    ba = Math.max(ba, s * 0.72); // cap max alpha at 0.72 (more transparent)
+    if (rip.orange) { br += s*220; bg += s*20;  bb += s*10;  }  // blood red
+    else            { br += s*20;  bg += s*80;   bb += s*180; }  // cold ice blue
+    ba = Math.max(ba, s * 0.72);
   }
   return [Math.min(255,br), Math.min(255,bg), Math.min(255,bb), Math.min(1,ba)];
 }
 
 // ─── HEARTBEAT AUDIO ─────────────────────────────────────────────────────────
 let audioOn=false, audioCtx=null, nextBeat=0;
+let droneNodes = null; // holds running drone oscillators
+
+function startDrone(ac) {
+  if (droneNodes) return;
+  // Three layered oscillators: deep sub, mid, airy upper
+  // Slight detuning creates a beating, breathing quality
+  const masterGain = ac.createGain();
+  masterGain.gain.setValueAtTime(0, ac.currentTime);
+  masterGain.gain.linearRampToValueAtTime(0.022, ac.currentTime + 2.5); // fade in slowly
+  masterGain.connect(ac.destination);
+
+  // Low-pass filter to keep it dark and atmospheric
+  const filter = ac.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = 280;
+  filter.Q.value = 1.2;
+  filter.connect(masterGain);
+
+  const freqs = [41, 55, 82, 61.5]; // sub, fundamental, octave, fifth — slightly detuned
+  const gains = [0.5, 0.9, 0.4, 0.35];
+  const oscs = freqs.map((f, i) => {
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = i === 0 ? 'sine' : 'sine';
+    o.frequency.value = f;
+    g.gain.value = gains[i];
+    o.connect(g); g.connect(filter);
+    o.start();
+    return o;
+  });
+
+  // Slow LFO on master gain — breathes every ~7s
+  const lfo = ac.createOscillator();
+  const lfoGain = ac.createGain();
+  lfo.frequency.value = 0.14;
+  lfoGain.gain.value = 0.022;
+  lfo.connect(lfoGain); lfoGain.connect(masterGain.gain);
+  lfo.start();
+
+  droneNodes = { oscs, lfo, masterGain };
+}
+
+function stopDrone() {
+  if (!droneNodes) return;
+  const now = audioCtx ? audioCtx.currentTime : 0;
+  droneNodes.masterGain.gain.setValueAtTime(droneNodes.masterGain.gain.value, now);
+  droneNodes.masterGain.gain.linearRampToValueAtTime(0, now + 1.8);
+  setTimeout(() => {
+    if (droneNodes) {
+      droneNodes.oscs.forEach(o => { try { o.stop(); } catch(e){} });
+      try { droneNodes.lfo.stop(); } catch(e){}
+      droneNodes = null;
+    }
+  }, 2000);
+}
 
 function thud(ctx, when, freq, gain, dur) {
   const o=ctx.createOscillator(), e=ctx.createGain();
@@ -247,6 +331,9 @@ document.getElementById('btnAudio').addEventListener('click', function() {
     if (!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
     nextBeat=audioCtx.currentTime+0.1;
     scheduleBeat();
+    startDrone(audioCtx);
+  } else {
+    stopDrone();
   }
 });
 
@@ -273,14 +360,8 @@ function pick(str, n) {
 let loadStart=null;
 const FADEIN=2000;
 
-// Flicker
 let flickerSet=new Set(), flickerTimer=0;
-
-// Wave origin drift
 let wOX=0,wOY=0,wOTX=0,wOTY=0,wOT=0;
-
-// Prebuilt color strings cache to avoid template literal overhead
-// We'll just build rgb strings inline — canvas fillStyle = string is fast enough
 
 function renderFrame(ts) {
   if (!loadStart) loadStart=ts;
@@ -291,7 +372,6 @@ function renderFrame(ts) {
     headlineEl.classList.add('on'); controlsEl.classList.add('on');
   }
 
-  // Drift wave origin
   if (ts-wOT > 2500+Math.random()*2000) {
     wOT=ts;
     const a=Math.random()*Math.PI*2, r=15+Math.random()*30;
@@ -299,7 +379,6 @@ function renderFrame(ts) {
   }
   wOX+=(wOTX-wOX)*0.015; wOY+=(wOTY-wOY)*0.015;
 
-  // Flicker rows
   if (ts-flickerTimer > 1000+Math.random()*1500) {
     flickerTimer=ts; flickerSet.clear();
     if (Math.random()<0.5) {
@@ -311,16 +390,12 @@ function renderFrame(ts) {
 
   scaleVal+=(scaleTarget-scaleVal)*0.2;
 
-  // time drives all animation — runs at full 60fps
   const time  = ts * 0.001;
   const nowMs = performance.now();
-
-  // Slow "character tick" — chars only change a few times/sec so they read cleanly
-  // Use a stepped time value for character selection only
-  const tChar = Math.floor(time * 6) / 6; // steps at ~6Hz
+  const tChar = Math.floor(time * 6) / 6;
 
   ctx.clearRect(0,0,W,H);
-  ctx.fillStyle='#061209';
+  ctx.fillStyle='#060d14';
   ctx.fillRect(0,0,W,H);
   bctx.clearRect(0,0,W,H);
 
@@ -338,13 +413,6 @@ function renderFrame(ts) {
   ctx.font = fontStr; ctx.textBaseline = 'top';
   bctx.font = fontStr; bctx.textBaseline = 'top';
 
-  // ── BATCH DRAW: collect (x, y, char, r, g, b, alpha) per cell ────────────
-  // Group by alpha bucket (flicker vs normal) to minimise globalAlpha changes
-  // Two passes: normal (alpha=1) then flicker (alpha=0.07)
-  // Within each pass, sort by color string to reduce fillStyle switches
-  // Actually: at canvas level, fillStyle changes are cheap; globalAlpha changes
-  // are the expensive ones. So just track current alpha and only set when changed.
-
   let curAlpha = -1;
   const setAlpha = (a) => {
     if (Math.abs(a - curAlpha) > 0.001) {
@@ -352,10 +420,7 @@ function renderFrame(ts) {
     }
   };
 
-  // Precompute a smooth radial pulse for the center — runs at 60fps
-  // This replaces the noisy wN threshold-based char selection in the center
-  const centerPulse  = (Math.sin(time * 2.1) + 1) * 0.5;  // 0..1, slow breathe
-  const centerSpin   = time * 0.8;                          // slow rotation offset
+  const centerPulse = (Math.sin(time * 2.1) + 1) * 0.5;
 
   for (let row=0; row<ROWS; row++) {
     const isFlicker = flickerSet.has(row);
@@ -365,7 +430,8 @@ function renderFrame(ts) {
       const cell = cells[row*COLS+col];
       if (!cell) continue;
       const { px, py, dist, angle, starR, isCardinal,
-              inStar, inCenter, inInner, spawnT } = cell;
+              inStar, inDiamond, inCenter, inInner,
+              onOrbit, orbitIdx, spawnT } = cell;
 
       if (spawnT > fade * 2.2) continue;
 
@@ -373,9 +439,56 @@ function renderFrame(ts) {
       const [rr,rg,rb,ra] = rippleColor(dist, nowMs);
       const hasRipple = ra > 0.02;
 
-      // ── OUTSIDE STAR ─────────────────────────────────────────
+      // ── ORBITAL RINGS ─────────────────────────────────────────
+      if (onOrbit && !inStar) {
+        // Characters drift along the ellipse — orbitT is the parametric angle,
+        // subtracting time*speed makes them flow around the ellipse.
+        const ORBIT_SPEED = 0.38;
+        const phase = cell.orbitT - time * ORBIT_SPEED;
+
+        // Density wave: chars cluster then thin out as they orbit
+        const densityWave = (Math.sin(phase * 2.0 + time * 0.5) + 1) * 0.5;
+        const orbitChars = densityWave > 0.55 ? '─━—' : densityWave > 0.25 ? '·•·' : '  ·';
+        const charIdx = ((phase * 4.0) % orbitChars.length + orbitChars.length) % orbitChars.length;
+        const orbitChar = orbitChars[Math.floor(charIdx)];
+
+        // Bright white with very faint cool tint — clearly distinct from the green star
+        const orbitBright = 0.45 + 0.45 * densityWave + 0.12 * Math.sin(time * 1.1 + cell.orbitT * 3);
+        const ov = 220 * orbitBright | 0;
+        const og = 235 * orbitBright | 0;
+        const ob = 225 * orbitBright | 0;
+        const alpha = isFlicker ? 0.04 : orbitBright * 0.88;
+        setAlpha(alpha);
+        ctx.fillStyle  = `rgb(${ov},${og},${ob})`;
+        bctx.fillStyle = `rgb(${ov},${og},${ob})`;
+        ctx.fillText(orbitChar, screenX, screenY);
+        bctx.fillText(orbitChar, screenX, screenY);
+        continue;
+      }
+
+      // ── OUTSIDE STAR (no orbit) ───────────────────────────────
       if (!inStar) {
-        if (!hasRipple) continue;
+        // Background scatter layer — faint chars seeded per cell
+        if (!hasRipple) {
+          // Only ~10% of bg cells show a char; they drift/flicker slowly
+          if (cell.bgRand < 0.10) {
+            const bgPhase  = time * 0.18 + cell.bgRand * 99.1;
+            const bgBlink  = (Math.sin(bgPhase) + 1) * 0.5;
+            if (bgBlink > 0.35) {
+              const bgAlpha = bgBlink * 0.11 * (1 - Math.min(cell.dist / (Math.min(W,H)*0.7), 1));
+              if (bgAlpha > 0.01) {
+                const bgChar = pick('·:†×·+·', cell.bgRand * 13 + Math.floor(time * 0.3));
+                setAlpha(bgAlpha);
+                // Cold blue-green — like something watching from the dark
+                ctx.fillStyle = 'rgb(40,90,110)';
+                bctx.fillStyle = 'rgb(40,90,110)';
+                ctx.fillText(bgChar, screenX, screenY);
+                bctx.fillText(bgChar, screenX, screenY);
+              }
+            }
+          }
+          continue;
+        }
         const alpha = isFlicker ? ra*0.05 : ra * 0.72;
         setAlpha(alpha);
         const colStr = `rgb(${rr|0},${rg|0},${rb|0})`;
@@ -387,71 +500,79 @@ function renderFrame(ts) {
       }
 
       // ── INSIDE STAR ──────────────────────────────────────────
-      // Smooth continuous wave field — no stepped time here, colors flow
       const wdx = px - wOX, wdy = py - wOY;
       const wd  = Math.sqrt(wdx*wdx+wdy*wdy);
       const wa  = Math.atan2(wdy, wdx);
 
-      // Slower frequency constants → smoother color flow
       const w1 = Math.sin(time*0.9 + wd*0.010 + wa*2.0);
       const w2 = Math.sin(time*0.5 - wd*0.012 + wa*1.7);
       const w3 = Math.sin(time*1.4 + wa*2.5   - wd*0.008);
-      const wN = ((w1*0.6 + w2*0.3 + w3*0.1) + 1) * 0.5; // 0..1, smooth
+      const wN = ((w1*0.6 + w2*0.3 + w3*0.1) + 1) * 0.5;
 
       let char, rv, gv, bv;
 
       if (inCenter) {
-        // ── CENTER: smooth radial pulse, no harsh char switching ──
-        // Color breathes between hot-white and gold using continuous sine
-        const pulse2 = (Math.sin(time * 1.7 + dist * 0.05) + 1) * 0.5;
-        rv = 200 + pulse2 * 45 | 0;
-        gv = 170 + pulse2 * 40 | 0;
-        bv =  15 + pulse2 * 20 | 0;
+        const pulse2 = (Math.sin(time * 3.2 + dist * 0.1) + 1) * 0.5;
+        const RUBY = STAR_BASE() * 0.035; // tiny yellow ruby zone inside the green center
+        if (dist < RUBY) {
+          // ── RUBY CORE: sharp vivid yellow diamond ────────────
+          rv = 220 + pulse2 * 35 | 0;
+          gv = 200 + pulse2 * 55 | 0;
+          bv =   5 + pulse2 * 10 | 0;
+          char = pick('◇◈◇', tChar * 3.0 + angle);
+        } else {
+          // ── CENTER RING: cold toxic green ────────────────────
+          rv =  10 + pulse2 * 20 | 0;
+          gv = 160 + pulse2 * 90 | 0;
+          bv =  10 + pulse2 * 25 | 0;
+          char = pick('⊕◈⊛⊕', tChar * 2.5 + angle);
+        }
 
-        // Char: use slow stepped time so center reads cleanly, not noise
-        // Blend between DENSE and STAR based on centerPulse
-        const cIdx = tChar * 1.5 + (angle / (Math.PI*2)) * STAR.length;
-        char = centerPulse > 0.6 ? pick(DENSE, cIdx) :
-               centerPulse > 0.3 ? pick(MED,   cIdx) :
-                                    pick(STAR,  cIdx);
+      } else if (inDiamond) {
+        // ── DIAMOND RING: toxic green surrounding center ──────
+        const pulse2 = (Math.sin(time * 2.2 + dist * 0.08) + 1) * 0.5;
+        rv =  5 + pulse2 * 20 | 0;
+        gv = 120 + pulse2 * 100 | 0;
+        bv =  5 + pulse2 * 15  | 0;
+        char = pick('·⊛:·', tChar * 2.0 + angle * 2);
 
       } else if (inInner) {
-        // ── INNER RING: smooth gold-green mix ─────────────────
-        const blend = (Math.sin(time*0.9 + angle*3 + dist*0.02) + 1) * 0.5;
-        rv = 140*blend + 60  | 0;
-        gv = 140 + 50*blend  | 0;
-        bv = 5 + 15*(1-blend)| 0;
-        // Char updates at stepped rate so individual glyphs are legible
-        char = wN > 0.55 ? pick(MED, tChar*1.8 + dist*0.005 + angle)
-                         : pick(STAR, tChar*1.2 + angle);
+        // ── INNER BODY: black void with toxic green pulse ─────
+        const blend = (Math.sin(time*1.1 + angle*2.5 + dist*0.018) + 1) * 0.5;
+        // Mostly black with violent green flashes — like a wounded thing
+        rv =  3 + blend * 12  | 0;
+        gv = 30 + blend * 140 | 0;
+        bv =  5 + blend * 18  | 0;
+        char = wN > 0.7 ? pick(DENSE, tChar*1.8 + dist*0.005 + angle)
+             : wN > 0.4 ? pick(MED,   tChar*1.4 + dist*0.005)
+             :              pick(STAR,  tChar*1.0 + angle);
 
       } else if (isCardinal) {
-        // ── CARDINAL SPIKES: dark green ───────────────────────
-        const tf = dist/starR;
-        const i2 = wN * (1 - tf*0.5);
-        rv = i2*14  + w2*5  | 0;
-        gv = 55 + i2*125 + w1*30 | 0;
-        bv = i2*11  + w3*3  | 0;
-        // Char: step for outer region, faster near center
-        const cT = tf < 0.5 ? tChar*1.5 : tChar*2.0;
-        char = tf<0.4  ? (i2>0.6 ? pick(DENSE,cT+dist*0.005+angle) : pick(MED,cT+dist*0.005))
-             : tf<0.75 ? (i2>0.5 ? pick(MED,  cT+dist*0.005)       : pick(LIGHT,cT+dist*0.005+angle))
-             : pick(LIGHT, cT+angle*5+dist*0.005);
+        // ── CARDINAL SPIKES: poison green, visible to the tips ─
+        const tf = dist / starR;
+        const i2 = wN * (1 - tf * 0.55);
+        rv =  2 + i2 * 10   + w2 * 3  | 0;
+        gv = 60 + i2 * 185  + w1 * 35 | 0;  // 60 base ensures tips stay visible
+        bv =  2 + i2 * 12   + w3 * 5  | 0;
+        const cT = tChar * 1.6;
+        char = tf < 0.25 ? (i2>0.5 ? pick(DENSE, cT+dist*0.004+angle) : pick(MED, cT+dist*0.004))
+             : tf < 0.6  ? (i2>0.35 ? pick(MED,   cT+dist*0.004)       : pick(LIGHT, cT+dist*0.004+angle))
+             : pick(LIGHT, cT + angle*5 + dist*0.004);
 
       } else {
-        // ── DIAGONAL SPIKES: gold ─────────────────────────────
-        const tf = dist/starR;
-        const i2 = wN * (1 - tf*0.4);
-        rv = 135 + i2*88 + w1*18 | 0;
-        gv =  90 + i2*82 + w2*16 | 0;
-        bv =       i2*20 + w3*6  | 0;
-        const cT = tf < 0.5 ? tChar*1.5 : tChar*2.0;
-        char = tf<0.4  ? (i2>0.6 ? pick(DENSE,cT+dist*0.005+angle) : pick(MED,cT+dist*0.005))
-             : tf<0.75 ? (i2>0.5 ? pick(MED,  cT*1.2+dist*0.005)   : pick(STAR,tChar*1.0+dist*0.005))
-             : (i2>0.4  ? pick(STAR,tChar*1.0+dist*0.005+angle)     : pick(LIGHT,cT+dist*0.005));
+        // ── DIAGONAL SPIKES: vivid yellow ─────────────────────
+        const tf = dist / starR;
+        const i2 = wN * (1 - tf * 0.55);
+        rv = 180 + i2 * 75  + w1 * 15 | 0;   // strong yellow-red
+        gv = 160 + i2 * 90  + w2 * 15 | 0;   // strong yellow-green
+        bv =   0 + i2 * 5   + w3 * 2  | 0;   // near-zero blue = pure yellow
+        const cT = tChar * 1.8;
+        char = tf < 0.35 ? (i2>0.55 ? pick(DENSE, cT+dist*0.005+angle) : pick(MED, cT+dist*0.005))
+             : tf < 0.7  ? (i2>0.45 ? pick(MED,   cT+dist*0.005)       : pick(STAR, tChar+dist*0.005))
+             : (i2>0.35  ? pick(STAR, tChar+dist*0.005+angle)           : pick(LIGHT, cT+dist*0.005));
       }
 
-      // Ripple tint on star cells
+      // Ripple tint
       if (hasRipple) {
         rv = Math.min(255, rv + (rr*0.45|0));
         gv = Math.min(255, gv + (rg*0.45|0));
@@ -470,25 +591,21 @@ function renderFrame(ts) {
     }
   }
 
-  // Reset alpha before restore
   ctx.globalAlpha = 1; bctx.globalAlpha = 1;
   ctx.restore();
   bctx.restore();
 
-  // GIF export hook — fired after every completed frame draw
   if (pendingSnapshot) {
     const fn = pendingSnapshot;
     pendingSnapshot = null;
-    fn(); // canvas is fully drawn, safe to read
+    fn();
   }
 
   requestAnimationFrame(renderFrame);
 }
 
 // ─── RESIZE ──────────────────────────────────────────────────────────────────
-function onResize() {
-  buildGeometry();
-}
+function onResize() { buildGeometry(); }
 window.addEventListener('resize', onResize);
 
 // ─── BOOT ────────────────────────────────────────────────────────────────────
@@ -497,24 +614,61 @@ measureFont(() => {
   requestAnimationFrame(renderFrame);
 });
 
-let pendingSnapshot = null; // set by GIF exporter, fired after each rendered frame
+let pendingSnapshot = null;
 
-// ─── GIF EXPORT ──────────────────────────────────────────────────────────────
-// Strategy: hook into the live render loop.
-// After each renderFrame completes it checks pendingSnapshot — if set, it
-// immediately copies the canvas. This captures ripples, heartbeat, everything
-// exactly as it appears on screen. Frames are spaced GIF_FRAME_MS apart.
-// For a clean loop: capture LOOP beats of heartbeat (heartbeat period ~920ms),
-// then crossfade last 15% of frames back toward frame 0.
+// ─── GIF EXPORT — PERFECT LOOP DETECTION ─────────────────────────────────────
+// Strategy:
+//   1. Snapshot frame 0 the instant Export is clicked.
+//   2. Build a small fingerprint (32×32 luminance) of frame 0.
+//   3. Keep running the live animation, capturing full-res frames every GIF_DELAY_MS.
+//   4. After a minimum search window, compare each new frame's fingerprint to frame 0.
+//   5. Track the best match (lowest MSE). Stop early if match is near-perfect.
+//   6. After max search time, use the best-match frame as the loop end point.
+//   7. Export frames 0 → best-match — no crossfade, no faking: genuine loop.
 
 const btnGif    = document.getElementById('btnGif');
 const gifStatus = document.getElementById('gif-status');
 let isExporting  = false;
-let pauseLive    = false;
 
-const GIF_FRAMES   = 48;    // frames total → smoother motion
-const GIF_DELAY_MS = 50;    // 50ms per frame = 20fps playback
-const GIF_SCALE    = 0.5;   // half-res for file size
+const GIF_DELAY_MS  = 50;   // 20fps playback
+const GIF_SCALE     = 0.5;  // half-res output
+const FP_SIZE       = 32;   // fingerprint canvas dimension (32×32 = 1024 pixels)
+const SEARCH_MIN_MS = 2000; // don't accept a match in the first 2s (too close to frame 0)
+const SEARCH_MAX_MS = 25000;// give up searching after 25s and use best found
+const EARLY_STOP_MSE = 18;  // if MSE drops below this, accept immediately — near-perfect
+
+function captureNextFrame() {
+  return new Promise(resolve => { pendingSnapshot = resolve; });
+}
+
+// Build a luminance fingerprint of a canvas at FP_SIZE × FP_SIZE
+function fingerprint(srcCanvas) {
+  const fp = document.createElement('canvas');
+  fp.width = fp.height = FP_SIZE;
+  fp.getContext('2d').drawImage(srcCanvas, 0, 0, FP_SIZE, FP_SIZE);
+  const data = fp.getContext('2d').getImageData(0, 0, FP_SIZE, FP_SIZE).data;
+  const lum  = new Float32Array(FP_SIZE * FP_SIZE);
+  for (let i = 0; i < lum.length; i++) {
+    // Perceptual luminance
+    lum[i] = data[i*4]*0.299 + data[i*4+1]*0.587 + data[i*4+2]*0.114;
+  }
+  return lum;
+}
+
+// Mean squared error between two luminance arrays
+function mse(a, b) {
+  let s = 0;
+  for (let i = 0; i < a.length; i++) { const d = a[i]-b[i]; s += d*d; }
+  return s / a.length;
+}
+
+// Clone a canvas to a new canvas of the same size
+function cloneCanvas(src) {
+  const dst = document.createElement('canvas');
+  dst.width = src.width; dst.height = src.height;
+  dst.getContext('2d').drawImage(src, 0, 0);
+  return dst;
+}
 
 btnGif.addEventListener('click', async () => {
   if (isExporting) return;
@@ -525,73 +679,103 @@ btnGif.addEventListener('click', async () => {
   const GW = Math.round(W * GIF_SCALE);
   const GH = Math.round(H * GIF_SCALE);
 
-  // Offscreen scratch canvas
+  // Scratch canvas for scaling
   const scratch = document.createElement('canvas');
   scratch.width = GW; scratch.height = GH;
   const sc = scratch.getContext('2d');
 
-  // Wait for next rendered frame via the live loop hook
-  function captureNextFrame() {
-    return new Promise(resolve => { pendingSnapshot = resolve; });
-  }
+  // ── PHASE 1: capture frame 0 immediately ──────────────────────────────────
+  gifStatus.textContent = 'Locking frame 0…';
+  await captureNextFrame();
 
-  // Give animation a moment to settle before starting capture
-  gifStatus.textContent = 'Preparing…';
-  await new Promise(r => setTimeout(r, 200));
+  sc.clearRect(0, 0, GW, GH);
+  sc.drawImage(canvas, 0, 0, GW, GH);
+  const frame0 = cloneCanvas(scratch);
+  const fp0    = fingerprint(frame0);
+  const frames = [frame0]; // will accumulate all frames
 
-  // ── PHASE 1: capture GIF_FRAMES live frames spaced GIF_DELAY_MS apart ──
-  const rawFrames = [];
-  for (let i = 0; i < GIF_FRAMES; i++) {
-    gifStatus.textContent = `Capturing ${i+1} / ${GIF_FRAMES}…`;
-    // Wait for live render loop to complete a frame, then grab it
+  // ── PHASE 2: search for the matching frame ────────────────────────────────
+  // We capture every GIF_DELAY_MS and compare. Track best match index + score.
+  let bestMatchIdx  = -1;
+  let bestMatchMSE  = Infinity;
+  const searchStart = performance.now();
+  let   found       = false;
+
+  gifStatus.textContent = 'Searching for loop point…';
+
+  while (!found) {
+    const elapsed = performance.now() - searchStart;
+
+    // Hard timeout
+    if (elapsed > SEARCH_MAX_MS) break;
+
+    // Wait for next rendered frame then the inter-frame gap
     await captureNextFrame();
-    // Wait the inter-frame gap so motion is evenly sampled
     await new Promise(r => setTimeout(r, GIF_DELAY_MS));
 
+    // Capture this frame
     sc.clearRect(0, 0, GW, GH);
     sc.drawImage(canvas, 0, 0, GW, GH);
-    const snap = document.createElement('canvas');
-    snap.width = GW; snap.height = GH;
-    snap.getContext('2d').drawImage(scratch, 0, 0);
-    rawFrames.push(snap);
+    const frameN = cloneCanvas(scratch);
+    frames.push(frameN);
+
+    const frameIdx = frames.length - 1;
+
+    // Only start comparing after the minimum window
+    if (elapsed >= SEARCH_MIN_MS) {
+      const score = mse(fingerprint(frameN), fp0);
+
+      const elapsedS  = (elapsed / 1000).toFixed(1);
+      const maxS      = (SEARCH_MAX_MS / 1000).toFixed(0);
+      const mseStr    = score.toFixed(1);
+      gifStatus.textContent =
+        `Searching ${elapsedS}s / ${maxS}s  —  best Δ ${
+          bestMatchMSE === Infinity ? '—' : bestMatchMSE.toFixed(1)
+        }  current Δ ${mseStr}`;
+
+      if (score < bestMatchMSE) {
+        bestMatchMSE = score;
+        bestMatchIdx = frameIdx;
+      }
+
+      // Early-stop: close enough to be a perfect loop
+      if (score <= EARLY_STOP_MSE) {
+        found = true;
+      }
+    } else {
+      const elapsedS = (elapsed / 1000).toFixed(1);
+      const minS     = (SEARCH_MIN_MS / 1000).toFixed(0);
+      gifStatus.textContent = `Warming up ${elapsedS}s / ${minS}s…`;
+    }
   }
 
-  // ── PHASE 2: crossfade last 15% toward frame 0 for seamless loop ────────
-  const XFADE_START = Math.floor(GIF_FRAMES * 0.85);
-  const frames = rawFrames.map((snap, i) => {
-    if (i < XFADE_START) return snap;
+  // Trim frames to the best match (inclusive of the loop frame)
+  // The loop is: frames[0] → frames[bestMatchIdx]
+  // frames[bestMatchIdx] is NOT included in the GIF because when the GIF loops
+  // back to frame 0, it already looks like that frame — true seamless loop.
+  const loopFrames = frames.slice(0, bestMatchIdx); // exclude the match frame itself
 
-    const t    = (i - XFADE_START) / (GIF_FRAMES - XFADE_START); // 0→1
-    const ease = t * t * (3 - 2 * t); // smoothstep
-
-    const blended = document.createElement('canvas');
-    blended.width = GW; blended.height = GH;
-    const bc = blended.getContext('2d');
-    bc.drawImage(snap,        0, 0);         // current frame
-    bc.globalAlpha = ease;
-    bc.drawImage(rawFrames[0], 0, 0);        // blend toward frame 0
-    bc.globalAlpha = 1;
-    return blended;
-  });
+  const frameCount = loopFrames.length;
+  const durationS  = (frameCount * GIF_DELAY_MS / 1000).toFixed(2);
+  gifStatus.textContent =
+    `Found loop at frame ${bestMatchIdx} (${durationS}s, Δ ${bestMatchMSE.toFixed(1)}) — quantizing…`;
+  await new Promise(r => setTimeout(r, 40));
 
   // ── PHASE 3: encode ──────────────────────────────────────────────────────
-  gifStatus.textContent = 'Encoding GIF…';
-  await new Promise(r => setTimeout(r, 30));
-
   try {
-    const bytes = encodeGIF(frames, GIF_DELAY_MS);
+    const bytes = encodeGIF(loopFrames, GIF_DELAY_MS);
     const blob  = new Blob([bytes], { type: 'image/gif' });
     const url   = URL.createObjectURL(blob);
     const a     = document.createElement('a');
     a.href = url; a.download = 'resilience-stands.gif';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    gifStatus.textContent = '✓ Downloaded!';
-    setTimeout(resetExport, 1500);
+    gifStatus.textContent = `✓ ${frameCount} frames, ${durationS}s perfect loop!`;
+    setTimeout(resetExport, 2500);
   } catch(e) {
     console.error(e);
-    gifStatus.textContent = 'Error — saving PNG…';
-    frames[0].toBlob(blob => {
+    gifStatus.textContent = 'Encode error — saving PNG…';
+    loopFrames[0].toBlob(blob => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url; a.download = 'resilience-stands.png';
@@ -609,41 +793,99 @@ function resetExport() {
   gifStatus.style.opacity = '0';
 }
 
-// ─── GIF ENCODER ─────────────────────────────────────────────────────────────
-function encodeGIF(canvases,delayMs){
-  const W2=canvases[0].width,H2=canvases[0].height;
-  const delay=Math.round(delayMs/10);
-  const pal=[];
-  for(let r=0;r<=5;r++) for(let g=0;g<=5;g++) for(let b=0;b<=5;b++) pal.push([r*51,g*51,b*51]);
-  while(pal.length<256) pal.push([0,0,0]);
+// ─── GIF ENCODER WITH MEDIAN-CUT QUANTIZER ───────────────────────────────────
+function encodeGIF(canvases, delayMs) {
+  const W2 = canvases[0].width, H2 = canvases[0].height;
+  const delay = Math.round(delayMs / 10);
 
-  const nc=new Map();
-  function ni(r,g,b){
-    const k=(r>>2<<12)|(g>>2<<6)|(b>>2);
-    if(nc.has(k))return nc.get(k);
-    let best=0,bd=1e9;
-    for(let i=0;i<216;i++){const dr=r-pal[i][0],dg=g-pal[i][1],db=b-pal[i][2];const d=dr*dr+dg*dg+db*db;if(d<bd){bd=d;best=i;if(!d)break;}}
-    nc.set(k,best);return best;
+  // ── MEDIAN-CUT: sample colors from all frames, build 255-color palette ──
+  // Sample every Nth pixel across all frames to keep it fast
+  const PALETTE_SIZE = 255; // leave 1 slot for transparent/black
+  const allPixels = [];
+  const sampleStep = Math.max(1, Math.floor((W2 * H2 * canvases.length) / 18000));
+
+  for (const cv of canvases) {
+    const data = cv.getContext('2d').getImageData(0, 0, W2, H2).data;
+    for (let i = 0; i < W2 * H2; i += sampleStep) {
+      allPixels.push([data[i*4], data[i*4+1], data[i*4+2]]);
+    }
   }
 
-  const by=[];
-  const p=(...a)=>{for(const x of a)by.push(x);};
-  const pw=n=>{p(n&255,(n>>8)&255);};
-  const ps=s=>{for(const c of s)p(c.charCodeAt(0));};
+  // Median-cut: recursively split buckets by widest channel range
+  function medianCut(pixels, depth) {
+    if (depth === 0 || pixels.length === 0) {
+      if (pixels.length === 0) return [[0,0,0]];
+      // Average the bucket
+      let sr=0,sg=0,sb=0;
+      for (const [r,g,b] of pixels) { sr+=r; sg+=g; sb+=b; }
+      const n = pixels.length;
+      return [[sr/n|0, sg/n|0, sb/n|0]];
+    }
+    // Find channel with max range
+    let minR=255,maxR=0,minG=255,maxG=0,minB=255,maxB=0;
+    for (const [r,g,b] of pixels) {
+      if(r<minR)minR=r; if(r>maxR)maxR=r;
+      if(g<minG)minG=g; if(g>maxG)maxG=g;
+      if(b<minB)minB=b; if(b>maxB)maxB=b;
+    }
+    const rng = [maxR-minR, maxG-minG, maxB-minB];
+    const ch  = rng[0]>=rng[1] && rng[0]>=rng[2] ? 0 : rng[1]>=rng[2] ? 1 : 2;
+    // Sort by that channel and split at median
+    pixels.sort((a,b) => a[ch]-b[ch]);
+    const mid = pixels.length >> 1;
+    return [
+      ...medianCut(pixels.slice(0, mid), depth - 1),
+      ...medianCut(pixels.slice(mid),    depth - 1)
+    ];
+  }
 
-  ps('GIF89a'); pw(W2); pw(H2); p(0xF7,0,0);
-  for(let i=0;i<256;i++) p(pal[i][0],pal[i][1],pal[i][2]);
-  p(0x21,0xFF,0x0B); ps('NETSCAPE2.0'); p(0x03,0x01,0x00,0x00,0x00);
+  // depth = log2(PALETTE_SIZE) ≈ 8 → 256 colors, cap at 255
+  const rawPal = medianCut(allPixels, 8).slice(0, PALETTE_SIZE);
+  // Pad to exactly 256
+  while (rawPal.length < 256) rawPal.push([0,0,0]);
+  const pal = rawPal; // [[r,g,b], ...]
 
-  for(const cv of canvases){
-    const img=cv.getContext('2d').getImageData(0,0,W2,H2).data;
-    const idx=new Uint8Array(W2*H2);
-    for(let i=0;i<W2*H2;i++) idx[i]=ni(img[i*4],img[i*4+1],img[i*4+2]);
-    p(0x21,0xF9,0x04,0x00); pw(delay); p(0x00,0x00);
-    p(0x2C); pw(0);pw(0);pw(W2);pw(H2); p(0x00);
-    const lzw=lzwEnc(idx,8);
+  // Nearest-color cache using quantized key
+  const nc = new Map();
+  function nearestIdx(r, g, b) {
+    const k = (r>>1)<<14 | (g>>1)<<7 | (b>>1);
+    if (nc.has(k)) return nc.get(k);
+    let best=0, bd=1e9;
+    for (let i=0; i<pal.length; i++) {
+      const dr=r-pal[i][0], dg=g-pal[i][1], db=b-pal[i][2];
+      // Perceptual weighting: green matters most
+      const d = dr*dr*0.299 + dg*dg*0.587 + db*db*0.114;
+      if (d < bd) { bd=d; best=i; if(d===0) break; }
+    }
+    nc.set(k, best);
+    return best;
+  }
+
+  // ── GIF BYTE STREAM ──────────────────────────────────────────────────────
+  const by = [];
+  const p  = (...a) => { for (const x of a) by.push(x); };
+  const pw = n => { p(n & 255, (n >> 8) & 255); };
+  const ps = s => { for (const c of s) p(c.charCodeAt(0)); };
+
+  ps('GIF89a'); pw(W2); pw(H2);
+  p(0xF7, 0, 0); // global color table flag, 256 colors
+  for (let i=0; i<256; i++) p(pal[i][0], pal[i][1], pal[i][2]);
+  p(0x21, 0xFF, 0x0B); ps('NETSCAPE2.0'); p(0x03, 0x01, 0x00, 0x00, 0x00);
+
+  for (const cv of canvases) {
+    const img = cv.getContext('2d').getImageData(0, 0, W2, H2).data;
+    const idx = new Uint8Array(W2 * H2);
+    for (let i=0; i<W2*H2; i++) {
+      idx[i] = nearestIdx(img[i*4], img[i*4+1], img[i*4+2]);
+    }
+    p(0x21, 0xF9, 0x04, 0x00); pw(delay); p(0x00, 0x00);
+    p(0x2C); pw(0); pw(0); pw(W2); pw(H2); p(0x00);
+    const lzw = lzwEnc(idx, 8);
     p(8);
-    for(let i=0;i<lzw.length;i+=255){const ch=lzw.slice(i,i+255);p(ch.length,...ch);}
+    for (let i=0; i<lzw.length; i+=255) {
+      const ch = lzw.slice(i, i+255);
+      p(ch.length, ...ch);
+    }
     p(0x00);
   }
   p(0x3B);
