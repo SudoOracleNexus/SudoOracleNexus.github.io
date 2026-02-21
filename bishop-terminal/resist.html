@@ -6,545 +6,591 @@
 <title>Resilience Stands</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Cormorant+Garamond:wght@300&display=swap');
-  :root { --gold: #c8a840; --bg: #061209; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; background: #061209; overflow: hidden; cursor: crosshair; }
 
-  html, body {
-    width: 100%; height: 100%;
-    background: var(--bg);
-    overflow: hidden;
-    cursor: crosshair;
-  }
+  /* Main canvas fills the screen */
+  #c { position: fixed; inset: 0; display: block; }
 
-  /* The grid fills the entire screen — it IS the background */
-  #grid {
-    position: fixed;
-    inset: 0;
-    display: block;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 13px;
-    line-height: 1.56;
-    letter-spacing: 0em;
-    white-space: pre;
-    user-select: none;
-    z-index: 1;
-  }
-
-  /* Bloom copy, same position */
+  /* Bloom: second canvas, blurred on top */
   #bloom {
-    position: fixed;
-    inset: 0;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 13px;
-    line-height: 1.56;
-    letter-spacing: 0em;
-    white-space: pre;
-    user-select: none;
+    position: fixed; inset: 0; display: block;
     pointer-events: none;
-    filter: blur(8px) brightness(2.2);
-    opacity: 0.28;
+    filter: blur(7px) brightness(2.0);
+    opacity: 0.30;
     mix-blend-mode: screen;
-    z-index: 2;
   }
 
-  /* Vignette */
+  /* Vignette overlay */
   #vignette {
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 25%, #010603 100%);
-    pointer-events: none;
-    z-index: 3;
+    position: fixed; inset: 0; pointer-events: none; z-index: 5;
+    background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 20%, #010603 100%);
   }
 
   /* Scanlines */
   #scanlines {
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0; pointer-events: none; z-index: 6;
     background: repeating-linear-gradient(
       to bottom, transparent 0px, transparent 3px,
       rgba(0,0,0,0.10) 3px, rgba(0,0,0,0.10) 4px
     );
-    pointer-events: none;
-    z-index: 4;
   }
 
-  /* Headline — floated on top, centered */
   #headline {
-    position: fixed;
-    top: 1.6rem;
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 300;
-    font-size: 0.82rem;
-    letter-spacing: 0.6em;
-    text-transform: uppercase;
-    color: var(--gold);
-    opacity: 0;
-    z-index: 10;
+    position: fixed; top: 1.5rem; left: 50%; transform: translateX(-50%);
+    font-family: 'Cormorant Garamond', serif; font-weight: 300;
+    font-size: 0.82rem; letter-spacing: 0.6em; text-transform: uppercase;
+    color: #c8a840; opacity: 0; z-index: 10;
     transition: opacity 1s ease;
     text-shadow: 0 0 30px rgba(200,168,64,0.4);
     white-space: nowrap;
   }
-  #headline.visible { opacity: 0.78; }
+  #headline.on { opacity: 0.78; }
 
   #controls {
-    position: fixed;
-    bottom: 1.8rem;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 1rem;
-    z-index: 10;
-    opacity: 0;
-    transition: opacity 0.8s ease 2.2s;
+    position: fixed; bottom: 1.8rem; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 1rem; z-index: 10; opacity: 0;
+    transition: opacity 0.8s ease 2s;
   }
-  #controls.visible { opacity: 1; }
+  #controls.on { opacity: 1; }
 
   .btn {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--gold);
-    background: transparent;
+    font-family: 'Share Tech Mono', monospace; font-size: 0.6rem;
+    letter-spacing: 0.3em; text-transform: uppercase;
+    color: #c8a840; background: transparent;
     border: 1px solid rgba(200,168,64,0.25);
-    padding: 0.45rem 0.9rem;
-    cursor: pointer;
+    padding: 0.45rem 0.9rem; cursor: pointer;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
   .btn:hover { border-color: rgba(200,168,64,0.6); box-shadow: 0 0 12px rgba(200,168,64,0.15); }
-  .btn.active { color: #fff; border-color: var(--gold); box-shadow: 0 0 16px rgba(200,168,64,0.3); }
+  .btn.on { color: #fff; border-color: #c8a840; box-shadow: 0 0 16px rgba(200,168,64,0.3); }
 
   #gif-status {
-    position: fixed;
-    bottom: 4.5rem;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.55rem;
-    letter-spacing: 0.25em;
-    color: var(--gold);
-    opacity: 0;
-    z-index: 10;
-    transition: opacity 0.3s;
-    white-space: nowrap;
+    position: fixed; bottom: 4.5rem; left: 50%; transform: translateX(-50%);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.55rem; letter-spacing: 0.25em; color: #c8a840;
+    opacity: 0; z-index: 10; transition: opacity 0.3s; white-space: nowrap;
   }
 </style>
 </head>
 <body>
-
-<div id="grid"></div>
-<div id="bloom" aria-hidden="true"></div>
+<canvas id="c"></canvas>
+<canvas id="bloom"></canvas>
 <div id="vignette"></div>
 <div id="scanlines"></div>
 <div id="headline">Resilience Stands</div>
 <div id="controls">
-  <button class="btn" id="btn-audio">♥ Heartbeat Off</button>
-  <button class="btn" id="btn-gif">⬇ Export GIF</button>
+  <button class="btn" id="btnAudio">♥ Heartbeat Off</button>
+  <button class="btn" id="btnGif">⬇ Export GIF</button>
 </div>
 <div id="gif-status"></div>
 
 <script>
-// ═══════════════════════════════════════════════════════════════
-// CHARACTER DIMENSIONS — measured at runtime so star is symmetric
-// ═══════════════════════════════════════════════════════════════
+'use strict';
+
+// ─── CANVAS SETUP ────────────────────────────────────────────────────────────
+const canvas = document.getElementById('c');
+const bloom  = document.getElementById('bloom');
+const ctx    = canvas.getContext('2d');
+const bctx   = bloom.getContext('2d');
+
 const FONT_SIZE = 13;
-const LINE_H_MULT = 1.56;
+const LINE_H    = FONT_SIZE * 1.56; // ~20.28px per row
+let   CHAR_W    = 8;                // measured after font load
 
-const _mc = document.createElement('canvas').getContext('2d');
-_mc.font = `${FONT_SIZE}px "Share Tech Mono", monospace`;
-const CHAR_W = _mc.measureText('M').width;
-const CHAR_H = FONT_SIZE * LINE_H_MULT;
+// Character sets
+const DENSE = '█▓▒░';
+const MED   = '@#$%&*';
+const STAR  = '✦✧⊛◈★◇';
+const LIGHT = '·:;!|/\\-+~`^';
 
-// Grid exactly covers the viewport
-let COLS = Math.ceil(window.innerWidth  / CHAR_W) + 1;
-let ROWS = Math.ceil(window.innerHeight / CHAR_H) + 1;
+// ─── GEOMETRY — recomputed on resize ─────────────────────────────────────────
+let W, H, COLS, ROWS, CX, CY;   // screen px, grid cols/rows, center col/row
+let cells = [];                  // flat array, length = COLS*ROWS
 
-// Grid center = screen center (flower center = wave center)
-let cx = COLS / 2;
-let cy = ROWS / 2;
+// Star pixel radius scales with viewport so flower always fills ~40% of short side
+function STAR_BASE() { return Math.min(W, H) * 0.30; }
 
-// ═══════════════════════════════════════════════════════════════
-// STAR GEOMETRY — pixel-space, so perfectly symmetric on screen
-// ═══════════════════════════════════════════════════════════════
-const DENSE      = '█▓▒░';
-const MED        = '@#$%&*';
-const STAR_CHARS = '✦✧⊛◈★◇';
-const LIGHT      = '·:;!|/\\-+~`^';
-// Very dim chars for background (outside star, no ripple)
-const VOID_CHARS = '·. ';
+function buildGeometry() {
+  W = canvas.width  = bloom.width  = window.innerWidth;
+  H = canvas.height = bloom.height = window.innerHeight;
 
-function starRadiusAt(deg) {
-  const BASE_R = Math.min(window.innerWidth, window.innerHeight) * 0.30;
-  const OUTER_CARDINAL = BASE_R;
-  const OUTER_DIAGONAL = BASE_R * 0.79;
-  const INNER_R        = BASE_R * 0.34;
+  COLS = Math.ceil(W / CHAR_W) + 1;
+  ROWS = Math.ceil(H / LINE_H) + 1;
+  CX   = W / 2;   // pixel center X
+  CY   = H / 2;   // pixel center Y
 
-  const sF     = deg / 45;
-  const sFloor = Math.floor(sF) % 8;
-  const sFrac  = sF - Math.floor(sF);
-  const tipA   = (sFloor % 2 === 0) ? OUTER_CARDINAL : OUTER_DIAGONAL;
-  const tipB   = ((sFloor+1) % 2 === 0) ? OUTER_CARDINAL : OUTER_DIAGONAL;
-  return sFrac < 0.5
-    ? tipA   + (INNER_R - tipA)   * (1 - Math.cos(sFrac * 2 * Math.PI)) / 2
-    : INNER_R + (tipB   - INNER_R) * (1 - Math.cos((sFrac-0.5)*2*Math.PI)) / 2;
-}
+  const BASE   = STAR_BASE();
+  const OC     = BASE;           // outer cardinal spike
+  const OD     = BASE * 0.79;   // outer diagonal spike
+  const INNER  = BASE * 0.34;
+  const CENTER = BASE * 0.20;
 
-function buildCells() {
-  const BASE_R    = Math.min(window.innerWidth, window.innerHeight) * 0.30;
-  const INNER_R   = BASE_R * 0.34;
-  const CENTER_R  = BASE_R * 0.20;
-  const MAX_STAR  = BASE_R;
-  // Max possible dist from center to corner of screen
-  const MAX_DIST  = Math.sqrt((COLS*CHAR_W/2)**2 + (ROWS*CHAR_H/2)**2);
-
-  const arr = [];
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      // Pixel offset from screen center
-      const px = (c - cx) * CHAR_W;
-      const py = (r - cy) * CHAR_H;
-      const dist  = Math.sqrt(px*px + py*py); // true pixel dist
+  cells = [];
+  for (let row = 0; row < ROWS; row++) {
+    for (let col = 0; col < COLS; col++) {
+      // Pixel center of this character cell
+      const px = col * CHAR_W + CHAR_W * 0.5 - CX;
+      const py = row * LINE_H  + LINE_H  * 0.5 - CY;
+      const dist  = Math.sqrt(px*px + py*py);
       const angle = Math.atan2(py, px);
       const deg   = ((angle * 180 / Math.PI) + 360) % 360;
 
-      const toCard   = deg % 90 < 45 ? deg % 90 : 90 - deg % 90;
+      const toCard    = deg % 90 < 45 ? deg % 90 : 90 - deg % 90;
       const isCardinal = toCard < 22.5;
-      const starR    = starRadiusAt(deg);
 
-      arr.push({
-        dist, angle, starR, isCardinal,
+      // Star boundary at this angle
+      const sF     = deg / 45;
+      const sFloor = Math.floor(sF) % 8;
+      const sFrac  = sF - Math.floor(sF);
+      const tipA   = (sFloor % 2 === 0) ? OC : OD;
+      const tipB   = ((sFloor+1) % 2 === 0) ? OC : OD;
+      const starR  = sFrac < 0.5
+        ? tipA  + (INNER - tipA)  * (1 - Math.cos(sFrac * 2 * Math.PI)) / 2
+        : INNER + (tipB  - INNER) * (1 - Math.cos((sFrac-0.5)*2*Math.PI)) / 2;
+
+      cells.push({
+        px, py,         // pixel offset from screen center
+        dist, angle,
+        starR, isCardinal,
         inStar:   dist < starR,
-        inCenter: dist < CENTER_R,
-        inInner:  dist < INNER_R,
-        // 0=center, >1=outside star (used for fade-in)
-        spawnOrder: dist / MAX_STAR,
-        // normalised dist to screen edge for ripple fade
-        distNorm: dist / MAX_DIST
+        inCenter: dist < CENTER,
+        inInner:  dist < INNER,
+        spawnT:   dist / BASE    // fade-in timing (0=center, 1=star edge)
       });
     }
   }
-  return arr;
 }
 
-let cells = buildCells();
+// ─── FONT MEASUREMENT ────────────────────────────────────────────────────────
+function measureFont(cb) {
+  // Wait for Share Tech Mono to be available, then measure
+  const tryMeasure = () => {
+    const mc = document.createElement('canvas').getContext('2d');
+    mc.font = `${FONT_SIZE}px "Share Tech Mono", monospace`;
+    const w = mc.measureText('M').width;
+    if (w > 5) { CHAR_W = w; cb(); }
+    else setTimeout(tryMeasure, 50);
+  };
+  tryMeasure();
+}
 
-// ═══════════════════════════════════════════════════════════════
-// RIPPLE SYSTEM — pure ASCII, originates from grid center
-// ═══════════════════════════════════════════════════════════════
+// ─── RIPPLES ─────────────────────────────────────────────────────────────────
 const ripples = [];
-// Speed in pixels/sec — fast enough to cross screen in ~1.2s
-const RIPPLE_SPEED = 380;
-// Wave ring thickness in pixels
-const RIPPLE_W = 35;
+const RIPPLE_SPEED = 350; // px/s
+const RIPPLE_W     = 40;  // ring thickness px
 
 function addRipple(isOrange) {
-  const maxR = Math.sqrt((window.innerWidth/2)**2 + (window.innerHeight/2)**2) + 20;
+  const maxR = Math.sqrt(CX*CX + CY*CY) * 1.05;
   ripples.push({ t0: performance.now(), orange: isOrange, maxR });
 }
 
-// Returns ripple color boost {br,bg,bb} for a cell at pixel-dist `distPx`
-function rippleAt(distPx, nowMs) {
-  let br = 0, bg = 0, bb = 0;
-  for (let i = ripples.length - 1; i >= 0; i--) {
-    const rip = ripples[i];
-    const age   = (nowMs - rip.t0) / 1000;
+// Returns [r,g,b, alpha] boost for a cell at pixel-distance dist
+// alpha is 0..1 — caller multiplies into opacity
+function rippleColor(dist, nowMs) {
+  let br=0, bg=0, bb=0, ba=0;
+  for (let i = ripples.length-1; i >= 0; i--) {
+    const rip  = ripples[i];
+    const age  = (nowMs - rip.t0) * 0.001;
     const front = age * RIPPLE_SPEED;
-
-    // Prune dead ripples
-    if (front > rip.maxR + RIPPLE_W) { ripples.splice(i, 1); continue; }
-
-    // dist from wave front (negative = inside/behind, positive = ahead of wave)
-    const diff = distPx - front;
-    if (diff > RIPPLE_W * 0.3 || diff < -RIPPLE_W) continue;
-
-    // Sine-shaped pulse, peak at leading edge
-    const norm = (diff + RIPPLE_W) / (RIPPLE_W + RIPPLE_W * 0.3);
-    const strength = Math.sin(Math.max(0, Math.min(1, norm)) * Math.PI);
-
-    // Fade out near screen edge
-    const progress = front / rip.maxR;
-    const edgeFade = progress < 0.9 ? 1.0 : Math.max(0, 1 - (progress - 0.9) / 0.1);
-
-    // More transparent than before — peak alpha ~0.55 for orange, ~0.45 for gold
-    const s = strength * edgeFade;
-
-    if (rip.orange) {
-      br += s * 180;  // orange: strong red, mild green
-      bg += s * 55;
-      bb += s * 0;
-    } else {
-      br += s * 160;  // gold: red+green
-      bg += s * 120;
-      bb += s * 5;
-    }
+    if (front > rip.maxR + RIPPLE_W) { ripples.splice(i,1); continue; }
+    const diff = dist - front;           // +ve = ahead of wave, -ve = behind
+    if (diff > RIPPLE_W*0.25 || diff < -RIPPLE_W) continue;
+    const norm = (diff + RIPPLE_W) / (RIPPLE_W * 1.25);
+    const str  = Math.sin(Math.max(0, Math.min(1, norm)) * Math.PI);
+    const prog = front / rip.maxR;
+    const fade = prog < 0.88 ? 1 : Math.max(0, 1-(prog-0.88)/0.12);
+    const s = str * fade;
+    if (rip.orange) { br += s*170; bg += s*50;  bb += s*0;   }
+    else            { br += s*150; bg += s*110;  bb += s*5;   }
+    ba = Math.max(ba, s * 0.72); // cap max alpha at 0.72 (more transparent)
   }
-  return {
-    br: Math.min(255, br),
-    bg: Math.min(255, bg),
-    bb: Math.min(255, bb)
-  };
+  return [Math.min(255,br), Math.min(255,bg), Math.min(255,bb), Math.min(1,ba)];
 }
 
-// ═══════════════════════════════════════════════════════════════
-// HEARTBEAT AUDIO
-// ═══════════════════════════════════════════════════════════════
-let audioOn = false, audioCtx = null, nextBeat = 0;
+// ─── HEARTBEAT AUDIO ─────────────────────────────────────────────────────────
+let audioOn=false, audioCtx=null, nextBeat=0;
 
-function makeThud(ctx, when, freq, gain, dur) {
-  const osc = ctx.createOscillator();
-  const env = ctx.createGain();
-  osc.connect(env); env.connect(ctx.destination);
-  osc.type = 'sine';
-  osc.frequency.setValueAtTime(freq, when);
-  osc.frequency.exponentialRampToValueAtTime(freq * 0.28, when + dur);
-  env.gain.setValueAtTime(0, when);
-  env.gain.linearRampToValueAtTime(gain, when + 0.010);
-  env.gain.exponentialRampToValueAtTime(0.0001, when + dur);
-  osc.start(when); osc.stop(when + dur + 0.02);
+function thud(ctx, when, freq, gain, dur) {
+  const o=ctx.createOscillator(), e=ctx.createGain();
+  o.connect(e); e.connect(ctx.destination);
+  o.type='sine';
+  o.frequency.setValueAtTime(freq,when);
+  o.frequency.exponentialRampToValueAtTime(freq*0.28,when+dur);
+  e.gain.setValueAtTime(0,when);
+  e.gain.linearRampToValueAtTime(gain,when+0.01);
+  e.gain.exponentialRampToValueAtTime(0.0001,when+dur);
+  o.start(when); o.stop(when+dur+0.02);
 }
 
 function scheduleBeat() {
-  if (!audioOn || !audioCtx) return;
+  if (!audioOn||!audioCtx) return;
   const now = audioCtx.currentTime;
-  if (now >= nextBeat - 0.05) {
-    const t = nextBeat;
-    makeThud(audioCtx, t,       85, 0.18, 0.28);
-    makeThud(audioCtx, t,       50, 0.12, 0.32);
-    makeThud(audioCtx, t+0.20,  70, 0.11, 0.22);
-    makeThud(audioCtx, t+0.20,  42, 0.08, 0.26);
-
-    const lubMs = Math.max(0, (t       - now) * 1000);
-    const dubMs = Math.max(0, (t+0.20  - now) * 1000);
-    setTimeout(() => { addRipple(true);  beatScaleTarget = 1.05; setTimeout(() => beatScaleTarget = 1.0, 160); }, lubMs);
-    setTimeout(() => { addRipple(false); beatScaleTarget = 1.02; setTimeout(() => beatScaleTarget = 1.0, 120); }, dubMs);
-
-    nextBeat = t + 0.92;
+  if (now >= nextBeat-0.05) {
+    const t=nextBeat;
+    thud(audioCtx,t,      85,0.18,0.28); thud(audioCtx,t,      50,0.12,0.32);
+    thud(audioCtx,t+0.20, 70,0.11,0.22); thud(audioCtx,t+0.20, 42,0.08,0.26);
+    const lubMs=Math.max(0,(t-now)*1000);
+    const dubMs=Math.max(0,(t+0.20-now)*1000);
+    setTimeout(()=>{ addRipple(true);  bumpScale(1.05,160); }, lubMs);
+    setTimeout(()=>{ addRipple(false); bumpScale(1.02,120); }, dubMs);
+    nextBeat = t+0.92;
   }
   setTimeout(scheduleBeat, 20);
 }
 
-document.getElementById('btn-audio').addEventListener('click', function() {
-  audioOn = !audioOn;
+document.getElementById('btnAudio').addEventListener('click', function() {
+  audioOn=!audioOn;
   this.textContent = audioOn ? '♥ Heartbeat On' : '♥ Heartbeat Off';
-  this.classList.toggle('active', audioOn);
+  this.classList.toggle('on', audioOn);
   if (audioOn) {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    nextBeat = audioCtx.currentTime + 0.1;
+    if (!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    nextBeat=audioCtx.currentTime+0.1;
     scheduleBeat();
   }
 });
 
-// ═══════════════════════════════════════════════════════════════
-// RENDER STATE
-// ═══════════════════════════════════════════════════════════════
-let mouseX = 0, mouseY = 0;
-let waveOX = 0, waveOY = 0, waveOTX = 0, waveOTY = 0, waveOTimer = 0;
-let beatScale = 1.0, beatScaleTarget = 1.0;
-let flickerRows = new Set(), lastFlicker = 0;
-let loadStart = null;
-const FADEIN_MS = 2000, FRAME_MS = 100;
-let lastFrameT = 0;
-
-const gridEl   = document.getElementById('grid');
-const bloomEl  = document.getElementById('bloom');
-const headline = document.getElementById('headline');
-const controls = document.getElementById('controls');
-
-document.addEventListener('mousemove', e => {
-  mouseX = (e.clientX / window.innerWidth  - 0.5) * 2;
-  mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-});
-
-function pick(str, n) {
-  return str[((Math.floor(n) % str.length) + str.length) % str.length];
+// ─── SCALE PULSE ─────────────────────────────────────────────────────────────
+let scaleVal=1, scaleTarget=1;
+function bumpScale(to, ms) {
+  scaleTarget=to;
+  setTimeout(()=>scaleTarget=1, ms);
 }
 
-// ═══════════════════════════════════════════════════════════════
-// MAIN RENDER LOOP
-// ═══════════════════════════════════════════════════════════════
-function render(ts) {
-  if (!loadStart) loadStart = ts;
-  const fadeProgress = Math.min((ts - loadStart) / FADEIN_MS, 1);
-  if (fadeProgress >= 0.5 && !headline.classList.contains('visible')) {
-    headline.classList.add('visible');
-    controls.classList.add('visible');
+// ─── MOUSE PARALLAX ──────────────────────────────────────────────────────────
+let mouseX=0, mouseY=0;
+document.addEventListener('mousemove', e=>{
+  mouseX=(e.clientX/W-0.5)*2;
+  mouseY=(e.clientY/H-0.5)*2;
+});
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function pick(str, n) {
+  return str[((Math.floor(n)%str.length)+str.length)%str.length];
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+let loadStart=null;
+const FADEIN=2000;
+
+// Flicker
+let flickerSet=new Set(), flickerTimer=0;
+
+// Wave origin drift
+let wOX=0,wOY=0,wOTX=0,wOTY=0,wOT=0;
+
+// Prebuilt color strings cache to avoid template literal overhead
+// We'll just build rgb strings inline — canvas fillStyle = string is fast enough
+
+function renderFrame(ts) {
+  if (!loadStart) loadStart=ts;
+  const fade = Math.min((ts-loadStart)/FADEIN, 1);
+  const headlineEl = document.getElementById('headline');
+  const controlsEl = document.getElementById('controls');
+  if (fade>0.5 && !headlineEl.classList.contains('on')) {
+    headlineEl.classList.add('on'); controlsEl.classList.add('on');
   }
 
-  // Wave origin drift (subtle, in pixel space)
-  if (ts - waveOTimer > 2500 + Math.random()*2000) {
-    waveOTimer = ts;
-    const a = Math.random()*Math.PI*2, rad = 15+Math.random()*30;
-    waveOTX = Math.cos(a)*rad; waveOTY = Math.sin(a)*rad;
+  // Drift wave origin
+  if (ts-wOT > 2500+Math.random()*2000) {
+    wOT=ts;
+    const a=Math.random()*Math.PI*2, r=15+Math.random()*30;
+    wOTX=Math.cos(a)*r; wOTY=Math.sin(a)*r;
   }
-  waveOX += (waveOTX - waveOX) * 0.015;
-  waveOY += (waveOTY - waveOY) * 0.015;
+  wOX+=(wOTX-wOX)*0.015; wOY+=(wOTY-wOY)*0.015;
 
-  // Flicker
-  if (ts - lastFlicker > 1000 + Math.random()*1500) {
-    lastFlicker = ts;
-    flickerRows.clear();
-    if (Math.random() < 0.5) {
-      const n = Math.floor(Math.random()*2)+1;
-      for (let i=0;i<n;i++) flickerRows.add(Math.floor(Math.random()*ROWS));
-      setTimeout(() => flickerRows.clear(), 50+Math.random()*80);
+  // Flicker rows
+  if (ts-flickerTimer > 1000+Math.random()*1500) {
+    flickerTimer=ts; flickerSet.clear();
+    if (Math.random()<0.5) {
+      const n=Math.floor(Math.random()*2)+1;
+      for(let i=0;i<n;i++) flickerSet.add(Math.floor(Math.random()*ROWS));
+      setTimeout(()=>flickerSet.clear(), 60+Math.random()*80);
     }
   }
 
-  // Beat scale smooth — applied to the whole grid via transform on body
-  beatScale += (beatScaleTarget - beatScale) * 0.2;
-  // Parallax + beat scale on grid container
-  gridEl.style.transform  = `translate(${mouseX*6}px,${mouseY*4}px) scale(${beatScale})`;
-  bloomEl.style.transform = gridEl.style.transform;
+  scaleVal+=(scaleTarget-scaleVal)*0.2;
 
-  // Throttle ASCII at ~10fps
-  if (ts - lastFrameT < FRAME_MS) { requestAnimationFrame(render); return; }
-  lastFrameT = ts;
-
+  // time drives all animation — runs at full 60fps
   const time  = ts * 0.001;
   const nowMs = performance.now();
-  const lines = [];
 
-  for (let r = 0; r < ROWS; r++) {
-    const flicker = flickerRows.has(r);
-    let line = '';
+  // Slow "character tick" — chars only change a few times/sec so they read cleanly
+  // Use a stepped time value for character selection only
+  const tChar = Math.floor(time * 6) / 6; // steps at ~6Hz
 
-    for (let c = 0; c < COLS; c++) {
-      const cell = cells[r * COLS + c];
-      const { dist, angle, starR, isCardinal, inStar, inCenter, inInner, spawnOrder } = cell;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#061209';
+  ctx.fillRect(0,0,W,H);
+  bctx.clearRect(0,0,W,H);
 
-      // Fade-in: reveal from center outward
-      const visible = spawnOrder <= fadeProgress * 2.5; // * 2.5 so edge appears by fadeProgress=0.4
+  const tx = mouseX*7, ty = mouseY*4;
+  ctx.save();
+  ctx.translate(CX+tx, CY+ty);
+  ctx.scale(scaleVal, scaleVal);
+  ctx.translate(-CX, -CY);
+  bctx.save();
+  bctx.translate(CX+tx, CY+ty);
+  bctx.scale(scaleVal, scaleVal);
+  bctx.translate(-CX, -CY);
 
-      // Get ripple contribution at this cell's pixel distance
-      const { br, bg: rg, bb } = rippleAt(dist, nowMs);
-      const hasRipple = br > 4 || rg > 4;
+  const fontStr = `${FONT_SIZE}px "Share Tech Mono", monospace`;
+  ctx.font = fontStr; ctx.textBaseline = 'top';
+  bctx.font = fontStr; bctx.textBaseline = 'top';
 
-      // ── OUTSIDE STAR ──────────────────────────────────────────
+  // ── BATCH DRAW: collect (x, y, char, r, g, b, alpha) per cell ────────────
+  // Group by alpha bucket (flicker vs normal) to minimise globalAlpha changes
+  // Two passes: normal (alpha=1) then flicker (alpha=0.07)
+  // Within each pass, sort by color string to reduce fillStyle switches
+  // Actually: at canvas level, fillStyle changes are cheap; globalAlpha changes
+  // are the expensive ones. So just track current alpha and only set when changed.
+
+  let curAlpha = -1;
+  const setAlpha = (a) => {
+    if (Math.abs(a - curAlpha) > 0.001) {
+      ctx.globalAlpha = a; bctx.globalAlpha = a; curAlpha = a;
+    }
+  };
+
+  // Precompute a smooth radial pulse for the center — runs at 60fps
+  // This replaces the noisy wN threshold-based char selection in the center
+  const centerPulse  = (Math.sin(time * 2.1) + 1) * 0.5;  // 0..1, slow breathe
+  const centerSpin   = time * 0.8;                          // slow rotation offset
+
+  for (let row=0; row<ROWS; row++) {
+    const isFlicker = flickerSet.has(row);
+    const screenY   = row * LINE_H;
+
+    for (let col=0; col<COLS; col++) {
+      const cell = cells[row*COLS+col];
+      if (!cell) continue;
+      const { px, py, dist, angle, starR, isCardinal,
+              inStar, inCenter, inInner, spawnT } = cell;
+
+      if (spawnT > fade * 2.2) continue;
+
+      const screenX = col * CHAR_W;
+      const [rr,rg,rb,ra] = rippleColor(dist, nowMs);
+      const hasRipple = ra > 0.02;
+
+      // ── OUTSIDE STAR ─────────────────────────────────────────
       if (!inStar) {
-        if (!visible && !hasRipple) { line += ' '; continue; }
-
-        if (hasRipple) {
-          // Ripple lights up background chars with orange/gold color
-          // Char gets brighter the stronger the ripple
-          const totalBoost = (br + rg + bb) / 3;
-          const charSet = totalBoost > 80 ? MED : LIGHT;
-          const charIdx = time * 2.5 + dist * 0.01 + angle;
-          const char = pick(charSet, charIdx);
-
-          // Slightly transparent so background feels dim between pulses
-          const baseAlpha = Math.min(0.85, (br + rg) / 280);
-          const op = flicker ? baseAlpha * 0.08 : baseAlpha;
-          line += `<span style="color:rgb(${Math.floor(br)},${Math.floor(rg)},${Math.floor(bb)});opacity:${op.toFixed(2)}">${char}</span>`;
-        } else {
-          // Dormant background: near-invisible light chars, very dim green
-          const dimFade = visible ? 0.06 : 0;
-          if (dimFade < 0.01) { line += ' '; continue; }
-          const op = flicker ? 0.01 : dimFade;
-          line += `<span style="color:rgb(4,22,6);opacity:${op}">${pick(LIGHT, time*0.8 + dist*0.008 + angle)}</span>`;
-        }
+        if (!hasRipple) continue;
+        const alpha = isFlicker ? ra*0.05 : ra * 0.72;
+        setAlpha(alpha);
+        const colStr = `rgb(${rr|0},${rg|0},${rb|0})`;
+        ctx.fillStyle = colStr; bctx.fillStyle = colStr;
+        const char = pick(LIGHT, tChar*2.5 + dist*0.008 + angle);
+        ctx.fillText(char, screenX, screenY);
+        bctx.fillText(char, screenX, screenY);
         continue;
       }
 
-      // ── INSIDE STAR ───────────────────────────────────────────
-      if (!visible) { line += ' '; continue; }
+      // ── INSIDE STAR ──────────────────────────────────────────
+      // Smooth continuous wave field — no stepped time here, colors flow
+      const wdx = px - wOX, wdy = py - wOY;
+      const wd  = Math.sqrt(wdx*wdx+wdy*wdy);
+      const wa  = Math.atan2(wdy, wdx);
 
-      const wdx = (c - cx) * CHAR_W - waveOX;
-      const wdy = (r - cy) * CHAR_H - waveOY;
-      const wdist  = Math.sqrt(wdx*wdx + wdy*wdy);
-      const wangle = Math.atan2(wdy, wdx);
-
-      const w1 = Math.sin(time*1.4 + wdist*0.012 + wangle*2.0);
-      const w2 = Math.sin(time*0.8 - wdist*0.014 + wangle*1.7);
-      const w3 = Math.sin(time*2.2 + wangle*2.8  - wdist*0.010);
-      const wN = ((w1*0.6 + w2*0.3 + w3*0.1) + 1) / 2;
+      // Slower frequency constants → smoother color flow
+      const w1 = Math.sin(time*0.9 + wd*0.010 + wa*2.0);
+      const w2 = Math.sin(time*0.5 - wd*0.012 + wa*1.7);
+      const w3 = Math.sin(time*1.4 + wa*2.5   - wd*0.008);
+      const wN = ((w1*0.6 + w2*0.3 + w3*0.1) + 1) * 0.5; // 0..1, smooth
 
       let char, rv, gv, bv;
 
       if (inCenter) {
-        rv = Math.floor(220+w1*25); gv = Math.floor(190+w2*30); bv = Math.floor(20+w3*15);
-        char = wN>0.6 ? pick(DENSE,time*5+dist*0.01) : wN>0.3 ? pick(MED,time*3+angle*3) : pick(STAR_CHARS,time*2);
+        // ── CENTER: smooth radial pulse, no harsh char switching ──
+        // Color breathes between hot-white and gold using continuous sine
+        const pulse2 = (Math.sin(time * 1.7 + dist * 0.05) + 1) * 0.5;
+        rv = 200 + pulse2 * 45 | 0;
+        gv = 170 + pulse2 * 40 | 0;
+        bv =  15 + pulse2 * 20 | 0;
+
+        // Char: use slow stepped time so center reads cleanly, not noise
+        // Blend between DENSE and STAR based on centerPulse
+        const cIdx = tChar * 1.5 + (angle / (Math.PI*2)) * STAR.length;
+        char = centerPulse > 0.6 ? pick(DENSE, cIdx) :
+               centerPulse > 0.3 ? pick(MED,   cIdx) :
+                                    pick(STAR,  cIdx);
+
       } else if (inInner) {
-        const bl = (Math.sin(time*1.2+angle*4)+1)/2;
-        rv=Math.floor(150*bl+w1*20); gv=Math.floor(130+60*bl+w2*25); bv=Math.floor(w3*10+5);
-        char = wN>0.5 ? pick(MED,time*2+dist*0.005+angle) : pick(STAR_CHARS,time*1.5+dist*0.005);
+        // ── INNER RING: smooth gold-green mix ─────────────────
+        const blend = (Math.sin(time*0.9 + angle*3 + dist*0.02) + 1) * 0.5;
+        rv = 140*blend + 60  | 0;
+        gv = 140 + 50*blend  | 0;
+        bv = 5 + 15*(1-blend)| 0;
+        // Char updates at stepped rate so individual glyphs are legible
+        char = wN > 0.55 ? pick(MED, tChar*1.8 + dist*0.005 + angle)
+                         : pick(STAR, tChar*1.2 + angle);
+
       } else if (isCardinal) {
-        const tf=dist/starR, i2=wN*(1-tf*0.5);
-        rv=Math.floor(0+i2*15+w2*6); gv=Math.floor(55+i2*130+w1*35); bv=Math.floor(0+i2*12+w3*4);
-        char = tf<0.4  ? (i2>0.6?pick(DENSE,time*2+dist*0.005+angle):pick(MED,time*2+dist*0.005))
-             : tf<0.75 ? (i2>0.5?pick(MED,time*2+dist*0.005):pick(LIGHT,time*3+dist*0.005+angle))
-             : pick(LIGHT,time*3+angle*5+dist*0.005);
+        // ── CARDINAL SPIKES: dark green ───────────────────────
+        const tf = dist/starR;
+        const i2 = wN * (1 - tf*0.5);
+        rv = i2*14  + w2*5  | 0;
+        gv = 55 + i2*125 + w1*30 | 0;
+        bv = i2*11  + w3*3  | 0;
+        // Char: step for outer region, faster near center
+        const cT = tf < 0.5 ? tChar*1.5 : tChar*2.0;
+        char = tf<0.4  ? (i2>0.6 ? pick(DENSE,cT+dist*0.005+angle) : pick(MED,cT+dist*0.005))
+             : tf<0.75 ? (i2>0.5 ? pick(MED,  cT+dist*0.005)       : pick(LIGHT,cT+dist*0.005+angle))
+             : pick(LIGHT, cT+angle*5+dist*0.005);
+
       } else {
-        const tf=dist/starR, i2=wN*(1-tf*0.4);
-        rv=Math.floor(140+i2*90+w1*22); gv=Math.floor(95+i2*85+w2*20); bv=Math.floor(0+i2*22+w3*8);
-        char = tf<0.4  ? (i2>0.6?pick(DENSE,time*2+dist*0.005+angle):pick(MED,time*2+dist*0.005))
-             : tf<0.75 ? (i2>0.5?pick(MED,time*2.5+dist*0.005):pick(STAR_CHARS,time*1.5+dist*0.005))
-             : (i2>0.4?pick(STAR_CHARS,time*1.5+dist*0.005+angle):pick(LIGHT,time*3+dist*0.005));
+        // ── DIAGONAL SPIKES: gold ─────────────────────────────
+        const tf = dist/starR;
+        const i2 = wN * (1 - tf*0.4);
+        rv = 135 + i2*88 + w1*18 | 0;
+        gv =  90 + i2*82 + w2*16 | 0;
+        bv =       i2*20 + w3*6  | 0;
+        const cT = tf < 0.5 ? tChar*1.5 : tChar*2.0;
+        char = tf<0.4  ? (i2>0.6 ? pick(DENSE,cT+dist*0.005+angle) : pick(MED,cT+dist*0.005))
+             : tf<0.75 ? (i2>0.5 ? pick(MED,  cT*1.2+dist*0.005)   : pick(STAR,tChar*1.0+dist*0.005))
+             : (i2>0.4  ? pick(STAR,tChar*1.0+dist*0.005+angle)     : pick(LIGHT,cT+dist*0.005));
       }
 
-      // Add ripple tint on top of star color
-      rv = Math.min(255, Math.max(0, Math.floor(rv) + Math.floor(br * 0.5)));
-      gv = Math.min(255, Math.max(0, Math.floor(gv) + Math.floor(rg * 0.5)));
-      bv = Math.min(255, Math.max(0, Math.floor(bv) + Math.floor(bb * 0.5)));
+      // Ripple tint on star cells
+      if (hasRipple) {
+        rv = Math.min(255, rv + (rr*0.45|0));
+        gv = Math.min(255, gv + (rg*0.45|0));
+        bv = Math.min(255, bv + (rb*0.45|0));
+      }
 
-      const op = flicker ? 0.07 : 1;
-      line += `<span style="color:rgb(${rv},${gv},${bv});opacity:${op}">${char}</span>`;
+      rv = Math.max(0, Math.min(255, rv));
+      gv = Math.max(0, Math.min(255, gv));
+      bv = Math.max(0, Math.min(255, bv));
+
+      setAlpha(isFlicker ? 0.07 : 1.0);
+      const colStr = `rgb(${rv},${gv},${bv})`;
+      ctx.fillStyle = colStr; bctx.fillStyle = colStr;
+      ctx.fillText(char, screenX, screenY);
+      bctx.fillText(char, screenX, screenY);
     }
-    lines.push(line);
   }
 
-  const html = lines.join('\n');
-  gridEl.innerHTML  = html;
-  bloomEl.innerHTML = html;
-  requestAnimationFrame(render);
+  // Reset alpha before restore
+  ctx.globalAlpha = 1; bctx.globalAlpha = 1;
+  ctx.restore();
+  bctx.restore();
+
+  // GIF export hook — fired after every completed frame draw
+  if (pendingSnapshot) {
+    const fn = pendingSnapshot;
+    pendingSnapshot = null;
+    fn(); // canvas is fully drawn, safe to read
+  }
+
+  requestAnimationFrame(renderFrame);
 }
 
-requestAnimationFrame(render);
+// ─── RESIZE ──────────────────────────────────────────────────────────────────
+function onResize() {
+  buildGeometry();
+}
+window.addEventListener('resize', onResize);
 
-// ═══════════════════════════════════════════════════════════════
-// GIF EXPORT
-// ═══════════════════════════════════════════════════════════════
-const btnGif    = document.getElementById('btn-gif');
+// ─── BOOT ────────────────────────────────────────────────────────────────────
+measureFont(() => {
+  buildGeometry();
+  requestAnimationFrame(renderFrame);
+});
+
+let pendingSnapshot = null; // set by GIF exporter, fired after each rendered frame
+
+// ─── GIF EXPORT ──────────────────────────────────────────────────────────────
+// Strategy: hook into the live render loop.
+// After each renderFrame completes it checks pendingSnapshot — if set, it
+// immediately copies the canvas. This captures ripples, heartbeat, everything
+// exactly as it appears on screen. Frames are spaced GIF_FRAME_MS apart.
+// For a clean loop: capture LOOP beats of heartbeat (heartbeat period ~920ms),
+// then crossfade last 15% of frames back toward frame 0.
+
+const btnGif    = document.getElementById('btnGif');
 const gifStatus = document.getElementById('gif-status');
-let isExporting = false;
+let isExporting  = false;
+let pauseLive    = false;
+
+const GIF_FRAMES   = 48;    // frames total → smoother motion
+const GIF_DELAY_MS = 50;    // 50ms per frame = 20fps playback
+const GIF_SCALE    = 0.5;   // half-res for file size
 
 btnGif.addEventListener('click', async () => {
   if (isExporting) return;
   isExporting = true;
-  btnGif.classList.add('active');
+  btnGif.classList.add('on');
   gifStatus.style.opacity = '1';
 
-  const FRAME_COUNT = 10, FRAME_DELAY = 110;
-  const frames = [];
+  const GW = Math.round(W * GIF_SCALE);
+  const GH = Math.round(H * GIF_SCALE);
 
-  for (let i = 0; i < FRAME_COUNT; i++) {
-    gifStatus.textContent = `Capturing ${i+1} / ${FRAME_COUNT}…`;
-    await new Promise(r => setTimeout(r, FRAME_DELAY + 20));
-    const canvas = renderToCanvas();
-    if (canvas) frames.push(canvas);
+  // Offscreen scratch canvas
+  const scratch = document.createElement('canvas');
+  scratch.width = GW; scratch.height = GH;
+  const sc = scratch.getContext('2d');
+
+  // Wait for next rendered frame via the live loop hook
+  function captureNextFrame() {
+    return new Promise(resolve => { pendingSnapshot = resolve; });
   }
 
-  if (!frames.length) {
-    gifStatus.textContent = 'Capture failed.';
-    setTimeout(resetExport, 2000); return;
+  // Give animation a moment to settle before starting capture
+  gifStatus.textContent = 'Preparing…';
+  await new Promise(r => setTimeout(r, 200));
+
+  // ── PHASE 1: capture GIF_FRAMES live frames spaced GIF_DELAY_MS apart ──
+  const rawFrames = [];
+  for (let i = 0; i < GIF_FRAMES; i++) {
+    gifStatus.textContent = `Capturing ${i+1} / ${GIF_FRAMES}…`;
+    // Wait for live render loop to complete a frame, then grab it
+    await captureNextFrame();
+    // Wait the inter-frame gap so motion is evenly sampled
+    await new Promise(r => setTimeout(r, GIF_DELAY_MS));
+
+    sc.clearRect(0, 0, GW, GH);
+    sc.drawImage(canvas, 0, 0, GW, GH);
+    const snap = document.createElement('canvas');
+    snap.width = GW; snap.height = GH;
+    snap.getContext('2d').drawImage(scratch, 0, 0);
+    rawFrames.push(snap);
   }
 
-  gifStatus.textContent = 'Encoding…';
+  // ── PHASE 2: crossfade last 15% toward frame 0 for seamless loop ────────
+  const XFADE_START = Math.floor(GIF_FRAMES * 0.85);
+  const frames = rawFrames.map((snap, i) => {
+    if (i < XFADE_START) return snap;
+
+    const t    = (i - XFADE_START) / (GIF_FRAMES - XFADE_START); // 0→1
+    const ease = t * t * (3 - 2 * t); // smoothstep
+
+    const blended = document.createElement('canvas');
+    blended.width = GW; blended.height = GH;
+    const bc = blended.getContext('2d');
+    bc.drawImage(snap,        0, 0);         // current frame
+    bc.globalAlpha = ease;
+    bc.drawImage(rawFrames[0], 0, 0);        // blend toward frame 0
+    bc.globalAlpha = 1;
+    return blended;
+  });
+
+  // ── PHASE 3: encode ──────────────────────────────────────────────────────
+  gifStatus.textContent = 'Encoding GIF…';
   await new Promise(r => setTimeout(r, 30));
 
   try {
-    const gifBytes = encodeGIF(frames, FRAME_DELAY);
-    const blob = new Blob([gifBytes], { type: 'image/gif' });
-    const url  = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const bytes = encodeGIF(frames, GIF_DELAY_MS);
+    const blob  = new Blob([bytes], { type: 'image/gif' });
+    const url   = URL.createObjectURL(blob);
+    const a     = document.createElement('a');
     a.href = url; a.download = 'resilience-stands.gif';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
     gifStatus.textContent = '✓ Downloaded!';
     setTimeout(resetExport, 1500);
-  } catch(err) {
-    console.error('GIF error:', err);
-    gifStatus.textContent = 'Saving PNG…';
+  } catch(e) {
+    console.error(e);
+    gifStatus.textContent = 'Error — saving PNG…';
     frames[0].toBlob(blob => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -558,115 +604,66 @@ btnGif.addEventListener('click', async () => {
 
 function resetExport() {
   isExporting = false;
-  btnGif.classList.remove('active');
+  btnGif.classList.remove('on');
   btnGif.textContent = '⬇ Export GIF';
   gifStatus.style.opacity = '0';
 }
 
-function renderToCanvas() {
-  try {
-    const W = Math.ceil(COLS * CHAR_W);
-    const H = Math.ceil(ROWS * CHAR_H);
-    const canvas = document.createElement('canvas');
-    canvas.width = W; canvas.height = H;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#061209';
-    ctx.fillRect(0, 0, W, H);
-    ctx.font = `${FONT_SIZE}px "Share Tech Mono", monospace`;
-    ctx.textBaseline = 'top';
+// ─── GIF ENCODER ─────────────────────────────────────────────────────────────
+function encodeGIF(canvases,delayMs){
+  const W2=canvases[0].width,H2=canvases[0].height;
+  const delay=Math.round(delayMs/10);
+  const pal=[];
+  for(let r=0;r<=5;r++) for(let g=0;g<=5;g++) for(let b=0;b<=5;b++) pal.push([r*51,g*51,b*51]);
+  while(pal.length<256) pal.push([0,0,0]);
 
-    const rowHTML = gridEl.innerHTML.split('\n');
-    for (let r = 0; r < rowHTML.length; r++) {
-      const tmp = document.createElement('span');
-      tmp.innerHTML = rowHTML[r];
-      const spans = tmp.querySelectorAll('span');
-      let x = 0;
-      for (const sp of spans) {
-        const op = parseFloat(sp.style.opacity);
-        ctx.globalAlpha = isNaN(op) ? 1 : op;
-        ctx.fillStyle = sp.style.color || '#0a3a0a';
-        ctx.fillText(sp.textContent, x, r * CHAR_H);
-        x += CHAR_W;
-      }
-      ctx.globalAlpha = 1;
-    }
-    return canvas;
-  } catch(e) { console.warn('renderToCanvas failed:', e); return null; }
-}
-
-// ═══════════════════════════════════════════════════════════════
-// GIF89a ENCODER — fixed 216 web-safe palette, fast LZW
-// ═══════════════════════════════════════════════════════════════
-function encodeGIF(canvases, delayMs) {
-  const W = canvases[0].width, H = canvases[0].height;
-  const delay = Math.round(delayMs / 10);
-  const palette = [];
-  for (let r=0;r<=5;r++) for (let g=0;g<=5;g++) for (let b=0;b<=5;b++)
-    palette.push([r*51,g*51,b*51]);
-  while (palette.length < 256) palette.push([0,0,0]);
-
-  const nearCache = new Map();
-  function nearIdx(r,g,b) {
+  const nc=new Map();
+  function ni(r,g,b){
     const k=(r>>2<<12)|(g>>2<<6)|(b>>2);
-    if (nearCache.has(k)) return nearCache.get(k);
-    let best=0,bestD=1e9;
-    for (let i=0;i<216;i++){
-      const dr=r-palette[i][0],dg=g-palette[i][1],db=b-palette[i][2];
-      const d=dr*dr+dg*dg+db*db;
-      if(d<bestD){bestD=d;best=i;if(!d)break;}
-    }
-    nearCache.set(k,best); return best;
+    if(nc.has(k))return nc.get(k);
+    let best=0,bd=1e9;
+    for(let i=0;i<216;i++){const dr=r-pal[i][0],dg=g-pal[i][1],db=b-pal[i][2];const d=dr*dr+dg*dg+db*db;if(d<bd){bd=d;best=i;if(!d)break;}}
+    nc.set(k,best);return best;
   }
 
-  const bytes=[];
-  const p=(...a)=>{for(const x of a)bytes.push(x);};
+  const by=[];
+  const p=(...a)=>{for(const x of a)by.push(x);};
   const pw=n=>{p(n&255,(n>>8)&255);};
   const ps=s=>{for(const c of s)p(c.charCodeAt(0));};
 
-  ps('GIF89a'); pw(W); pw(H);
-  p(0xF7,0,0);
-  for(let i=0;i<256;i++) p(palette[i][0],palette[i][1],palette[i][2]);
+  ps('GIF89a'); pw(W2); pw(H2); p(0xF7,0,0);
+  for(let i=0;i<256;i++) p(pal[i][0],pal[i][1],pal[i][2]);
   p(0x21,0xFF,0x0B); ps('NETSCAPE2.0'); p(0x03,0x01,0x00,0x00,0x00);
 
-  for(const canvas of canvases){
-    const ctx=canvas.getContext('2d');
-    const img=ctx.getImageData(0,0,W,H).data;
-    const idx=new Uint8Array(W*H);
-    for(let i=0;i<W*H;i++) idx[i]=nearIdx(img[i*4],img[i*4+1],img[i*4+2]);
+  for(const cv of canvases){
+    const img=cv.getContext('2d').getImageData(0,0,W2,H2).data;
+    const idx=new Uint8Array(W2*H2);
+    for(let i=0;i<W2*H2;i++) idx[i]=ni(img[i*4],img[i*4+1],img[i*4+2]);
     p(0x21,0xF9,0x04,0x00); pw(delay); p(0x00,0x00);
-    p(0x2C); pw(0);pw(0);pw(W);pw(H); p(0x00);
-    const lzw=lzwEncode(idx,8);
+    p(0x2C); pw(0);pw(0);pw(W2);pw(H2); p(0x00);
+    const lzw=lzwEnc(idx,8);
     p(8);
-    for(let i=0;i<lzw.length;i+=255){
-      const chunk=lzw.slice(i,i+255);
-      p(chunk.length,...chunk);
-    }
+    for(let i=0;i<lzw.length;i+=255){const ch=lzw.slice(i,i+255);p(ch.length,...ch);}
     p(0x00);
   }
   p(0x3B);
-  return new Uint8Array(bytes);
+  return new Uint8Array(by);
 }
 
-function lzwEncode(indices,minBits) {
-  const cc=1<<minBits,eof=cc+1;
-  const out=[];let buf=0,bits=0,cs=minBits+1,next=eof+1;
-  const tbl=new Map();
+function lzwEnc(idx,mb){
+  const cc=1<<mb,eof=cc+1;
+  const out=[];let buf=0,bits=0,cs=mb+1,next=eof+1;
+  const t=new Map();
   const emit=c=>{buf|=(c<<bits);bits+=cs;while(bits>=8){out.push(buf&255);buf>>>=8;bits-=8;}};
-  const reset=()=>{tbl.clear();next=eof+1;cs=minBits+1;};
-  emit(cc);reset();
-  let pfx=indices[0];
-  for(let i=1;i<indices.length;i++){
-    const s=indices[i],k=(pfx<<8)|s,f=tbl.get(k);
-    if(f!==undefined){pfx=f;}
-    else{
-      emit(pfx);
-      if(next<4096){tbl.set(k,next++);if(next>(1<<cs)&&cs<12)cs++;}
-      else{emit(cc);reset();}
-      pfx=s;
-    }
+  const rst=()=>{t.clear();next=eof+1;cs=mb+1;};
+  emit(cc);rst();
+  let pf=idx[0];
+  for(let i=1;i<idx.length;i++){
+    const s=idx[i],k=(pf<<8)|s,f=t.get(k);
+    if(f!==undefined){pf=f;}
+    else{emit(pf);if(next<4096){t.set(k,next++);if(next>(1<<cs)&&cs<12)cs++;}else{emit(cc);rst();}pf=s;}
   }
-  emit(pfx);emit(eof);
-  if(bits>0)out.push(buf&255);
+  emit(pf);emit(eof);if(bits>0)out.push(buf&255);
   return out;
 }
 </script>
