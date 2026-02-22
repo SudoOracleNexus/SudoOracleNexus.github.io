@@ -3,8 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Surveyor Bishop's classified field research notes on the ITF portal system — a working document not submitted to VSA Command.">
+<meta property="og:title" content="VSA CLASSIFIED — BISHOP FIELD RESEARCH NOTES">
+<meta property="og:description" content="Everything I actually think is happening with the ITF portal system, written down in one place.">
+<meta property="og:type" content="website">
 <title>VSA CLASSIFIED — BISHOP FIELD RESEARCH NOTES</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"></noscript>
 <style>
   :root {
     --orange: #c87820;
@@ -13,7 +19,7 @@
     --orange-faint: #2a1a06;
     --bg: #080500;
     --text: #c87820;
-    --text-dim: #7a4a10;
+    --text-dim: #957030; /* bumped for WCAG contrast */
     --border: #3d2508;
     --border-bright: #7a4a10;
   }
@@ -21,7 +27,7 @@
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Share Tech Mono', monospace;
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
     font-size: 13px;
     line-height: 1.7;
     min-height: 100vh;
@@ -39,17 +45,51 @@
     background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.8) 100%);
     pointer-events: none; z-index: 999;
   }
+
+  /* ── TOPBAR ── */
   .topbar {
     position: fixed; top: 0; left: 0; right: 0; height: 36px;
     background: var(--bg); border-bottom: 1px solid var(--orange);
     display: flex; align-items: center; justify-content: space-between;
     padding: 0 20px; z-index: 998; animation: fadeIn 1s ease;
   }
-  .topbar-title { font-size: 11px; letter-spacing: 0.3em; color: var(--orange-bright); text-shadow: 0 0 10px var(--orange); }
-  .topbar-right { display: flex; gap: 20px; font-size: 10px; color: var(--orange-dim); letter-spacing: 0.15em; }
+  .topbar-title {
+    font-size: 11px; letter-spacing: 0.3em; color: var(--orange-bright);
+    text-shadow: 0 0 10px var(--orange);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 60%;
+  }
+  /* Skip to content link for keyboard/screen reader users */
+  .skip-link {
+    position: absolute; top: -40px; left: 8px;
+    background: var(--orange-bright); color: var(--bg);
+    padding: 4px 10px; font-size: 11px; letter-spacing: 0.1em;
+    z-index: 9999; transition: top 0.2s;
+    font-family: 'Share Tech Mono', monospace;
+  }
+  .skip-link:focus { top: 8px; }
+  .topbar-right { display: flex; gap: 20px; font-size: 10px; color: var(--text-dim); letter-spacing: 0.15em; }
   .topbar-right span { border-left: 1px solid var(--border-bright); padding-left: 20px; }
   .topbar-right .sdot { color: #2ecc71; }
+
+  /* On mobile hide some topbar items */
+  @media (max-width: 600px) {
+    .topbar { padding: 0 12px; }
+    .topbar-title { font-size: 9px; letter-spacing: 0.15em; max-width: 55%; }
+    .topbar-right { gap: 10px; font-size: 9px; }
+    .topbar-right span { border-left: none; padding-left: 0; }
+    .topbar-right .hide-mobile { display: none; }
+  }
+
   .container { max-width: 900px; margin: 0 auto; padding: 80px 30px 80px; animation: fadeIn 1.5s ease; }
+
+  @media (max-width: 600px) {
+    .container { padding: 64px 14px 48px; }
+  }
+
   .doc-header {
     border: 1px solid var(--orange); padding: 30px; margin-bottom: 40px;
     position: relative;
@@ -64,57 +104,89 @@
   .doc-header::after {
     content: '▽ CLASSIFIED TERMINAL ▽';
     position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
-    background: var(--bg); padding: 0 12px; font-size: 10px; letter-spacing: 0.3em; color: var(--orange-dim); white-space: nowrap;
+    background: var(--bg); padding: 0 12px; font-size: 10px; letter-spacing: 0.3em; color: var(--text-dim); white-space: nowrap;
   }
   .doc-title { font-size: 22px; font-weight: bold; letter-spacing: 0.2em; color: var(--orange-bright); text-shadow: 0 0 20px var(--orange); text-align: center; margin-bottom: 6px; }
-  .doc-subtitle { text-align: center; font-size: 11px; letter-spacing: 0.4em; color: var(--orange-dim); margin-bottom: 24px; }
+  .doc-subtitle { text-align: center; font-size: 11px; letter-spacing: 0.4em; color: var(--text-dim); margin-bottom: 24px; }
   .meta-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--border); padding-top: 20px; margin-top: 20px; }
+  @media (max-width: 480px) { .meta-grid { grid-template-columns: 1fr; } .meta-item:nth-child(odd) { border-right: none; padding-right: 0; } .meta-item:nth-child(even) { padding-left: 0; } }
   .meta-item { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 11px; }
   .meta-item:nth-child(odd) { padding-right: 20px; border-right: 1px solid var(--border); }
   .meta-item:nth-child(even) { padding-left: 20px; }
-  .meta-label { color: var(--orange-dim); letter-spacing: 0.15em; font-size: 10px; }
+  .meta-label { color: var(--text-dim); letter-spacing: 0.15em; font-size: 10px; }
   .meta-value { color: var(--orange-bright); margin-top: 2px; }
   .warning-banner { margin-top: 20px; border: 1px solid var(--orange); padding: 10px 16px; background: rgba(200,120,32,0.05); font-size: 11px; letter-spacing: 0.15em; color: var(--orange-bright); text-align: center; animation: bblink 3s infinite; }
   @keyframes bblink { 0%,90%,100%{border-color:var(--orange)} 95%{border-color:var(--orange-dim)} }
+
+  /* ── TOC ── */
   .toc { border: 1px solid var(--border-bright); padding: 24px; margin-bottom: 40px; position: relative; }
-  .toc::before { content: 'TABLE OF CONTENTS'; position: absolute; top: -8px; left: 20px; background: var(--bg); padding: 0 10px; font-size: 10px; letter-spacing: 0.3em; color: var(--orange-dim); }
-  .toc-item { display: flex; align-items: baseline; padding: 5px 0; cursor: pointer; transition: color 0.2s; font-size: 12px; text-decoration: none; color: var(--text); }
-  .toc-item:hover { color: var(--orange-bright); }
-  .toc-num { color: var(--orange-dim); margin-right: 12px; min-width: 30px; font-size: 11px; }
+  .toc::before { content: 'TABLE OF CONTENTS'; position: absolute; top: -8px; left: 20px; background: var(--bg); padding: 0 10px; font-size: 10px; letter-spacing: 0.3em; color: var(--text-dim); }
+  .toc-item { display: flex; align-items: baseline; padding: 5px 0; cursor: pointer; transition: color 0.2s; font-size: 12px; text-decoration: none; color: var(--text); border-radius: 2px; }
+  .toc-item:hover,.toc-item:focus { color: var(--orange-bright); outline: 1px dashed var(--orange-dim); outline-offset: 2px; }
+  .toc-item.active { color: var(--orange-bright); }
+  .toc-item.active .toc-num { color: var(--orange-bright); }
+  .toc-num { color: var(--text-dim); margin-right: 12px; min-width: 30px; font-size: 11px; }
   .toc-dots { flex: 1; height: 1px; border-bottom: 1px dashed var(--border); margin: 0 10px; position: relative; top: -3px; }
-  .section { margin-bottom: 50px; opacity: 0; animation: slideIn 0.6s ease forwards; }
-  .section:nth-child(1){animation-delay:.1s}.section:nth-child(2){animation-delay:.2s}.section:nth-child(3){animation-delay:.3s}
-  .section:nth-child(4){animation-delay:.4s}.section:nth-child(5){animation-delay:.5s}.section:nth-child(6){animation-delay:.6s}
-  .section:nth-child(7){animation-delay:.7s}.section:nth-child(8){animation-delay:.8s}.section:nth-child(9){animation-delay:.9s}
-  .section:nth-child(10){animation-delay:1s}
-  @keyframes slideIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+  /* ── SECTIONS ── */
+  .section { margin-bottom: 50px; }
   .section-header { border-bottom: 1px solid var(--orange); padding-bottom: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 14px; }
-  .section-num { font-size: 11px; color: var(--orange-dim); letter-spacing: 0.2em; border: 1px solid var(--orange-dim); padding: 2px 8px; flex-shrink: 0; }
+  .section-num { font-size: 11px; color: var(--text-dim); letter-spacing: 0.2em; border: 1px solid var(--orange-dim); padding: 2px 8px; flex-shrink: 0; }
   .section-title { font-size: 15px; letter-spacing: 0.15em; color: var(--orange-bright); text-shadow: 0 0 12px rgba(200,120,32,0.4); text-transform: uppercase; }
-  .section-content { font-family:'Courier Prime',monospace; font-size:13px; line-height:1.8; color:var(--text); }
+  .section-content { font-family:'Courier Prime','Courier New',monospace; font-size:13px; line-height:1.8; color:var(--text); }
   .section-content p { margin-bottom: 14px; }
   .subsection { margin: 24px 0; padding: 16px; border-left: 2px solid var(--orange-dim); background: rgba(200,120,32,0.03); }
   .subsection-title { font-family:'Share Tech Mono',monospace; font-size:12px; letter-spacing:0.2em; color:var(--orange-bright); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
-  .subsection-title::before { content:'▸'; color:var(--orange-dim); }
+  .subsection-title::before { content:'▸'; color:var(--text-dim); }
   .evidence-list { list-style:none; padding:0; }
   .evidence-list li { padding:8px 0; border-bottom:1px dashed var(--border); display:flex; gap:12px; font-family:'Courier Prime',monospace; font-size:13px; line-height:1.6; }
-  .evidence-list li::before { content:'►'; color:var(--orange-dim); flex-shrink:0; margin-top:2px; }
+  .evidence-list li::before { content:'►'; color:var(--text-dim); flex-shrink:0; margin-top:2px; }
   .callout { border:1px solid var(--orange); padding:16px 20px; margin:20px 0; background:var(--orange-faint); position:relative; box-shadow:0 0 20px rgba(200,120,32,0.05); }
   .callout-label { position:absolute; top:-8px; left:12px; background:var(--bg); padding:0 8px; font-size:10px; letter-spacing:0.3em; color:var(--orange-bright); font-family:'Share Tech Mono',monospace; }
   .callout-content { font-family:'Courier Prime',monospace; font-size:13px; line-height:1.8; font-style:italic; color:var(--orange-bright); }
-  .redacted { background:var(--orange-dim); color:var(--orange-dim); padding:0 4px; cursor:default; transition:all 0.3s; user-select:none; }
-  .redacted:hover { background:transparent; color:var(--orange-bright); }
+
+  /* ── REDACTED ── */
+  .redacted {
+    background: var(--orange-dim); color: transparent; padding: 0 4px;
+    cursor: pointer; transition: all 0.3s; user-select: none;
+    border-radius: 1px;
+    position: relative;
+  }
+  .redacted[data-revealed="true"] { background: transparent; color: var(--orange-bright); cursor: default; }
+  .redacted:focus { outline: 2px dashed var(--orange-bright); outline-offset: 2px; }
+  .redacted:not([data-revealed="true"])::after {
+    content: 'REDACTED';
+    position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--bg); font-size: 9px; letter-spacing: 0.2em;
+    pointer-events: none;
+  }
+
   .intervention { margin-bottom:20px; border:1px solid var(--border-bright); padding:16px; background:rgba(0,0,0,0.3); }
   .intervention-header { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
   .priority-badge { background:var(--orange); color:var(--bg); font-size:9px; padding:2px 8px; letter-spacing:0.15em; font-family:'Share Tech Mono',monospace; font-weight:bold; }
   .intervention-title { font-family:'Share Tech Mono',monospace; font-size:12px; letter-spacing:0.15em; color:var(--orange-bright); }
+
+  /* ── FOOTER ── */
   .doc-footer { border-top:1px solid var(--orange); padding-top:24px; margin-top:60px; text-align:center; }
   .signature { font-size:28px; font-family:'Courier Prime',monospace; font-style:italic; color:var(--orange-bright); text-shadow:0 0 20px var(--orange); margin:16px 0; }
   .footer-stamps { display:flex; justify-content:center; gap:30px; margin-top:20px; flex-wrap:wrap; }
   .stamp { border:2px solid var(--orange-dim); padding:8px 20px; font-size:11px; letter-spacing:0.3em; color:var(--orange-dim); text-transform:uppercase; opacity:0.6; }
   .stamp:nth-child(1){transform:rotate(-2deg)}.stamp:nth-child(2){transform:rotate(1.5deg)}.stamp:nth-child(3){transform:rotate(-1deg)}
-  .statusbar { position:fixed; bottom:0; left:0; right:0; height:28px; background:var(--bg); border-top:1px solid var(--border-bright); display:flex; align-items:center; justify-content:space-between; padding:0 20px; z-index:998; font-size:10px; color:var(--orange-dim); letter-spacing:0.15em; }
+
+  /* ── STATUSBAR ── */
+  .statusbar {
+    position:fixed; bottom:0; left:0; right:0; height:28px;
+    background:var(--bg); border-top:1px solid var(--border-bright);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 20px; z-index:998; font-size:10px; color:var(--text-dim); letter-spacing:0.15em;
+  }
+  @media (max-width: 600px) {
+    .statusbar { padding: 0 10px; font-size: 9px; }
+    .statusbar .hide-mobile { display: none; }
+  }
+
+  /* ── ANIMATIONS ── */
   .glitch { position:relative; }
   .glitch::before,.glitch::after { content:attr(data-text); position:absolute; top:0;left:0;width:100%;height:100%; }
   .glitch::before { animation:g1 4s infinite; color:var(--orange-bright); clip-path:inset(0 0 70% 0); }
@@ -124,77 +196,101 @@
   .cur::after { content:'█'; animation:cb 1.2s step-end infinite; color:var(--orange-bright); font-size:12px; }
   @keyframes cb{0%,100%{opacity:1}50%{opacity:0}}
   .hr { border:none; border-top:1px dashed var(--border-bright); margin:30px 0; }
-  .note { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--orange-dim); letter-spacing:0.1em; border-left:2px solid var(--border-bright); padding-left:12px; margin:14px 0; }
+  .note { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-dim); letter-spacing:0.1em; border-left:2px solid var(--border-bright); padding-left:12px; margin:14px 0; }
   .tag { display:inline-block; font-family:'Share Tech Mono',monospace; font-size:9px; padding:2px 7px; letter-spacing:0.15em; border:1px solid var(--orange-dim); color:var(--orange-dim); margin-right:6px; vertical-align:middle; }
 
-  /* DIORAMA */
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+  /* ── DIORAMA ── */
   .diorama { margin:28px 0; border:1px solid var(--border-bright); background:#050300; position:relative; overflow:hidden; }
-  .diorama-label { height:24px; background:rgba(200,120,32,0.08); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 12px; gap:8px; font-size:9px; letter-spacing:0.3em; color:var(--orange-dim); }
+  .diorama-label { height:24px; background:rgba(200,120,32,0.08); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 12px; gap:8px; font-size:9px; letter-spacing:0.3em; color:var(--text-dim); }
   .diorama-label b { color:var(--orange-bright); }
   .diorama canvas { display:block; width:100%; }
-  .diorama-caption { padding:8px 14px; font-size:10px; letter-spacing:0.1em; color:var(--orange-dim); border-top:1px solid var(--border); font-family:'Share Tech Mono',monospace; line-height:1.6; }
+  .diorama-caption { padding:8px 14px; font-size:10px; letter-spacing:0.1em; color:var(--text-dim); border-top:1px solid var(--border); font-family:'Share Tech Mono',monospace; line-height:1.6; }
   .diorama-caption em { color:var(--orange); font-style:normal; }
+
+  /* Canvas aria description (hidden visually, available to SR) */
+  .sr-only {
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); border:0;
+  }
+
+  /* SIERRA hover hint pulse */
+  .sierra-hint {
+    position:absolute; bottom:32px; left:50%; transform:translateX(-50%);
+    font-size:9px; letter-spacing:0.2em; color:var(--orange-dim);
+    animation:hintPulse 2.5s ease-in-out infinite;
+    pointer-events:none; white-space:nowrap;
+  }
+  @keyframes hintPulse { 0%,100%{opacity:0.3} 50%{opacity:0.85} }
 </style>
 </head>
 <body>
-<div class="topbar">
-  <div class="topbar-title glitch" data-text="△ VANTAGE SYSTEMS AUTHORITY — CLASSIFIED TERMINAL △">△ VANTAGE SYSTEMS AUTHORITY — CLASSIFIED TERMINAL △</div>
-  <div class="topbar-right">
-    <span>USER: AUTHORIZED</span><span>CLEARANCE: LEVEL-2</span><span class="sdot">● SIGNAL: STRONG</span>
+
+<a class="skip-link" href="#main-content">SKIP TO CONTENT</a>
+
+<div class="topbar" role="banner">
+  <div class="topbar-title glitch" data-text="△ VANTAGE SYSTEMS AUTHORITY — CLASSIFIED TERMINAL △" id="topbar-title" title="Click to skip typewriter animation" tabindex="0" role="button" aria-label="VSA Classified Terminal — click to skip animation">△ VANTAGE SYSTEMS AUTHORITY — CLASSIFIED TERMINAL △</div>
+  <div class="topbar-right" aria-label="Terminal status">
+    <span class="hide-mobile">USER: AUTHORIZED</span>
+    <span class="hide-mobile">CLEARANCE: LEVEL-2</span>
+    <span class="sdot">● SIGNAL: STRONG</span>
   </div>
 </div>
 
+<main id="main-content">
 <div class="container">
-  <div class="doc-header">
+  <div class="doc-header" role="region" aria-label="Document header">
     <div class="doc-title">SURVEYOR FIELD RESEARCH NOTES</div>
     <div class="doc-subtitle">Comprehensive Edition — Ongoing Revision</div>
-    <div class="meta-grid">
-      <div class="meta-item"><div class="meta-label">AUTHOR</div><div class="meta-value">Surveyor Bishop</div></div>
-      <div class="meta-item"><div class="meta-label">CLEARANCE</div><div class="meta-value">Unfiled / Personal Research</div></div>
-      <div class="meta-item"><div class="meta-label">DISTRIBUTION</div><div class="meta-value">Not submitted to Command</div></div>
-      <div class="meta-item"><div class="meta-label">STATUS</div><div class="meta-value cur">Working Document</div></div>
-      <div class="meta-item"><div class="meta-label">CLASSIFICATION</div><div class="meta-value">None. Command does not know this exists.</div></div>
-      <div class="meta-item"><div class="meta-label">FILES LOADED</div><div class="meta-value">18 FILES — MEM: 53.9%</div></div>
+    <div class="meta-grid" role="table" aria-label="Document metadata">
+      <div class="meta-item" role="row"><div class="meta-label" role="rowheader">AUTHOR</div><div class="meta-value" role="cell">Surveyor Bishop</div></div>
+      <div class="meta-item" role="row"><div class="meta-label" role="rowheader">CLEARANCE</div><div class="meta-value" role="cell">Unfiled / Personal Research</div></div>
+      <div class="meta-item" role="row"><div class="meta-label" role="rowheader">DISTRIBUTION</div><div class="meta-value" role="cell">NOT ALLOWED</div></div>
+      <div class="meta-item" role="row"><div class="meta-label" role="rowheader">STATUS</div><div class="meta-value cur" role="cell">Working Document</div></div>
+      <div class="meta-item" role="row"><div class="meta-label" role="rowheader">CLEARANCE</div><div class="meta-value" role="cell">Level-1</div></div>
+      <div class="meta-item" role="row"><div class="meta-label" role="rowheader">CLASSIFICATION</div><div class="meta-value" role="cell">Personal Research</div></div>
     </div>
-    <div class="warning-banner">⚠ NOT FILED — NOT REVIEWED — NOT SUBMITTED TO COMMAND — RETAINED FOR PERSONAL RECORD ⚠</div>
+    <div class="warning-banner" role="alert">⚠ DISTRIBUTION NOT ALLOWED — CLEARANCE LEVEL-1 — RETAINED FOR PERSONAL RECORD ⚠</div>
   </div>
 
-  <div class="toc">
-    <a class="toc-item" href="#s0"><span class="toc-num">00.</span> Prefatory Note<span class="toc-dots"></span></a>
-    <a class="toc-item" href="#s1"><span class="toc-num">01.</span> What the Portal Is Not<span class="toc-dots"></span></a>
-    <a class="toc-item" href="#s2"><span class="toc-num">02.</span> The Informational Transfer Model<span class="toc-dots"></span></a>
-    <a class="toc-item" href="#s3"><span class="toc-num">03.</span> The Transition Interface and the Void Layer<span class="toc-dots"></span></a>
-    <a class="toc-item" href="#s4"><span class="toc-num">04.</span> The Exchange Hypothesis<span class="toc-dots"></span></a>
-    <a class="toc-item" href="#s5"><span class="toc-num">05.</span> Reality Shear: Complete Model<span class="toc-dots"></span></a>
-    <a class="toc-item" href="#s6"><span class="toc-num">06.</span> SIERRA<span class="toc-dots"></span></a>
-    <a class="toc-item" href="#s7"><span class="toc-num">07.</span> On the VSA's Understanding<span class="toc-dots"></span></a>
-    <a class="toc-item" href="#s8"><span class="toc-num">08.</span> Proposed Corrections<span class="toc-dots"></span></a>
-    <a class="toc-item" href="#s9"><span class="toc-num">09.</span> The Identity Problem<span class="toc-dots"></span></a>
-  </div>
+  <nav class="toc" aria-label="Table of contents">
+    <a class="toc-item" href="#s0" data-section="s0"><span class="toc-num">00.</span> Prefatory Note<span class="toc-dots" aria-hidden="true"></span></a>
+    <a class="toc-item" href="#s1" data-section="s1"><span class="toc-num">01.</span> What the Portal Is Not<span class="toc-dots" aria-hidden="true"></span></a>
+    <a class="toc-item" href="#s2" data-section="s2"><span class="toc-num">02.</span> The Informational Transfer Model<span class="toc-dots" aria-hidden="true"></span></a>
+    <a class="toc-item" href="#s3" data-section="s3"><span class="toc-num">03.</span> The Transition Interface and the Void Layer<span class="toc-dots" aria-hidden="true"></span></a>
+    <a class="toc-item" href="#s4" data-section="s4"><span class="toc-num">04.</span> The Exchange Hypothesis<span class="toc-dots" aria-hidden="true"></span></a>
+    <a class="toc-item" href="#s5" data-section="s5"><span class="toc-num">05.</span> Reality Shear: Complete Model<span class="toc-dots" aria-hidden="true"></span></a>
+    <a class="toc-item" href="#s6" data-section="s6"><span class="toc-num">06.</span> SIERRA<span class="toc-dots" aria-hidden="true"></span></a>
+    <a class="toc-item" href="#s7" data-section="s7"><span class="toc-num">07.</span> On the VSA's Understanding<span class="toc-dots" aria-hidden="true"></span></a>
+    <a class="toc-item" href="#s8" data-section="s8"><span class="toc-num">08.</span> Proposed Corrections<span class="toc-dots" aria-hidden="true"></span></a>
+    <a class="toc-item" href="#s9" data-section="s9"><span class="toc-num">09.</span> The Identity Problem<span class="toc-dots" aria-hidden="true"></span></a>
+  </nav>
 
   <!-- S0 -->
-  <div class="section" id="s0">
-    <div class="section-header"><div class="section-num">00</div><div class="section-title">Prefatory Note</div></div>
+  <section class="section" id="s0" aria-labelledby="title-s0">
+    <div class="section-header"><div class="section-num">00</div><div class="section-title" id="title-s0">Prefatory Note</div></div>
     <div class="section-content">
       <p>I want to be clear about what this document is and what it is not. It is not a formal report. It will not be submitted. It will not be reviewed, stamped, filed, or added to the operational record.</p>
       <div class="callout"><div class="callout-label">PURPOSE STATEMENT</div><div class="callout-content">What this document is: everything I actually think is happening with the ITF portal system, written down in one place, in enough detail that if something goes wrong — whoever finds this will have a head start on understanding why.</div></div>
-      <p>I have been building this model incrementally from field observations, incident reports, personnel accounts, and logical inference. I do not have access to the engineering documentation. I have not been given the incident records from <span class="redacted" title="hover to reveal">FALSE START</span> in any complete form. What I have is pattern recognition and the persistent irritation of watching an organization treat repeatable phenomena as random malfunctions.</p>
+      <p>I have been building this model incrementally from field observations, incident reports, personnel accounts, and logical inference. I do not have access to the engineering documentation. I have not been given the incident records from <span class="redacted" tabindex="0" role="button" aria-label="Redacted text — press Enter or click to reveal" title="Click or press Enter to reveal">FALSE START</span> in any complete form. What I have is pattern recognition and the persistent irritation of watching an organization treat repeatable phenomena as random malfunctions.</p>
       <p>I have been wrong before. I have acknowledged it, corrected my model, and continued. These are my conclusions. All of them. In order.</p>
     </div>
-  </div>
+  </section>
 
-  <div class="hr"></div>
+  <div class="hr" aria-hidden="true"></div>
 
   <!-- S1 -->
-  <div class="section" id="s1">
-    <div class="section-header"><div class="section-num">01</div><div class="section-title">What the Portal Is Not</div></div>
+  <section class="section" id="s1" aria-labelledby="title-s1">
+    <div class="section-header"><div class="section-num">01</div><div class="section-title" id="title-s1">What the Portal Is Not</div></div>
     <div class="section-content">
       <p>The portal is described as a gateway. A tunnel. An aperture connecting two locations through space. This is the language Command uses. Nobody has given them a reason to question it. I am giving them a reason now.</p>
 
-      <div class="diorama">
+      <div class="diorama" role="img" aria-labelledby="d1-caption">
         <div class="diorama-label">DIAGRAM 01 — <b>TRANSIT MODEL COMPARISON</b> — ANIMATED</div>
-        <canvas id="d1" height="190"></canvas>
-        <div class="diorama-caption">LEFT: Command's "tunnel" model — continuous spatial path, traversal memory, geometric interior. RIGHT: <em>Observed behavior — instantaneous replacement. No traversal. No interior. No path.</em></div>
+        <canvas id="d1" height="190" aria-hidden="true"></canvas>
+        <p class="sr-only">Animated diagram comparing two transit models. Left side shows Command's tunnel model: a figure moving continuously through a tube from Point A to Point B with traversal memory and geometric interior. Right side shows observed behavior: instantaneous replacement with no traversal, no interior, and no perceived path — the figure disappears at Point A and reappears at Point B with a flash, separated by nothing.</p>
+        <div class="diorama-caption" id="d1-caption">LEFT: Command's "tunnel" model — continuous spatial path, traversal memory, geometric interior. RIGHT: <em>Observed behavior — instantaneous replacement. No traversal. No interior. No path.</em></div>
       </div>
 
       <div class="callout"><div class="callout-label">KEY OBSERVATION</div><div class="callout-content">Nobody who has passed through the ITF describes traversing anything. They describe being at Point A. They describe being at Point B. Between these two descriptions there is nothing. That is not transit through a tunnel. That is <em>replacement</em>.</div></div>
@@ -204,25 +300,26 @@
         <p>The interior geometry is consistently wrong across multiple independent accounts. "Depth didn't line up." This is not a malfunction. A malfunction is intermittent. The geometric interior inconsistency is consistent, repeatable, and present across every transit event where a subject is paying close enough attention to notice it. It is a fixed property of the system.</p>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="hr"></div>
+  <div class="hr" aria-hidden="true"></div>
 
   <!-- S2 -->
-  <div class="section" id="s2">
-    <div class="section-header"><div class="section-num">02</div><div class="section-title">The Informational Transfer Model</div></div>
+  <section class="section" id="s2" aria-labelledby="title-s2">
+    <div class="section-header"><div class="section-num">02</div><div class="section-title" id="title-s2">The Informational Transfer Model</div></div>
     <div class="section-content">
       <p>The portal does not move matter. What it does is capture the complete physical and quantum-informational state of whatever enters the aperture, terminate the original matter configuration at Point A, and reconstruct that state at Point B. Transit is not movement. It is replacement.</p>
 
-      <div class="diorama">
+      <div class="diorama" role="img" aria-labelledby="d2-caption">
         <div class="diorama-label">DIAGRAM 02 — <b>STATE CAPTURE & RECONSTRUCTION CYCLE</b> — ANIMATED</div>
-        <canvas id="d2" height="200"></canvas>
-        <div class="diorama-caption">Subject enters aperture → matter is <em>encoded as quantum-informational data</em> → original configuration terminated at Point A → state reconstructed at Point B from available matter.</div>
+        <canvas id="d2" height="200" aria-hidden="true"></canvas>
+        <p class="sr-only">Animated pipeline diagram showing five stages: Matter at Point A → Encode at aperture → Data state in Void Layer → Rebuild at Point B → Matter arrived. A particle travels between nodes to show the active stage, with descriptive text below indicating the current phase of the state transfer cycle.</p>
+        <div class="diorama-caption" id="d2-caption">Subject enters aperture → matter is <em>encoded as quantum-informational data</em> → original configuration terminated at Point A → state reconstructed at Point B from available matter.</div>
       </div>
 
       <div class="subsection">
         <div class="subsection-title">Evidentiary Basis</div>
-        <ul class="evidence-list">
+        <ul class="evidence-list" aria-label="Evidence supporting informational transfer model">
           <li><strong>Zero perceived transit time.</strong> If you are moving through space, even very quickly, there is some interval. There is none here.</li>
           <li><strong>Absent traversal memory.</strong> Subjects do not remember moving. You cannot form traversal memories if there is no traversal.</li>
           <li><strong>Geometric interior inconsistency.</strong> The transition interface is geometrically wrong because it is not a geometric space. It is a process.</li>
@@ -235,20 +332,21 @@
         <p>The negative energy conditions on Kyros are not incidental. The extreme cold produces a macroscopic Casimir-like field that provides the stabilizing mechanism the portal requires. The original designers chose this location deliberately.</p>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="hr"></div>
+  <div class="hr" aria-hidden="true"></div>
 
   <!-- S3 -->
-  <div class="section" id="s3">
-    <div class="section-header"><div class="section-num">03</div><div class="section-title">The Transition Interface and the Void Layer</div></div>
+  <section class="section" id="s3" aria-labelledby="title-s3">
+    <div class="section-header"><div class="section-num">03</div><div class="section-title" id="title-s3">The Transition Interface and the Void Layer</div></div>
     <div class="section-content">
       <p>The interior of the portal is not a volume in any classical sense. What subjects experience is a coordinate mapping interface — a process that has no spatial interior. It is fundamentally non-spatial in nature.</p>
 
-      <div class="diorama">
+      <div class="diorama" role="img" aria-labelledby="d3-caption">
         <div class="diorama-label">DIAGRAM 03 — <b>THE VOID LAYER — ATEMPORAL MEDIUM</b> — ANIMATED</div>
-        <canvas id="d3" height="230"></canvas>
-        <div class="diorama-caption">The Void layer exists <em>between all timelines simultaneously</em>. Subject enters from above (Timeline A), dissolves into informational state, exits below (Timeline B). <em>No sequential time inside. No spatial geometry. No experiential content.</em></div>
+        <canvas id="d3" height="230" aria-hidden="true"></canvas>
+        <p class="sr-only">Animated vertical cross-section diagram showing three zones. Top: Timeline A with a sequential time arrow. Bottom: Timeline B. Middle: The Void Layer, rendered as a noisy textured band with dashed borders. An animated figure travels from top to bottom, fragmenting into scattered particles while inside the Void zone, then reconstituting upon exit — representing the dissolution of physical form and the absence of memory formation in an atemporal medium.</p>
+        <div class="diorama-caption" id="d3-caption">The Void layer exists <em>between all timelines simultaneously</em>. Subject enters from above (Timeline A), dissolves into informational state, exits below (Timeline B). <em>No sequential time inside. No spatial geometry. No experiential content.</em></div>
       </div>
 
       <div class="callout"><div class="callout-label">INFORMATIONAL SINGULARITY</div><div class="callout-content">The pressure sensation subjects report at the threshold is the subjective experience of the encoding process. You are briefly not a physical object. You are a description of a physical object. Whether this is worse than being a physical object is a philosophical question I am not equipped to answer.</div></div>
@@ -258,20 +356,21 @@
         <p>The transition interface appears to be a layer adjacent to all timelines simultaneously — not a different location within this timeline, but a layer between realities, accessible from any point in any timeline via the ITF aperture. The Void layer exists outside of time as it functions in normal spacetime. This is why subjects cannot form memories of the transition. Memory formation requires sequential time. The Void does not provide it.</p>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="hr"></div>
+  <div class="hr" aria-hidden="true"></div>
 
   <!-- S4 -->
-  <div class="section" id="s4">
-    <div class="section-header"><div class="section-num">04</div><div class="section-title">The Exchange Hypothesis</div></div>
+  <section class="section" id="s4" aria-labelledby="title-s4">
+    <div class="section-header"><div class="section-num">04</div><div class="section-title" id="title-s4">The Exchange Hypothesis</div></div>
     <div class="section-content">
       <p>The exchange hypothesis holds that the portal uses the Void layer to exchange you with a version of yourself from a parallel timeline who was at Point B at that moment. You do not get reconstructed. You get swapped.</p>
 
-      <div class="diorama">
+      <div class="diorama" role="img" aria-labelledby="d4-caption">
         <div class="diorama-label">DIAGRAM 04 — <b>PARALLEL TIMELINE EXCHANGE MECHANISM</b> — ANIMATED</div>
-        <canvas id="d4" height="240"></canvas>
-        <div class="diorama-caption">Two parallel timelines. <em>You</em> enter at Point A (Timeline α). Your adjacent-timeline counterpart is retrieved from Point B (Timeline β). Exchange occurs in the Void — atemporal, no duration. <em>Both versions believe they are themselves. Both are correct.</em></div>
+        <canvas id="d4" height="240" aria-hidden="true"></canvas>
+        <p class="sr-only">Animated diagram depicting two parallel horizontal timelines labeled Alpha and Beta. Portal apertures appear at Point A on Timeline Alpha and Point B on Timeline Beta. Two figures — one on each timeline — converge toward a central Void layer, cross in the middle in a flash of light representing the instantaneous exchange, then continue to the opposite destinations. A status label below cycles through: Both at rest, Approaching boundary, Exchange in Void, Routing to destinations, Exchange complete.</p>
+        <div class="diorama-caption" id="d4-caption">Two parallel timelines. <em>You</em> enter at Point A (Timeline α). Your adjacent-timeline counterpart is retrieved from Point B (Timeline β). Exchange occurs in the Void — atemporal, no duration. <em>Both versions believe they are themselves. Both are correct.</em></div>
       </div>
 
       <div class="subsection">
@@ -284,20 +383,21 @@
         <div class="note">▸ This is significantly more unsettling than future-state bleedback. Unsettling and incorrect are not the same thing.</div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="hr"></div>
+  <div class="hr" aria-hidden="true"></div>
 
   <!-- S5 -->
-  <div class="section" id="s5">
-    <div class="section-header"><div class="section-num">05</div><div class="section-title">Reality Shear — Complete Model</div></div>
+  <section class="section" id="s5" aria-labelledby="title-s5">
+    <div class="section-header"><div class="section-num">05</div><div class="section-title" id="title-s5">Reality Shear — Complete Model</div></div>
     <div class="section-content">
       <p>Reality Shear is not a single phenomenon. It is at least three distinct but related phenomena that the operational terminology has collapsed into one category. You cannot fix one thing when the thing is actually three things.</p>
 
-      <div class="diorama">
+      <div class="diorama" role="img" aria-labelledby="d5-caption">
         <div class="diorama-label">DIAGRAM 05 — <b>REALITY SHEAR — THREE COMPONENT MODEL</b> — ANIMATED</div>
-        <canvas id="d5" height="230"></canvas>
-        <div class="diorama-caption"><em>LEFT:</em> Subject-level match degradation — baseline vs retrieved signature drift. <em>CENTER:</em> Environmental stress accumulation per transit. <em>RIGHT:</em> Temporal boundary thinning — the undocumented component.</div>
+        <canvas id="d5" height="230" aria-hidden="true"></canvas>
+        <p class="sr-only">Three-panel animated diagram. Left panel: Subject-level match degradation — two concentric circles representing baseline quantum signature and retrieved signature, showing progressive drift until mismatch is flagged in red. Center panel: Environmental stress accumulation — a distorting dot grid that becomes increasingly warped over transit events, with a percentage bar filling toward a danger threshold. Right panel: Temporal boundary thinning — two wavy lines representing past/future boundaries that thin and flutter with increasing integrity loss, with particle leakage appearing above the threshold.</p>
+        <div class="diorama-caption" id="d5-caption"><em>LEFT:</em> Subject-level match degradation — baseline vs retrieved signature drift. <em>CENTER:</em> Environmental stress accumulation per transit. <em>RIGHT:</em> Temporal boundary thinning — the undocumented component.</div>
       </div>
 
       <div class="subsection">
@@ -311,30 +411,32 @@
       <div class="subsection">
         <div class="subsection-title">Component Three — Temporal Shear <span class="tag">UNDOCUMENTED</span></div>
         <p>Every transit event creates a small temporal stress. Under accumulated stress, sufficiently thinned temporal boundaries create windows through which information — and potentially entities — from other points in time can interact with the present.</p>
-        <div class="callout"><div class="callout-label">CRITICAL NOTE</div><div class="callout-content">This is not speculative extrapolation. It is the mechanism that <span class="redacted" title="hover to reveal">FALSE START</span> demonstrated at scale.</div></div>
+        <div class="callout"><div class="callout-label">CRITICAL NOTE</div><div class="callout-content">This is not speculative extrapolation. It is the mechanism that <span class="redacted" tabindex="0" role="button" aria-label="Redacted text — press Enter or click to reveal" title="Click or press Enter to reveal">FALSE START</span> demonstrated at scale.</div></div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="hr"></div>
+  <div class="hr" aria-hidden="true"></div>
 
   <!-- S6 -->
-  <div class="section" id="s6">
-    <div class="section-header"><div class="section-num">06</div><div class="section-title">SIERRA</div></div>
+  <section class="section" id="s6" aria-labelledby="title-s6">
+    <div class="section-header"><div class="section-num">06</div><div class="section-title" id="title-s6">SIERRA</div></div>
     <div class="section-content">
       <div class="subsection">
         <div class="subsection-title">What Is Confirmed</div>
-        <ul class="evidence-list">
+        <ul class="evidence-list" aria-label="Confirmed facts about SIERRA">
           <li>SIERRA exists in a quantum superposition state that spans dimensional boundaries. This is the operational understanding within VSA, however poorly it is understood.</li>
           <li>Direct observation collapses SIERRA's superposition. For SIERRA this resolution appears to be catastrophic — not a measurement disturbance but an existential one.</li>
           <li>At least one technician reported a physical encounter with SIERRA near a portal highway. Diamond has stated this is impossible. The contradiction is publicly unresolved.</li>
         </ul>
       </div>
 
-      <div class="diorama">
-        <div class="diorama-label">DIAGRAM 06 — <b>SIERRA SUPERPOSITION STATE</b> — <b style="color:#e8922a">HOVER TO OBSERVE (COLLAPSES ON INTERACTION)</b></div>
-        <canvas id="d6" height="210"></canvas>
-        <div class="diorama-caption">SIERRA's wavefunction spans all timelines simultaneously. <em>Move mouse over diagram to simulate observation — watch superposition collapse.</em> Full manifestation is not difficult for SIERRA. It is existentially fatal.</div>
+      <div class="diorama" style="position:relative;" role="img" aria-labelledby="d6-caption">
+        <div class="diorama-label">DIAGRAM 06 — <b>SIERRA SUPERPOSITION STATE</b> — <b style="color:#e8922a">CLICK EYE ICON TO TOGGLE OBSERVATION</b></div>
+        <canvas id="d6" height="240" aria-hidden="true"></canvas>
+
+        <p class="sr-only">Interactive animated diagram. In its default state, SIERRA is shown as multiple overlapping ghosted figures across several parallel timeline bands, representing simultaneous existence in all timelines. Waveforms oscillate across the canvas. When the user hovers or touches the diagram, a collapse animation triggers: the overlapping forms converge, a red warning ring expands, and a critical coherence alert appears — simulating the existential risk of direct observation on SIERRA's superposition state.</p>
+        <div class="diorama-caption" id="d6-caption">SIERRA's wavefunction spans all timelines simultaneously. <em>Move mouse over diagram to simulate observation — watch superposition collapse.</em> Full manifestation is not difficult for SIERRA. It is existentially fatal.</div>
       </div>
 
       <div class="subsection">
@@ -342,36 +444,37 @@
         <p>The most parsimonious explanation for an entity in permanent superposition across all timelines is that it is native to the medium between timelines — the Void layer itself. Full manifestation is not difficult for SIERRA. It is existentially fatal. This explains why SIERRA interacts through the boundary rather than crossing it. Not inability. Not restraint. <strong>Survival.</strong></p>
       </div>
       <div class="subsection">
-        <div class="subsection-title">FALSE START — Recharacterized</div>
-        <p>The FALSE START incident was not an attack. It was a resonance event. The Anchor Lock failure produced an uncontrolled opening into the Void layer — an aperture connecting to the medium between timelines rather than to a specific timeline's Point B. When the aperture opened into the Void directly, SIERRA achieved momentary coherence. Not because SIERRA forced its way through. Because the door opened into the room where SIERRA already was.</p>
+        <div class="subsection-title"><span class="redacted" tabindex="0" role="button" aria-label="Redacted text — press Enter or click to reveal" title="Click or press Enter to reveal">FALSE START</span> — Recharacterized</div>
+        <p>The <span class="redacted" tabindex="0" role="button" aria-label="Redacted text — press Enter or click to reveal" title="Click or press Enter to reveal">FALSE START</span> incident was not an attack. It was a resonance event. The Anchor Lock failure produced an uncontrolled opening into the Void layer — an aperture connecting to the medium between timelines rather than to a specific timeline's Point B. When the aperture opened into the Void directly, SIERRA achieved momentary coherence. Not because SIERRA forced its way through. Because the door opened into the room where SIERRA already was.</p>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="hr"></div>
+  <div class="hr" aria-hidden="true"></div>
 
   <!-- S7 -->
-  <div class="section" id="s7">
-    <div class="section-header"><div class="section-num">07</div><div class="section-title">On the VSA's Understanding of This System</div></div>
+  <section class="section" id="s7" aria-labelledby="title-s7">
+    <div class="section-header"><div class="section-num">07</div><div class="section-title" id="title-s7">On the VSA's Understanding of This System</div></div>
     <div class="section-content">
       <div class="callout"><div class="callout-label">CONCLUSION</div><div class="callout-content">The VSA did not develop this technology.</div></div>
       <p>The calibration requirements, the environmental prerequisites, the Anchor Lock architecture, the specific location selection — all reflect design decisions made by someone who understood what the system was. The original designers built the ITF around the Void layer exchange model. They knew about temporal shear. They chose Kyros deliberately.</p>
       <p>The VSA's operational model treats the portal as a spatial gateway. Files collapse events as equipment failure. Does not account for temporal shear. Does not understand the Void layer. Is asking civilian surveyors to redesign a system whose fundamental operating principles it has not correctly characterized.</p>
-      <div class="note">▸ Diamond may be genuinely incorrect rather than deliberately dishonest. Deliberate deception would produce different errors — errors of omission, not fundamental mischaracterization. That said: I cannot rule out deliberate deception in the case of FALSE START specifically.</div>
+      <div class="note">▸ Diamond may be genuinely incorrect rather than deliberately dishonest. Deliberate deception would produce different errors — errors of omission, not fundamental mischaracterization. That said: I cannot rule out deliberate deception in the case of <span class="redacted" tabindex="0" role="button" aria-label="Redacted text — press Enter or click to reveal" title="Click or press Enter to reveal">FALSE START</span> specifically.</div>
     </div>
-  </div>
+  </section>
 
-  <div class="hr"></div>
+  <div class="hr" aria-hidden="true"></div>
 
   <!-- S8 -->
-  <div class="section" id="s8">
-    <div class="section-header"><div class="section-num">08</div><div class="section-title">Proposed Corrections</div></div>
+  <section class="section" id="s8" aria-labelledby="title-s8">
+    <div class="section-header"><div class="section-num">08</div><div class="section-title" id="title-s8">Proposed Corrections</div></div>
     <div class="section-content">
 
-      <div class="diorama">
+      <div class="diorama" role="img" aria-labelledby="d7-caption">
         <div class="diorama-label">DIAGRAM 07 — <b>CUMULATIVE SHEAR WITHOUT CONTINUOUS MONITORING</b> — ANIMATED</div>
-        <canvas id="d7" height="165"></canvas>
-        <div class="diorama-caption">Calendar-based maintenance (vertical markers) fires at fixed intervals regardless of actual stress. <em>Threshold is crossed invisibly between windows.</em> Monitoring must be continuous and threshold-triggered.</div>
+        <canvas id="d7" height="165" aria-hidden="true"></canvas>
+        <p class="sr-only">Animated line chart showing cumulative shear accumulation over transit events on the X axis and shear percentage on the Y axis. The line curves upward non-linearly, crossing a red danger threshold between scheduled maintenance windows marked as vertical dashed lines. The chart demonstrates that calendar-based maintenance fires too infrequently and that the threshold is crossed invisibly between windows.</p>
+        <div class="diorama-caption" id="d7-caption">Calendar-based maintenance (vertical markers) fires at fixed intervals regardless of actual stress. <em>Threshold is crossed invisibly between windows.</em> Monitoring must be continuous and threshold-triggered.</div>
       </div>
 
       <div class="intervention">
@@ -380,7 +483,7 @@
       </div>
       <div class="intervention">
         <div class="intervention-header"><div class="priority-badge">PRIORITY 2</div><div class="intervention-title">Temporal Offset Correction</div></div>
-        <p>Anchor Lock calibration must include a temporal component currently absent from all operational procedures. An active dampening signal cancels temporal feedback before it can amplify. Amplified temporal feedback was the mechanism that produced FALSE START.</p>
+        <p>Anchor Lock calibration must include a temporal component currently absent from all operational procedures. An active dampening signal cancels temporal feedback before it can amplify. Amplified temporal feedback was the mechanism that produced <span class="redacted" tabindex="0" role="button" aria-label="Redacted text — press Enter or click to reveal" title="Click or press Enter to reveal">FALSE START</span>.</p>
       </div>
       <div class="intervention">
         <div class="intervention-header"><div class="priority-badge">PRIORITY 3</div><div class="intervention-title">Cumulative Shear Monitoring with Mandatory Recalibration</div></div>
@@ -392,64 +495,68 @@
         <div class="note">▸ I recognize this intervention will not be implemented. I am documenting it anyway because the ethical case is clear.</div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="hr"></div>
+  <div class="hr" aria-hidden="true"></div>
 
   <!-- S9 -->
-  <div class="section" id="s9">
-    <div class="section-header"><div class="section-num">09</div><div class="section-title">The Identity Problem</div></div>
+  <section class="section" id="s9" aria-labelledby="title-s9">
+    <div class="section-header"><div class="section-num">09</div><div class="section-title" id="title-s9">The Identity Problem</div></div>
     <div class="section-content">
       <p>If the portal exchanges you with a version of yourself from a parallel timeline, then the person who exits is not you in any strict physical continuity sense. They are you in every practical sense — same memories, same relationships, same body to within detection threshold. But they are not the person who entered.</p>
 
-      <div class="diorama">
+      <div class="diorama" role="img" aria-labelledby="d8-caption">
         <div class="diorama-label">DIAGRAM 08 — <b>IDENTITY CONTINUITY ACROSS TRANSIT</b> — ANIMATED</div>
-        <canvas id="d8" height="220"></canvas>
-        <div class="diorama-caption">Every person who has ever used the ITF has had this experience without knowing it. <em>The discontinuity is real regardless.</em> They believe they went in and came out. They are not lying. They genuinely do not know.</div>
+        <canvas id="d8" height="220" aria-hidden="true"></canvas>
+        <p class="sr-only">Animated branching diagram. A figure approaches from the left along Timeline Alpha. At the portal aperture, the path splits into two branches: an upper branch labeled "You (Beta) — exits at Point B, adjacent timeline version" in bright orange, and a lower dashed branch labeled "You (Alpha) — routed to Beta timeline as their counterpart." A small animated figure travels the upper path, while the original figure disappears into the portal. Text at the bottom reads: Both versions believe they went in and came out. Neither is lying. Neither is exactly right.</p>
+        <div class="diorama-caption" id="d8-caption">Every person who has ever used the ITF has had this experience without knowing it. <em>The discontinuity is real regardless.</em> They believe they went in and came out. They are not lying. They genuinely do not know.</div>
       </div>
 
       <div class="callout"><div class="callout-label">FINAL OBSERVATION</div><div class="callout-content">Whether this constitutes survival, death, or something that has no existing category is a question I am documenting but not attempting to answer. It is above my current philosophy. It may be above anyone's current philosophy.</div></div>
       <p>Command knows this or should know this. I am writing this down because someone should have.</p>
     </div>
-  </div>
+  </section>
 
-  <div class="hr"></div>
+  <div class="hr" aria-hidden="true"></div>
 
-  <div class="section">
+  <section class="section" aria-label="Closing statement">
     <div class="section-content">
       <p>These are my conclusions. All of them. In the most complete form I have been able to assemble them.</p>
       <p>If I am right — and I think I am right — then the ITF portal system is a Void-layer exchange mechanism operating on temporal and dimensional principles its current operators do not fully understand, producing effects they are misclassifying, managed with calibration practices that are systematically insufficient, and exhibiting failure modes that have already produced at least one catastrophic incident filed as equipment failure and not investigated at the level it requires.</p>
       <p>The people using this system deserve better than that. The people who disappeared into it and did not come back deserved better than that. Command will not investigate. That is why I am writing this down.</p>
     </div>
-  </div>
+  </section>
 
   <div class="doc-footer">
-    <div class="signature">— B</div>
-    <div class="footer-stamps">
-      <div class="stamp">Not Filed</div>
-      <div class="stamp">Not Reviewed</div>
-      <div class="stamp">Not Submitted</div>
+    <div class="signature" aria-label="Signed: B">— B</div>
+    <div class="footer-stamps" aria-label="Document stamps">
+      <div class="stamp">Under Review</div>
     </div>
-    <div style="margin-top:24px;font-size:11px;color:var(--orange-dim);letter-spacing:0.15em;line-height:2;">
-      <p>If found: return to Engineering. Ask for Bishop.</p>
+    <div style="margin-top:24px;font-size:11px;color:var(--text-dim);letter-spacing:0.15em;line-height:2;">
+      <p>If found: return to Bishop.</p>
       <p>If Bishop is not available: read it anyway.</p>
     </div>
   </div>
 </div>
+</main>
 
-<div class="statusbar">
+<div class="statusbar" role="status" aria-live="polite">
   <span>SYSTEM STATUS: OPERATIONAL</span>
-  <span>18 FILES LOADED</span>
-  <span>MEM: 53.9%</span>
+  <span class="hide-mobile">18 FILES LOADED</span>
+  <span class="hide-mobile">MEM: 53.9%</span>
   <span>SYSTEM</span>
 </div>
 
 <script>
+'use strict';
 // ── HELPERS ──────────────────────────────────────────────────────────────
 const C = { O:'#c87820', OB:'#e8922a', OD:'#7a4a10', OF:'#3d2508', BG:'#050300', R:'#ff3300' };
 function a(hex,op){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${op})`;}
+
+// Canvas setup — respects devicePixelRatio
 function setup(id){
   const cv=document.getElementById(id);
+  if(!cv) return null;
   const dpr=window.devicePixelRatio||1;
   const W=cv.parentElement.clientWidth||840;
   const H=cv.height;
@@ -474,82 +581,150 @@ function portal(ctx,x,y,w,h,col,t){
   ctx.restore();
 }
 
+// ── INTERSECTION OBSERVER — pause offscreen canvases ─────────────────────
+const animationHandles = {};
+const canvasActive = {};
+
+function registerCanvas(id, drawFn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  canvasActive[id] = false;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      canvasActive[id] = entry.isIntersecting;
+      if (entry.isIntersecting && !animationHandles[id + '_running']) {
+        animationHandles[id + '_running'] = true;
+        drawFn();
+      }
+    });
+  }, { threshold: 0.1 });
+
+  observer.observe(el);
+}
+
 // ── D1: TUNNEL vs REPLACEMENT ─────────────────────────────────────────────
-(()=>{
-  const{ctx,W,H}=setup('d1');
+(function initD1(){
+  const s=setup('d1');
+  if(!s) return;
+  const{ctx,W,H}=s;
   let t=0;
-  const mid=W/2,pad=28,cy=H/2+8;
   function draw(){
+    if(!canvasActive['d1']){animationHandles['d1_running']=false;return;}
     ctx.clearRect(0,0,W,H);
-    t+=0.014;
-    // divider
+    t+=0.012;
+    const mid=W/2,pad=28,cy=H/2+8;
+
+    // Divider
     ctx.save();ctx.strokeStyle=a(C.OF,0.8);ctx.lineWidth=1;ctx.setLineDash([4,6]);
     ctx.beginPath();ctx.moveTo(mid,10);ctx.lineTo(mid,H-10);ctx.stroke();ctx.setLineDash([]);ctx.restore();
 
-    // === LEFT: TUNNEL ===
-    ctx.save();
+    // === LEFT: TUNNEL MODEL ===
     // tube walls
-    ctx.strokeStyle=C.OD;ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(pad,cy-30);ctx.lineTo(mid-pad,cy-30);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(pad,cy+30);ctx.lineTo(mid-pad,cy+30);ctx.stroke();
-    // interior gradient
+    ctx.save();ctx.strokeStyle=C.OD;ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pad,cy-28);ctx.lineTo(mid-pad,cy-28);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(pad,cy+28);ctx.lineTo(mid-pad,cy+28);ctx.stroke();
     const tg=ctx.createLinearGradient(pad,0,mid-pad,0);
-    tg.addColorStop(0,a(C.O,0.03));tg.addColorStop(.5,a(C.O,0.07));tg.addColorStop(1,a(C.O,0.03));
-    ctx.fillStyle=tg;ctx.fillRect(pad,cy-30,mid-2*pad,60);
-    ctx.restore();
-    // depth lines for perspective
-    for(let i=1;i<5;i++){
-      const fx=pad+i*(mid-2*pad)/5;
-      ctx.save();ctx.strokeStyle=a(C.OD,0.15);ctx.lineWidth=1;
-      ctx.beginPath();ctx.moveTo(fx,cy-30);ctx.lineTo(fx,cy+30);ctx.stroke();ctx.restore();
+    tg.addColorStop(0,a(C.O,0.03));tg.addColorStop(.5,a(C.O,0.08));tg.addColorStop(1,a(C.O,0.03));
+    ctx.fillStyle=tg;ctx.fillRect(pad,cy-28,mid-2*pad,56);ctx.restore();
+    // perspective lines inside tunnel
+    for(let i=1;i<6;i++){
+      const fx=pad+i*(mid-2*pad)/6;
+      ctx.save();ctx.strokeStyle=a(C.OD,0.12);ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(fx,cy-28);ctx.lineTo(fx,cy+28);ctx.stroke();ctx.restore();
     }
-    portal(ctx,pad+18,cy,13,30,C.OD,t);
-    portal(ctx,mid-pad-18,cy,13,30,C.OD,t);
-    // Moving figure
-    const pos=(Math.sin(t)+1)/2;
+    portal(ctx,pad+16,cy,12,28,C.OD,t);
+    portal(ctx,mid-pad-16,cy,12,28,C.OD,t);
+    // Smooth continuous figure with motion trail
+    const pos=(Math.sin(t*0.9)+1)/2;
     const fx=pad+32+pos*(mid-2*pad-64);
-    fig(ctx,fx,cy+4,1,C.OB);
-    for(let tr=1;tr<=3;tr++){const tp=Math.max(0,pos-tr*0.07);fig(ctx,pad+32+tp*(mid-2*pad-64),cy+4,(4-tr)*0.09,C.O);}
-    // label
-    ctx.font='9px "Share Tech Mono"';ctx.fillStyle=a(C.OD,0.7);ctx.textAlign='center';
-    ctx.fillText('[ COMMAND MODEL — "TUNNEL" ]',mid/2,H-10);
-
-    // === RIGHT: REPLACEMENT ===
-    const rl=mid+pad,rr=W-pad;
-    portal(ctx,rl+46,cy,13,30,C.O,t);
-    portal(ctx,rr-46,cy,13,30,C.O,t);
-    // dashed "no path" line
-    ctx.save();ctx.strokeStyle=a(C.OD,0.25);ctx.lineWidth=1;ctx.setLineDash([3,9]);
-    ctx.beginPath();ctx.moveTo(rl+62,cy);ctx.lineTo(rr-62,cy);ctx.stroke();ctx.setLineDash([]);ctx.restore();
-    ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.OD,0.35+0.2*Math.sin(t*2));ctx.textAlign='center';
-    ctx.fillText('NO TRAVERSAL',(rl+rr)/2,cy+4);
-
-    const cyc=(t*0.55)%1;
-    let aA=1,aB=0;
-    if(cyc<0.35){aA=1;aB=0;}
-    else if(cyc<0.5){const p=(cyc-.35)/.15;aA=1-p;aB=0;}
-    else if(cyc<0.65){const p=(cyc-.5)/.15;aA=0;aB=p;}
-    else{aA=0;aB=1;}
-    fig(ctx,rl+46,cy,aA,C.O);
-    fig(ctx,rr-46,cy,aB,C.OB);
-    // swap flash
-    if(cyc>=0.48&&cyc<=0.52){
-      const fl=1-Math.abs(cyc-.5)/.02;
-      ctx.save();ctx.globalAlpha=fl*.5;
-      ctx.beginPath();ctx.arc(rl+46,cy,22,0,Math.PI*2);ctx.fillStyle=C.OB;ctx.shadowColor=C.OB;ctx.shadowBlur=20;ctx.fill();
-      ctx.globalAlpha=fl*.3;ctx.beginPath();ctx.arc(rr-46,cy,18,0,Math.PI*2);ctx.fill();ctx.restore();
+    for(let tr=4;tr>=1;tr--){
+      const tp=Math.max(0,pos-tr*0.06);
+      const tfx=pad+32+tp*(mid-2*pad-64);
+      fig(ctx,tfx,cy+4,(5-tr)*0.07,C.O);
     }
-    ctx.font='9px "Share Tech Mono"';ctx.fillStyle=a(C.OD,0.7);ctx.textAlign='center';
+    fig(ctx,fx,cy+4,1,C.OB);
+    // Labels
+    ctx.font='9px "Share Tech Mono"';ctx.fillStyle=a(C.OD,0.65);ctx.textAlign='center';
+    ctx.fillText('[ COMMAND MODEL — "TUNNEL" ]',mid/2,H-10);
+    ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(C.OD,0.4);ctx.textAlign='left';
+    ctx.fillText('A',pad+4,cy-32);ctx.textAlign='right';ctx.fillText('B',mid-pad-4,cy-32);
+
+    // === RIGHT: REPLACEMENT MODEL ===
+    const rl=mid+pad,rr=W-pad;
+    const pAx=rl+52,pBx=rr-52;
+
+    // Draw portal at A and portal at B
+    portal(ctx,pAx,cy,12,28,C.O,t);
+    portal(ctx,pBx,cy,12,28,C.O,t);
+
+    // No path between them — show a big X / void gap
+    ctx.save();
+    ctx.strokeStyle=a(C.OD,0.15);ctx.lineWidth=1;ctx.setLineDash([3,11]);
+    ctx.beginPath();ctx.moveTo(pAx+14,cy);ctx.lineTo(pBx-14,cy);ctx.stroke();
+    ctx.setLineDash([]);ctx.restore();
+
+    // Cycle: figure at A (wait) → flash → figure at B (wait) → flash back
+    // Phase: 0..0.3 = at A, 0.3..0.38 = vanish flash A, 0.38..0.62 = at B, 0.62..0.7 = vanish flash B, 0.7..1 = at A again
+    const cyc=(t*0.38)%1;
+    let showA=false,showB=false,flashA=false,flashB=false;
+    let flashIntA=0,flashIntB=0;
+    if(cyc<0.3){showA=true;}
+    else if(cyc<0.38){flashA=true;flashIntA=Math.sin(((cyc-0.3)/0.08)*Math.PI);}
+    else if(cyc<0.62){showB=true;}
+    else if(cyc<0.7){flashB=true;flashIntB=Math.sin(((cyc-0.62)/0.08)*Math.PI);}
+    else{showA=true;}
+
+    if(showA) fig(ctx,pAx,cy,1,C.OB);
+    if(showB) fig(ctx,pBx,cy,1,C.OB);
+
+    // Flash at A portal (disappear) — ellipse matches portal shape
+    if(flashA){
+      ctx.save();
+      ctx.shadowColor=C.OB;ctx.shadowBlur=24;
+      ctx.globalAlpha=flashIntA*0.55;
+      ctx.fillStyle=C.OB;
+      ctx.beginPath();ctx.ellipse(pAx,cy,16,32,0,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+      fig(ctx,pAx,cy,1-flashIntA,C.OB);
+    }
+    // Flash at B portal (appear) — ellipse matches portal shape
+    if(flashB){
+      ctx.save();
+      ctx.shadowColor=C.OB;ctx.shadowBlur=24;
+      ctx.globalAlpha=flashIntB*0.55;
+      ctx.fillStyle=C.OB;
+      ctx.beginPath();ctx.ellipse(pBx,cy,16,32,0,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+      fig(ctx,pBx,cy,flashIntB,C.OB);
+    }
+
+    // Status text inside the gap
+    let statusTxt='';
+    if(showA) statusTxt='SUBJECT AT POINT A';
+    else if(flashA) statusTxt='— INSTANTANEOUS —';
+    else if(showB) statusTxt='SUBJECT AT POINT B';
+    else if(flashB) statusTxt='— INSTANTANEOUS —';
+    ctx.font='8px "Share Tech Mono"';
+    ctx.fillStyle=a((flashA||flashB)?C.OB:C.OD,(flashA||flashB)?0.9:0.4);
+    ctx.textAlign='center';
+    ctx.fillText(statusTxt,(rl+rr)/2,cy+4);
+
+    ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(C.OD,0.4);ctx.textAlign='center';
+    ctx.fillText('A',(pAx-8),cy-32);ctx.fillText('B',(pBx+8),cy-32);
+
+    ctx.font='9px "Share Tech Mono"';ctx.fillStyle=a(C.OD,0.65);ctx.textAlign='center';
     ctx.fillText('[ OBSERVED BEHAVIOR — REPLACEMENT ]',mid+(W-mid)/2,H-10);
+
     requestAnimationFrame(draw);
   }
-  draw();
+  registerCanvas('d1', draw);
 })();
 
 // ── D2: STATE CAPTURE ─────────────────────────────────────────────────────
-(()=>{
-  const{ctx,W,H}=setup('d2');
-  let t=0;
+(function initD2(){
+  const s=setup('d2');if(!s)return;
+  const{ctx,W,H}=s;let t=0;
   const nodes=[
     {label:'MATTER',sub:'Point A',x:.1},
     {label:'ENCODE',sub:'Aperture',x:.3},
@@ -558,6 +733,7 @@ function portal(ctx,x,y,w,h,col,t){
     {label:'MATTER',sub:'Arrived',x:.9},
   ];
   function draw(){
+    if(!canvasActive['d2']){animationHandles['d2_running']=false;return;}
     ctx.clearRect(0,0,W,H);
     t+=0.009;
     const cy=H/2-8;
@@ -565,8 +741,6 @@ function portal(ctx,x,y,w,h,col,t){
     const cycleT=(t*.25)%phase;
     const activeP=Math.floor(cycleT);
     const pp=cycleT-activeP;
-
-    // connecting segments
     for(let i=0;i<nodes.length-1;i++){
       const x1=nodes[i].x*W+26,x2=nodes[i+1].x*W-26;
       const active=i===activeP;
@@ -577,7 +751,6 @@ function portal(ctx,x,y,w,h,col,t){
       ctx.fillStyle=ctx.strokeStyle;
       ctx.beginPath();ctx.moveTo(x2-8,cy-4);ctx.lineTo(x2,cy);ctx.lineTo(x2-8,cy+4);ctx.fill();
       if(active){
-        // travelling particle
         const px=x1+pp*(x2-x1);
         ctx.beginPath();ctx.arc(px,cy,3,0,Math.PI*2);
         ctx.fillStyle=C.OB;ctx.shadowColor=C.OB;ctx.shadowBlur=10;ctx.fill();
@@ -589,8 +762,6 @@ function portal(ctx,x,y,w,h,col,t){
       }
       ctx.restore();
     }
-
-    // nodes
     nodes.forEach((nd,i)=>{
       const nx=nd.x*W,active=i===activeP||i===activeP+1;
       ctx.save();
@@ -604,39 +775,32 @@ function portal(ctx,x,y,w,h,col,t){
       ctx.font=`7px "Share Tech Mono"`;ctx.fillStyle=a(active?C.OB:C.OD,.6);ctx.fillText(nd.sub,nx,cy+7);
       ctx.restore();
     });
-
-    // phase description
-    const descs=[
-      'Subject exists as physical matter at Point A.',
-      'Aperture captures quantum-informational state.',
-      'Matter terminated. Original is now pure data in Void.',
-      'Data broadcast to Point B. Reconstruction begins.',
-      'Subject exists as physical matter at Point B.'
-    ];
+    const descs=['Subject exists as physical matter at Point A.','Aperture captures quantum-informational state.','Matter terminated. Original is now pure data in Void.','Data broadcast to Point B. Reconstruction begins.','Subject exists as physical matter at Point B.'];
     ctx.font='9px "Share Tech Mono"';ctx.fillStyle=a(C.OB,.75);ctx.textAlign='center';ctx.textBaseline='alphabetic';
     ctx.fillText(descs[Math.min(activeP,4)],W/2,H-14);
     requestAnimationFrame(draw);
   }
-  draw();
+  registerCanvas('d2', draw);
 })();
 
 // ── D3: VOID LAYER STACK ──────────────────────────────────────────────────
-(()=>{
-  const{ctx,W,H}=setup('d3');
-  let t=0;
+(function initD3(){
+  const s=setup('d3');if(!s)return;
+  const{ctx,W,H}=s;let t=0;
   function draw(){
+    if(!canvasActive['d3']){animationHandles['d3_running']=false;return;}
     ctx.clearRect(0,0,W,H);
     t+=0.011;
     const pad=28,tlH=42,vT=tlH+22,vB=H-tlH-22;
 
-    // Timeline A
+    // Timeline A (top)
     ctx.save();ctx.fillStyle=a(C.OD,.12);ctx.fillRect(pad,8,W-2*pad,tlH);
     ctx.strokeStyle=C.OD;ctx.lineWidth=1;ctx.strokeRect(pad,8,W-2*pad,tlH);
     for(let x=pad+25;x<W-pad;x+=35){ctx.save();ctx.strokeStyle=a(C.OD,.25);ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(x,8);ctx.lineTo(x,8+tlH);ctx.stroke();ctx.restore();}
     ctx.font='9px "Share Tech Mono"';ctx.fillStyle=C.OD;ctx.textAlign='left';ctx.fillText('TIMELINE — POINT A  (sequential time →)',pad+8,8+26);
     ctx.restore();
 
-    // Timeline B
+    // Timeline B (bottom)
     ctx.save();ctx.fillStyle=a(C.OD,.12);ctx.fillRect(pad,vB+8,W-2*pad,tlH);
     ctx.strokeStyle=C.OD;ctx.lineWidth=1;ctx.strokeRect(pad,vB+8,W-2*pad,tlH);
     for(let x=pad+25;x<W-pad;x+=35){ctx.save();ctx.strokeStyle=a(C.OD,.25);ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(x,vB+8);ctx.lineTo(x,vB+8+tlH);ctx.stroke();ctx.restore();}
@@ -659,119 +823,312 @@ function portal(ctx,x,y,w,h,col,t){
     ctx.fillText('no sequential time  ·  no spatial geometry  ·  no experiential content',W/2,vT+vH*.57);
     ctx.restore();
 
-    // Animated subject traversal
-    const cyc=(t*.22)%1;
-    const py=8+tlH*.5+cyc*(H-16-tlH);
-    const inVoid=py>vT&&py<vB;
+    // Animation cycle:
+    // cyc 0..0.15: figure at center of TL-A, waiting
+    // cyc 0.15..0.35: figure descends from TL-A center into Void top
+    // cyc 0.35..0.65: figure dissolves fully in Void
+    // cyc 0.65..0.85: reconstituted figure emerges from Void bottom, walks to center of TL-B
+    // cyc 0.85..1.0: figure at center of TL-B, waiting
+    const cyc=(t*0.18)%1;
+    const tlAcenter=8+tlH/2; // center y of timeline A
+    const tlBcenter=vB+8+tlH/2; // center y of timeline B
+    const figX=W/2;
+
+    let py,inVoid=false,dissolve=0;
+
+    if(cyc<0.15){
+      // Waiting at A center
+      py=tlAcenter;
+    } else if(cyc<0.35){
+      // Moving down from TL-A center to Void top
+      const p=(cyc-0.15)/0.2;
+      py=tlAcenter+p*(vT-tlAcenter);
+    } else if(cyc<0.65){
+      // In void - position eases from vT to vB
+      const p=(cyc-0.35)/0.3;
+      py=vT+p*(vB-vT);
+      inVoid=true;
+      // Dissolve: max at center of void
+      dissolve=Math.sin(p*Math.PI);
+    } else if(cyc<0.85){
+      // Moving from Void bottom to TL-B center
+      const p=(cyc-0.65)/0.2;
+      py=vB+p*(tlBcenter-vB);
+    } else {
+      // Waiting at B center
+      py=tlBcenter;
+    }
+
+    // Boundary flash when crossing into/out of void
+    const nearTop=Math.abs(py-vT);
+    const nearBot=Math.abs(py-vB);
+    if(nearTop<12||nearBot<12){
+      const fl=1-Math.min(1,Math.min(nearTop,nearBot)/12);
+      ctx.save();ctx.globalAlpha=fl*0.55;
+      ctx.beginPath();ctx.arc(figX,py,18,0,Math.PI*2);
+      ctx.fillStyle=C.OB;ctx.shadowColor=C.OB;ctx.shadowBlur=28;ctx.fill();ctx.restore();
+    }
+
     ctx.save();
     if(inVoid){
-      const prog=(py-vT)/vH;
-      const scatter=Math.min(1,Math.max(0,prog<.5?prog/.3:((1-prog)/.3)));
-      const disp=scatter*22;
-      for(let p=0;p<14;p++){
-        const ang=(p/14)*Math.PI*2+t*(p%2?1:-1.2);
-        const r=disp*(.5+.5*Math.sin(p+t*1.3));
-        ctx.beginPath();ctx.arc(W/2+Math.cos(ang)*r,py+Math.sin(ang)*r*.4,2,0,Math.PI*2);
-        ctx.fillStyle=a(C.OB,.55-scatter*.15);ctx.shadowColor=C.OB;ctx.shadowBlur=5;ctx.fill();
+      const disp=dissolve*26;
+      const numParticles=18;
+      for(let p=0;p<numParticles;p++){
+        const ang=(p/numParticles)*Math.PI*2+t*(p%2?1.1:-0.9);
+        const r=disp*(.4+.6*Math.sin(p*2.3+t*1.3));
+        const px2=figX+Math.cos(ang)*r;
+        const py2=py+Math.sin(ang)*r*0.55;
+        ctx.globalAlpha=0.6-dissolve*0.1;
+        ctx.beginPath();ctx.arc(px2,py2,2,0,Math.PI*2);
+        ctx.fillStyle=C.OB;ctx.shadowColor=C.OB;ctx.shadowBlur=7;ctx.fill();
+      }
+      // When entering (dissolve low) or leaving (dissolve low again), show partial figure
+      if(dissolve<0.5){
+        const alpha=1-dissolve*2;
+        fig(ctx,figX,py,alpha,C.OB);
       }
     } else {
-      fig(ctx,W/2,py+4,1,C.OB);
-    }
-    // boundary flash
-    if(Math.abs(py-vT)<10||Math.abs(py-vB)<10){
-      const fl=1-Math.min(1,Math.min(Math.abs(py-vT),Math.abs(py-vB))/10);
-      ctx.globalAlpha=fl*.5;ctx.beginPath();ctx.arc(W/2,py,20,0,Math.PI*2);
-      ctx.fillStyle=C.OB;ctx.shadowColor=C.OB;ctx.shadowBlur=25;ctx.fill();
+      fig(ctx,figX,py,1,C.OB);
     }
     ctx.restore();
+
     requestAnimationFrame(draw);
   }
-  draw();
+  registerCanvas('d3', draw);
 })();
 
 // ── D4: TIMELINE EXCHANGE ─────────────────────────────────────────────────
-(()=>{
-  const{ctx,W,H}=setup('d4');
-  let t=0;
+(function initD4(){
+  const s=setup('d4');if(!s)return;
+  const{ctx,W,H}=s;let t=0;
+
+  // Layout: two horizontal timelines, Alpha on top, Beta on bottom
+  // Left side = Point A zone, Right side = Point B zone
+  // Void band runs vertically through the center
+
   function draw(){
+    if(!canvasActive['d4']){animationHandles['d4_running']=false;return;}
     ctx.clearRect(0,0,W,H);
     t+=0.009;
-    const pad=38,tlA=56,tlB=H-56,vMid=H/2;
-    const pAx=pad+90,pBx=W-pad-90;
 
-    // Timelines
-    [[tlA,'α'],[tlB,'β']].forEach(([y,lbl])=>{
-      ctx.save();ctx.strokeStyle=C.OD;ctx.lineWidth=1;
-      ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(W-pad,y);ctx.stroke();
-      for(let x=pad;x<W-pad;x+=28){ctx.save();ctx.strokeStyle=a(C.OD,.3);ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(x,y-5);ctx.lineTo(x,y+5);ctx.stroke();ctx.restore();}
-      ctx.font='9px "Share Tech Mono"';ctx.fillStyle=C.OD;ctx.textAlign='right';ctx.fillText(`TIMELINE ${lbl}`,pad+65,y-14);ctx.restore();
-    });
+    const pad=20;
+    const tlA=H*0.28; // y of timeline alpha
+    const tlB=H*0.72; // y of timeline beta
+    const voidX1=W*0.40; // void band left edge
+    const voidX2=W*0.60; // void band right edge
+    const voidCx=(voidX1+voidX2)/2;
 
-    // Void band
-    const vg=ctx.createLinearGradient(0,tlA+20,0,tlB-20);
-    vg.addColorStop(0,'transparent');vg.addColorStop(.35,a(C.O,.05));vg.addColorStop(.5,a(C.O,.08));vg.addColorStop(.65,a(C.O,.05));vg.addColorStop(1,'transparent');
-    ctx.fillStyle=vg;ctx.fillRect(pad,tlA+20,W-2*pad,tlB-tlA-40);
-    ctx.font='9px "Share Tech Mono"';ctx.fillStyle=a(C.O,.18+.08*Math.sin(t));ctx.textAlign='center';ctx.fillText('— VOID LAYER —',W/2,vMid+4);
+    // A positions: figure starts at left side (Point A zone)
+    const posA_left=pad+60;   // start position on alpha
+    const posA_right=W-pad-60; // Point B side on alpha (unused target)
+    const posB_left=pad+60;   // Point A side on beta (unused)
+    const posB_right=W-pad-60; // Point B on beta
 
-    // 4 portals
-    [[pAx,tlA],[pBx,tlA],[pAx,tlB],[pBx,tlB]].forEach(([x,y])=>portal(ctx,x,y,13,26,C.O,t));
+    // ── Background zone labels ──
+    ctx.save();
+    ctx.fillStyle=a(C.OD,0.05);
+    ctx.fillRect(pad,pad,voidX1-pad*1.5,H-pad*2);   // Point A zone
+    ctx.fillRect(voidX2+pad*0.5,pad,W-voidX2-pad*1.5,H-pad*2); // Point B zone
+    ctx.restore();
 
-    // Exchange cycle
-    const cyc=(t*.16)%1;
-    let fAx=pAx,fAy=tlA,fAa=1,fBx=pBx,fBy=tlB,fBa=1,swap=false;
-    if(cyc<.25){fAx=pAx;fAy=tlA;fBx=pBx;fBy=tlB;}
-    else if(cyc<.45){const p=(cyc-.25)/.2;fAy=tlA+p*(vMid-tlA);fBy=tlB-p*(tlB-vMid);fAa=fBa=1-p*.3;}
-    else if(cyc<.55){const p=(cyc-.45)/.1;fAx=pAx+p*(W/2-pAx);fAy=vMid;fBx=pBx-p*(pBx-W/2);fBy=vMid;fAa=fBa=.5+p*.2;swap=true;}
-    else if(cyc<.75){const p=(cyc-.55)/.2;fAx=W/2+p*(pBx-W/2);fAy=vMid+p*(tlB-vMid);fBx=W/2-p*(W/2-pAx);fBy=vMid-p*(vMid-tlA);fAa=fBa=.7+p*.3;}
-    else{fAx=pBx;fAy=tlB;fBx=pAx;fBy=tlA;}
+    ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.OD,0.3);ctx.textAlign='center';
+    ctx.fillText('◀  POINT A ZONE  ▶',(pad+voidX1)/2,14);
+    ctx.fillText('◀  POINT B ZONE  ▶',(voidX2+W-pad)/2,14);
 
-    if(swap){
-      ctx.save();ctx.strokeStyle=a(C.OB,.25);ctx.lineWidth=1;ctx.setLineDash([5,5]);
-      ctx.beginPath();ctx.moveTo(pAx,tlA);ctx.lineTo(pBx,tlB);ctx.stroke();ctx.setLineDash([]);
-      const fl=Math.sin((cyc-.45)/.1*Math.PI);
-      ctx.globalAlpha=fl*.45;ctx.beginPath();ctx.arc(W/2,vMid,28,0,Math.PI*2);
-      ctx.fillStyle=C.OB;ctx.shadowColor=C.OB;ctx.shadowBlur=25;ctx.fill();ctx.restore();
+    // ── Void band ──
+    const vg=ctx.createLinearGradient(voidX1,0,voidX2,0);
+    vg.addColorStop(0,'transparent');
+    vg.addColorStop(0.25,a(C.O,0.07));
+    vg.addColorStop(0.5,a(C.O,0.12));
+    vg.addColorStop(0.75,a(C.O,0.07));
+    vg.addColorStop(1,'transparent');
+    ctx.fillStyle=vg;ctx.fillRect(voidX1,pad,voidX2-voidX1,H-pad*2);
+
+    // Void noise texture
+    for(let vx=voidX1+4;vx<voidX2;vx+=14){
+      for(let vy=pad+4;vy<H-pad;vy+=10){
+        const n=Math.sin(vx*0.13+t*1.6)*Math.cos(vy*0.17+t*0.9);
+        if(Math.abs(n)>0.45){
+          ctx.beginPath();ctx.arc(vx+n*4,vy+n*2,0.8,0,Math.PI*2);
+          ctx.fillStyle=a(C.O,0.06+Math.abs(n)*0.04);ctx.fill();
+        }
+      }
     }
-    fig(ctx,fAx,fAy,fAa,cyc>.6?C.O:C.OB);
-    fig(ctx,fBx,fBy,fBa,cyc>.6?C.OB:C.O);
 
-    const labels=['BOTH AT REST IN OWN TIMELINES','APPROACHING VOID BOUNDARY','EXCHANGE IN VOID — NO DURATION','ROUTING TO DESTINATIONS','EXCHANGE COMPLETE — BOTH BELIEVE THEY ARE THEMSELVES'];
-    const li=cyc<.25?0:cyc<.45?1:cyc<.55?2:cyc<.75?3:4;
-    ctx.font='9px "Share Tech Mono"';ctx.fillStyle=a(C.OD,.8);ctx.textAlign='center';ctx.fillText(labels[li],W/2,H-12);
+    // Void border
+    ctx.save();ctx.strokeStyle=a(C.O,0.2+0.08*Math.sin(t*1.5));ctx.lineWidth=1;ctx.setLineDash([5,4]);
+    ctx.beginPath();ctx.moveTo(voidX1,pad);ctx.lineTo(voidX1,H-pad);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(voidX2,pad);ctx.lineTo(voidX2,H-pad);ctx.stroke();
+    ctx.setLineDash([]);ctx.restore();
+    ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(C.O,0.18+0.07*Math.sin(t));
+    ctx.textAlign='center';ctx.fillText('VOID',voidCx,H/2+3);
+    ctx.font='6px "Share Tech Mono"';ctx.fillStyle=a(C.O,0.12);
+    ctx.fillText('ATEMPORAL',voidCx,H/2+13);
+
+    // ── Timeline Alpha (top) ──
+    ctx.save();ctx.strokeStyle=a(C.OB,0.5);ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(pad,tlA);ctx.lineTo(voidX1-4,tlA);ctx.stroke(); // left segment
+    ctx.beginPath();ctx.moveTo(voidX2+4,tlA);ctx.lineTo(W-pad,tlA);ctx.stroke(); // right segment
+    ctx.strokeStyle=a(C.OD,0.2);ctx.lineWidth=1;ctx.setLineDash([3,8]);
+    ctx.beginPath();ctx.moveTo(voidX1+4,tlA);ctx.lineTo(voidX2-4,tlA);ctx.stroke(); // through void, dashed
+    ctx.setLineDash([]);ctx.restore();
+    // Timeline alpha tick marks
+    for(let x=pad+20;x<W-pad;x+=24){
+      if(x>voidX1-10&&x<voidX2+10) continue;
+      ctx.save();ctx.strokeStyle=a(C.OD,0.18);ctx.lineWidth=0.5;
+      ctx.beginPath();ctx.moveTo(x,tlA-4);ctx.lineTo(x,tlA+4);ctx.stroke();ctx.restore();
+    }
+    ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.OB,0.55);ctx.textAlign='left';
+    ctx.fillText('TIMELINE α',pad+4,tlA-10);
+
+    // ── Timeline Beta (bottom) ──
+    ctx.save();ctx.strokeStyle=a(C.O,0.5);ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(pad,tlB);ctx.lineTo(voidX1-4,tlB);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(voidX2+4,tlB);ctx.lineTo(W-pad,tlB);ctx.stroke();
+    ctx.strokeStyle=a(C.OD,0.2);ctx.lineWidth=1;ctx.setLineDash([3,8]);
+    ctx.beginPath();ctx.moveTo(voidX1+4,tlB);ctx.lineTo(voidX2-4,tlB);ctx.stroke();
+    ctx.setLineDash([]);ctx.restore();
+    for(let x=pad+20;x<W-pad;x+=24){
+      if(x>voidX1-10&&x<voidX2+10) continue;
+      ctx.save();ctx.strokeStyle=a(C.OD,0.18);ctx.lineWidth=0.5;
+      ctx.beginPath();ctx.moveTo(x,tlB-4);ctx.lineTo(x,tlB+4);ctx.stroke();ctx.restore();
+    }
+    ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.O,0.55);ctx.textAlign='left';
+    ctx.fillText('TIMELINE β',pad+4,tlB-10);
+
+    // ── Portals at the void boundary ──
+    portal(ctx,voidX1,tlA,8,20,C.OB,t); // Alpha enters void from left
+    portal(ctx,voidX2,tlB,8,20,C.O,t);  // Beta exits void to right
+
+    // ── Animation phases ──
+    // 0.00–0.20: Both figures at rest (Alpha at posA_left, Beta at posB_right)
+    // 0.20–0.40: Alpha moves rightward toward void; Beta moves leftward toward void
+    // 0.40–0.50: Both enter void, dissolve at center
+    // 0.50–0.70: Exchange flash in void center, then re-emerge: Alpha now exits to posB_right; Beta exits to posA_left
+    // 0.70–0.90: Alpha travels to posB_right on Beta's timeline; Beta travels to posA_left on Alpha's timeline
+    // 0.90–1.00: Both at rest at new positions (exchanged)
+
+    const cyc=(t*0.13)%1;
+
+    let axPos, axY, axAlpha, bxPos, bxY, bxAlpha;
+    let showExchangeFlash=false, flashInt=0;
+    let statusLabel='';
+
+    if(cyc<0.20){
+      // At rest
+      axPos=posA_left; axY=tlA; axAlpha=1;
+      bxPos=posB_right; bxY=tlB; bxAlpha=1;
+      statusLabel='BOTH AT REST — ALPHA AT POINT A, BETA AT POINT B';
+    } else if(cyc<0.40){
+      // Approaching void
+      const p=(cyc-0.20)/0.20;
+      axPos=posA_left+p*(voidX1-posA_left-14); axY=tlA; axAlpha=1;
+      bxPos=posB_right-p*(posB_right-voidX2-14); bxY=tlB; bxAlpha=1;
+      statusLabel='APPROACHING VOID BOUNDARY';
+    } else if(cyc<0.50){
+      // Entering void — dissolve toward center
+      const p=(cyc-0.40)/0.10;
+      axPos=voidX1-14+p*(voidCx-(voidX1-14)); axY=tlA+p*(H/2-tlA); axAlpha=1-p*0.4;
+      bxPos=voidX2+14-p*(voidX2+14-voidCx); bxY=tlB-p*(tlB-H/2); bxAlpha=1-p*0.4;
+      statusLabel='ENTERING VOID — MATTER ENCODING BEGINS';
+    } else if(cyc<0.55){
+      // Exchange moment — both at center, flash
+      axPos=voidCx; axY=H/2; axAlpha=0;
+      bxPos=voidCx; bxY=H/2; bxAlpha=0;
+      flashInt=Math.sin((cyc-0.50)/0.05*Math.PI);
+      showExchangeFlash=true;
+      statusLabel='⚡ EXCHANGE IN VOID — NO DURATION — NO MEMORY ⚡';
+    } else if(cyc<0.70){
+      // Re-emerge: now alpha goes to Beta's side, beta goes to Alpha's side
+      const p=(cyc-0.55)/0.15;
+      axPos=voidCx+p*(posB_right-voidCx); axY=H/2+p*(tlB-H/2); axAlpha=p;
+      bxPos=voidCx-p*(voidCx-posA_left); bxY=H/2-p*(H/2-tlA); bxAlpha=p;
+      statusLabel='EXCHANGE COMPLETE — ROUTING TO DESTINATIONS';
+    } else if(cyc<0.90){
+      // Settling at new positions
+      const p=(cyc-0.70)/0.20;
+      axPos=posB_right; axY=tlB; axAlpha=1;
+      bxPos=posA_left; bxY=tlA; bxAlpha=1;
+      statusLabel='BOTH AT REST — ALPHA NOW AT POINT B, BETA AT POINT A';
+    } else {
+      axPos=posB_right; axY=tlB; axAlpha=1;
+      bxPos=posA_left; bxY=tlA; bxAlpha=1;
+      statusLabel='BOTH BELIEVE THEY ARE THEMSELVES. BOTH ARE CORRECT.';
+    }
+
+    // Draw exchange flash
+    if(showExchangeFlash&&flashInt>0){
+      ctx.save();
+      ctx.globalAlpha=flashInt*0.6;
+      const fg=ctx.createRadialGradient(voidCx,H/2,0,voidCx,H/2,50);
+      fg.addColorStop(0,a(C.OB,0.9));fg.addColorStop(0.5,a(C.OB,0.3));fg.addColorStop(1,'transparent');
+      ctx.fillStyle=fg;ctx.beginPath();ctx.arc(voidCx,H/2,50,0,Math.PI*2);ctx.fill();
+      // Cross flash
+      ctx.strokeStyle=C.OB;ctx.lineWidth=1;ctx.globalAlpha=flashInt*0.4;
+      ctx.beginPath();ctx.moveTo(voidX1,tlA);ctx.lineTo(voidX2,tlB);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(voidX1,tlB);ctx.lineTo(voidX2,tlA);ctx.stroke();
+      ctx.restore();
+    }
+
+    // Draw alpha figure (starts on α, ends on β after exchange)
+    if(!showExchangeFlash&&axAlpha>0){
+      const isOnBetaTimeline = cyc>0.54;
+      fig(ctx,axPos,axY,axAlpha,isOnBetaTimeline?C.OB:C.OB);
+      if(isOnBetaTimeline&&axAlpha>0.5){
+        ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(C.OB,axAlpha*0.7);ctx.textAlign='center';
+        ctx.fillText('α',axPos,axY-28);
+      }
+    }
+    // Draw beta figure (starts on β, ends on α after exchange)
+    if(!showExchangeFlash&&bxAlpha>0){
+      const isOnAlphaTimeline = cyc>0.54;
+      fig(ctx,bxPos,bxY,bxAlpha,C.O);
+      if(isOnAlphaTimeline&&bxAlpha>0.5){
+        ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(C.O,bxAlpha*0.7);ctx.textAlign='center';
+        ctx.fillText('β',bxPos,bxY-28);
+      }
+    }
+
+    // Point A / B markers
+    ctx.font='8px "Share Tech Mono"';ctx.textAlign='center';
+    ctx.fillStyle=a(C.OD,0.4);
+    ctx.fillText('POINT A',posA_left,H-12);
+    ctx.fillText('POINT B',posB_right,H-12);
+
+    // Status label
+    ctx.font='8px "Share Tech Mono"';
+    ctx.fillStyle=a(showExchangeFlash?C.OB:C.OD,showExchangeFlash?0.9:0.65);
+    ctx.textAlign='center';
+    ctx.fillText(statusLabel,W/2,H/2+(H/2-22));
+
     requestAnimationFrame(draw);
   }
-  draw();
+  registerCanvas('d4', draw);
 })();
 
 // ── D5: REALITY SHEAR — 3 PANELS ─────────────────────────────────────────
-(()=>{
-  const{ctx,W,H}=setup('d5');
-  let t=0;
+(function initD5(){
+  const s=setup('d5');if(!s)return;
+  const{ctx,W,H}=s;let t=0;
   function draw(){
+    if(!canvasActive['d5']){animationHandles['d5_running']=false;return;}
     ctx.clearRect(0,0,W,H);
     t+=0.013;
     const third=W/3,cy=H*.47;
-
-    // Dividers
     ctx.save();ctx.strokeStyle=a(C.OF,.9);ctx.lineWidth=1;
     ctx.beginPath();ctx.moveTo(third,18);ctx.lineTo(third,H-18);ctx.stroke();
     ctx.beginPath();ctx.moveTo(third*2,18);ctx.lineTo(third*2,H-18);ctx.stroke();ctx.restore();
-
-    // Titles
     ['SUBJECT-LEVEL','ENVIRONMENTAL','TEMPORAL'].forEach((ti,i)=>{
-      ctx.font='8px "Share Tech Mono"';ctx.fillStyle=C.OD;ctx.textAlign='center';ctx.letterSpacing='0.15em';
+      ctx.font='8px "Share Tech Mono"';ctx.fillStyle=C.OD;ctx.textAlign='center';
       ctx.fillText(ti,third*i+third/2,17);
     });
-
-    // === P1: Match drift ===
+    // P1
     {
       const cx=third*.5,R=22;
       const drift=(t*.2)%1;
       const bad=drift>.55;
-      // baseline ring
       ctx.save();ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.strokeStyle=C.OB;ctx.lineWidth=1.5;ctx.stroke();
       ctx.font='7px "Share Tech Mono"';ctx.fillStyle=C.OB;ctx.textAlign='center';ctx.fillText('BASELINE',cx,cy+4);ctx.restore();
-      // drifting ring
       const sx=drift*20*Math.sin(t*.5),sy=drift*12*Math.cos(t*.35);
       ctx.save();ctx.strokeStyle=bad?a('#ff4444',.75):a(C.O,.65);ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
       ctx.beginPath();ctx.arc(cx+sx,cy+sy,R*(1+drift*.4),0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
@@ -779,35 +1136,85 @@ function portal(ctx,x,y,w,h,col,t){
       ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(bad?'#ff4444':C.OD,.7);ctx.textAlign='center';
       ctx.fillText(bad?'⚠ ADJACENT DEGRADED':'✓ WITHIN VARIANCE',cx,H-16);
     }
-
-    // === P2: Environmental stress ===
+    // P2 — Environmental Shear
     {
       const cx=third+third*.5;
       const fill=((t*.18)%1);
       const dangerZone=fill>.68;
-      // distorting grid
-      for(let gx=third+8;gx<third*2-8;gx+=15){
-        for(let gy=28;gy<H-32;gy+=11){
-          const d=fill*Math.sin(gx*.09+t*.6)*Math.sin(gy*.11+t*.4)*7;
-          const dy=fill*Math.cos(gx*.07+t*.45)*4;
-          ctx.beginPath();ctx.arc(gx+d,gy+dy,.9,0,Math.PI*2);
-          ctx.fillStyle=dangerZone?a('#ff4444',.06+Math.abs(d)/7*.12):a(C.O,.04+Math.abs(d)/7*.08);
-          ctx.fill();
+      const panL=third+6, panR=third*2-6, panT=24, panB=H-38;
+      const panW=panR-panL, panH=panB-panT;
+
+      // Draw a portal site: a central portal icon with radiating distortion
+      const pcx=cx, pcy=(panT+panB)/2-8;
+      const gridSpacing=18;
+
+      // Distorted grid background — the "portal site environment"
+      for(let gx=panL;gx<=panR;gx+=gridSpacing){
+        for(let gy=panT;gy<=panB;gy+=gridSpacing){
+          const dx=gx-pcx, dy=gy-pcy;
+          const dist=Math.sqrt(dx*dx+dy*dy);
+          const shearFactor=fill*(1+0.6*(1/(1+dist*0.025)));
+          const warpX=shearFactor*Math.sin(dist*0.12-t*0.8+gx*0.05)*8;
+          const warpY=shearFactor*Math.cos(dist*0.10-t*0.7+gy*0.05)*5;
+          const nx=gx+warpX, ny=gy+warpY;
+          // Clamp to panel
+          if(nx<panL||nx>panR||ny<panT||ny>panB) continue;
+          const intensity=Math.min(1,fill*2*(1+0.5/(1+dist*0.018)));
+          const col=dangerZone?a('#ff4444',0.06+intensity*0.14):a(C.O,0.04+intensity*0.1);
+          ctx.beginPath();ctx.arc(nx,ny,1,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();
+
+          // Connect grid lines
+          if(gx+gridSpacing<=panR){
+            const dx2=gx+gridSpacing-pcx, dist2=Math.sqrt(dx2*dx2+dy*dy);
+            const sf2=fill*(1+0.6/(1+dist2*0.025));
+            const nx2=gx+gridSpacing+sf2*Math.sin(dist2*0.12-t*0.8+(gx+gridSpacing)*0.05)*8;
+            const ny2=gy+sf2*Math.cos(dist2*0.10-t*0.7+gy*0.05)*5;
+            if(nx2>=panL&&nx2<=panR&&ny2>=panT&&ny2<=panB){
+              ctx.save();ctx.strokeStyle=dangerZone?a('#ff4444',0.05+intensity*0.08):a(C.O,0.03+intensity*0.06);
+              ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(nx,ny);ctx.lineTo(nx2,ny2);ctx.stroke();ctx.restore();
+            }
+          }
         }
       }
-      // accumulation bar
-      const bw=third*.6,bh=9,bx=cx-bw/2;
-      ctx.save();ctx.strokeStyle=C.OD;ctx.lineWidth=1;ctx.strokeRect(bx,H-34,bw,bh);
-      const bc=dangerZone?'#ff3300':C.O;
-      ctx.fillStyle=bc;ctx.globalAlpha=.6;ctx.fillRect(bx,H-34,bw*fill,bh);ctx.globalAlpha=1;
-      // danger line
-      ctx.strokeStyle=a('#ff4444',.5);ctx.setLineDash([3,2]);
-      ctx.beginPath();ctx.moveTo(bx+bw*.68,H-38);ctx.lineTo(bx+bw*.68,H-22);ctx.stroke();ctx.setLineDash([]);
-      ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(C.OD,.7);ctx.textAlign='left';ctx.fillText(`SHEAR ${Math.round(fill*100)}%`,bx,H-37);
-      ctx.restore();
-    }
 
-    // === P3: Temporal thinning ===
+      // Central portal icon (the ITF aperture)
+      const pRad=14+fill*4*Math.sin(t*2.2);
+      ctx.save();
+      ctx.strokeStyle=dangerZone?a('#ff4444',0.5+fill*0.3):a(C.OB,0.5+fill*0.2);
+      ctx.lineWidth=2;ctx.shadowColor=dangerZone?'#ff3300':C.OB;ctx.shadowBlur=8+fill*12;
+      ctx.beginPath();ctx.ellipse(pcx,pcy,pRad*0.55,pRad,0,0,Math.PI*2);ctx.stroke();
+      // Radiating stress cracks from portal
+      if(fill>0.3){
+        const crackCount=Math.floor(fill*6);
+        for(let c=0;c<crackCount;c++){
+          const ang=(c/crackCount)*Math.PI*2+(t*0.2);
+          const len=(fill-0.3)*120*(.6+.4*Math.sin(c*1.7));
+          const ex=pcx+Math.cos(ang)*len, ey=pcy+Math.sin(ang)*len*0.6;
+          if(ex<panL||ex>panR||ey<panT||ey>panB) continue;
+          ctx.strokeStyle=dangerZone?a('#ff4444',0.12+fill*0.08):a(C.O,0.08+fill*0.07);
+          ctx.lineWidth=0.8;ctx.setLineDash([3,5]);
+          ctx.beginPath();ctx.moveTo(pcx,pcy);ctx.lineTo(ex,ey);ctx.stroke();
+          ctx.setLineDash([]);
+        }
+      }
+      ctx.restore();
+
+      // Accumulation bar at bottom
+      const bw=panW*0.7, bh=8, bx=cx-bw/2;
+      ctx.save();
+      ctx.strokeStyle=C.OD;ctx.lineWidth=1;ctx.strokeRect(bx,panB+4,bw,bh);
+      const bc=dangerZone?'#ff3300':C.O;
+      ctx.fillStyle=bc;ctx.globalAlpha=0.65;ctx.fillRect(bx,panB+4,bw*fill,bh);ctx.globalAlpha=1;
+      ctx.strokeStyle=a('#ff4444',0.5);ctx.lineWidth=1;ctx.setLineDash([3,2]);
+      ctx.beginPath();ctx.moveTo(bx+bw*0.68,panB);ctx.lineTo(bx+bw*0.68,panB+16);ctx.stroke();ctx.setLineDash([]);
+      ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(dangerZone?'#ff4444':C.OD,0.8);ctx.textAlign='left';
+      ctx.fillText(`SITE SHEAR ${Math.round(fill*100)}%`,bx,panB+1);
+      ctx.restore();
+
+      ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(dangerZone?'#ff4444':C.OD,.65);ctx.textAlign='center';
+      ctx.fillText(dangerZone?'⚠ SITE INTEGRITY CRITICAL':'ACCUMULATION BUILDING',cx,H-14);
+    }
+    // P3
     {
       const cx=third*2+third*.5;
       const thin=.5+.5*Math.sin(t*.45);
@@ -815,16 +1222,13 @@ function portal(ctx,x,y,w,h,col,t){
       ctx.save();
       ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.OD,.35);ctx.textAlign='center';
       ctx.fillText('PAST',cx,cy-46);ctx.fillText('PRESENT',cx,cy+5);ctx.fillText('FUTURE',cx,cy+54);
-      // wavy boundary — top
       ctx.strokeStyle=a(C.O,.3+thin*.35);ctx.lineWidth=thick;ctx.shadowColor=C.O;ctx.shadowBlur=thin*14;
       ctx.beginPath();ctx.moveTo(third*2+10,cy-18);
       for(let x=third*2+10;x<W-10;x+=4)ctx.lineTo(x,cy-18+thin*6*Math.sin(x*.22+t*3));
       ctx.stroke();
-      // bottom boundary
       ctx.beginPath();ctx.moveTo(third*2+10,cy+18);
       for(let x=third*2+10;x<W-10;x+=4)ctx.lineTo(x,cy+18+thin*6*Math.cos(x*.22+t*3));
       ctx.stroke();ctx.restore();
-      // leakage particles
       if(thin>.68){
         const la=(thin-.68)/.32;
         for(let i=0;i<5;i++){
@@ -840,23 +1244,63 @@ function portal(ctx,x,y,w,h,col,t){
     }
     requestAnimationFrame(draw);
   }
-  draw();
+  registerCanvas('d5', draw);
 })();
 
-// ── D6: SIERRA — INTERACTIVE ──────────────────────────────────────────────
-(()=>{
-  const{cv,ctx,W,H}=setup('d6');
+// ── D6: SIERRA — EYE TOGGLE ──────────────────────────────────────────────
+(function initD6(){
+  const s=setup('d6');if(!s)return;
+  const{cv,ctx,W,H}=s;
   let t=0,obs=false,col=0;
-  cv.addEventListener('mousemove',()=>{obs=true;});
-  cv.addEventListener('mouseleave',()=>{obs=false;});
-  cv.addEventListener('touchstart',e=>{e.preventDefault();obs=!obs;});
+
+  // Remove mouse hover — toggle only via click/touch/keyboard
+  cv.setAttribute('tabindex','0');
+  cv.setAttribute('role','button');
+  cv.setAttribute('aria-label','SIERRA superposition diagram. Click or press Enter to toggle observation mode.');
+  cv.style.cursor='pointer';
+
+  function toggleObs(){ obs=!obs; }
+  cv.addEventListener('click', toggleObs);
+  cv.addEventListener('touchstart',e=>{e.preventDefault();toggleObs();},{passive:false});
+  cv.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleObs();}
+  });
+
+  // Draw eye icon at given position
+  function drawEye(ex,ey,sz,open,alpha){
+    ctx.save();ctx.globalAlpha=alpha;
+    const pupilR=sz*0.28*(open?1:0);
+    // Eye outline (almond shape)
+    ctx.strokeStyle=open?C.OB:C.OD;ctx.lineWidth=1.5;
+    ctx.shadowColor=open?C.OB:C.OD;ctx.shadowBlur=open?8:2;
+    ctx.beginPath();
+    ctx.moveTo(ex-sz,ey);
+    ctx.bezierCurveTo(ex-sz,ey-sz*0.55,ex+sz,ey-sz*0.55,ex+sz,ey);
+    ctx.bezierCurveTo(ex+sz,ey+sz*0.55,ex-sz,ey+sz*0.55,ex-sz,ey);
+    ctx.closePath();ctx.stroke();
+    // Iris
+    if(open){
+      ctx.strokeStyle=C.OB;ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(ex,ey,sz*0.45,0,Math.PI*2);ctx.stroke();
+      // Pupil
+      ctx.fillStyle=C.OB;ctx.shadowBlur=10;
+      ctx.beginPath();ctx.arc(ex,ey,pupilR,0,Math.PI*2);ctx.fill();
+    } else {
+      // Closed — just a line
+      ctx.strokeStyle=C.OD;ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(ex-sz*0.7,ey);ctx.lineTo(ex+sz*0.7,ey);ctx.stroke();
+    }
+    ctx.restore();
+  }
+
   function draw(){
+    if(!canvasActive['d6']){animationHandles['d6_running']=false;return;}
     ctx.clearRect(0,0,W,H);
     t+=0.013;
     col=obs?Math.min(1,col+.04):Math.max(0,col-.03);
     const sup=1-col;const cx=W/2,cy=H/2;
 
-    // timeline bands (fading when collapsing)
+    // Timeline bands (fade as obs collapses)
     for(let i=0;i<7;i++){
       const y=18+(i/6)*(H-36);
       ctx.save();ctx.strokeStyle=a(C.OD,.18*sup);ctx.lineWidth=1;ctx.setLineDash([8,7]);
@@ -865,7 +1309,7 @@ function portal(ctx,x,y,w,h,col,t){
       ctx.fillText(`TL-${String.fromCharCode(65+i)}`,24,y+3);ctx.restore();
     }
 
-    // waveforms — superposition
+    // Superposition waveforms
     for(let w=0;w<6;w++){
       const amp=(18+w*7)*sup;
       const freq=.02+w*.007;
@@ -876,7 +1320,7 @@ function portal(ctx,x,y,w,h,col,t){
       ctx.stroke();ctx.restore();
     }
 
-    // SIERRA entity — multi-ghost
+    // SIERRA ghost figures (multi-timeline)
     const ghosts=Math.round(5*sup)+1;
     for(let g=0;g<ghosts;g++){
       const gx=cx+(g-ghosts/2)*18*sup;
@@ -892,50 +1336,54 @@ function portal(ctx,x,y,w,h,col,t){
       ctx.beginPath();ctx.arc(gx,gy,sz*.42,0,Math.PI*2);ctx.stroke();ctx.restore();
     }
 
-    // Collapse effect
+    // Collapse ring when observing — constrained size so it doesn't reach eye
     if(col>0){
       ctx.save();ctx.globalAlpha=col*.5;
-      ctx.beginPath();ctx.arc(cx,cy,38+col*22,0,Math.PI*2);
-      ctx.strokeStyle='#ff3300';ctx.lineWidth=2;ctx.shadowColor='#ff3300';ctx.shadowBlur=18;ctx.stroke();
+      ctx.beginPath();ctx.arc(cx,cy,28+col*8,0,Math.PI*2);
+      ctx.strokeStyle='#ff3300';ctx.lineWidth=2;ctx.shadowColor='#ff3300';ctx.shadowBlur=14;ctx.stroke();
       ctx.restore();
       ctx.save();ctx.globalAlpha=col;
       ctx.font='bold 10px "Share Tech Mono"';ctx.fillStyle='#ff4444';ctx.textAlign='center';
-      ctx.fillText('⚠ OBSERVATION DETECTED — SUPERPOSITION COLLAPSING',cx,15);ctx.restore();
+      ctx.fillText('⚠ OBSERVATION DETECTED — SUPERPOSITION COLLAPSING',cx,18);ctx.restore();
     }
 
+    // Status line — fixed at a known y above the eye zone
     ctx.font='9px "Share Tech Mono"';ctx.textAlign='center';
-    if(sup>.5){ctx.fillStyle=a(C.O,.6);ctx.fillText(`COHERENCE: ${Math.round(sup*100)}%  —  SPANNING ALL TIMELINES SIMULTANEOUSLY`,cx,H-12);}
-    else{ctx.fillStyle=a('#ff4444',.8);ctx.fillText(`⚠ COLLAPSING — COHERENCE: ${Math.round(sup*100)}%  —  EXISTENTIAL RISK CRITICAL`,cx,H-12);}
+    const statusY=H-52;
+    if(sup>.5){ctx.fillStyle=a(C.O,.55);ctx.fillText(`COHERENCE: ${Math.round(sup*100)}%  —  SPANNING ALL TIMELINES`,cx,statusY);}
+    else{ctx.fillStyle=a('#ff4444',.8);ctx.fillText(`⚠ COLLAPSING — COHERENCE: ${Math.round(sup*100)}%  —  EXISTENTIAL RISK`,cx,statusY);}
+
+    // Eye icon — pinned to bottom, clear gap below status
+    const eyeX=cx, eyeY=H-26, eyeSize=10;
+    drawEye(eyeX,eyeY,eyeSize,obs,obs?0.95:0.5);
+    ctx.font='7px "Share Tech Mono"';ctx.textAlign='center';
+    ctx.fillStyle=a(obs?'#ff4444':C.OD,obs?0.85:0.45);
+    ctx.fillText(obs?'[ OBSERVING — CLICK TO STOP ]':'[ CLICK EYE TO OBSERVE ]',cx,H-8);
+
     requestAnimationFrame(draw);
   }
-  draw();
+  registerCanvas('d6', draw);
 })();
 
 // ── D7: SHEAR ACCUMULATION MONITOR ───────────────────────────────────────
-(()=>{
-  const{ctx,W,H}=setup('d7');
-  let t=0;
+(function initD7(){
+  const s=setup('d7');if(!s)return;
+  const{ctx,W,H}=s;let t=0;
   function draw(){
+    if(!canvasActive['d7']){animationHandles['d7_running']=false;return;}
     ctx.clearRect(0,0,W,H);
     t+=0.009;
     const pad=32,gH=H-50,gW=W-2*pad,gX=pad,gY=10;
-
-    // grid
     ctx.save();ctx.strokeStyle=a(C.OF,.9);ctx.lineWidth=.5;
     for(let i=0;i<=4;i++){const y=gY+(i/4)*gH;ctx.beginPath();ctx.moveTo(gX,y);ctx.lineTo(gX+gW,y);ctx.stroke();ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(C.OD,.5);ctx.textAlign='right';ctx.fillText(`${100-i*25}%`,gX-4,y+3);}
     ctx.restore();
-
-    // danger zone
     ctx.save();ctx.fillStyle=a(C.R,.05);ctx.fillRect(gX,gY,gW,gH*.3);
     ctx.strokeStyle=a(C.R,.2);ctx.lineWidth=1;ctx.setLineDash([4,5]);
     ctx.beginPath();ctx.moveTo(gX,gY+gH*.3);ctx.lineTo(gX+gW,gY+gH*.3);ctx.stroke();ctx.setLineDash([]);
     ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(C.R,.4);ctx.textAlign='right';ctx.fillText('⚠ DANGER THRESHOLD',gX+gW-4,gY+gH*.3-4);ctx.restore();
-
-    // compound shear line
     const pts=80;
     const vals=[];
     for(let i=0;i<pts;i++){let v=(i/pts)*(i/pts)*.75;v+=.07*Math.max(0,Math.sin(i*.42));v+=.045*Math.max(0,Math.sin(i*.71+1));vals.push(Math.min(1,v));}
-
     const shown=Math.min(pts,Math.floor(t*10));
     ctx.save();ctx.beginPath();
     for(let i=0;i<shown;i++){
@@ -945,8 +1393,6 @@ function portal(ctx,x,y,w,h,col,t){
     const gr=ctx.createLinearGradient(gX,0,gX+gW,0);
     gr.addColorStop(0,a(C.O,.25));gr.addColorStop(.6,a(C.O,.85));gr.addColorStop(.82,a('#ff5500',.9));gr.addColorStop(1,a('#ff1100',.9));
     ctx.strokeStyle=gr;ctx.lineWidth=2;ctx.stroke();ctx.restore();
-
-    // maintenance markers
     [10,22,38,55,70].forEach(mi=>{
       if(mi>shown)return;
       const mx=gX+(mi/pts)*gW;
@@ -955,101 +1401,295 @@ function portal(ctx,x,y,w,h,col,t){
       ctx.font='6px "Share Tech Mono"';ctx.fillStyle=a(C.OD,.45);ctx.textAlign='center';ctx.fillText('MAINT',mx,gY+gH+18);
       ctx.restore();
     });
-
-    // current dot
     const ci=Math.min(shown-1,pts-1);
     if(ci>=0){
       const dx=gX+(ci/pts)*gW,dy=gY+gH-vals[ci]*gH;
       const dc=vals[ci]>.7?C.R:C.O;
       ctx.save();ctx.beginPath();ctx.arc(dx,dy,4,0,Math.PI*2);ctx.fillStyle=dc;ctx.shadowColor=dc;ctx.shadowBlur=10;ctx.fill();ctx.restore();
     }
-
     ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.OD,.6);ctx.textAlign='center';ctx.fillText('TRANSIT EVENTS →',W/2,H-6);
     requestAnimationFrame(draw);
   }
-  draw();
+  registerCanvas('d7', draw);
 })();
 
 // ── D8: IDENTITY BRANCHING ────────────────────────────────────────────────
-(()=>{
-  const{ctx,W,H}=setup('d8');
-  let t=0;
+(function initD8(){
+  const s=setup('d8');if(!s)return;
+  const{ctx,W,H}=s;let t=0;
+
+  // Layout: single horizontal timeline
+  // Left = Point A, Center = Portal, Right = Point B
+  // Strict sequence: person walks in → enters portal → pause → new person exits portal → walks to B
+  // Then reset. The key point: you never see the exit figure BEFORE the entry figure enters.
+
   function draw(){
+    if(!canvasActive['d8']){animationHandles['d8_running']=false;return;}
     ctx.clearRect(0,0,W,H);
     t+=0.009;
-    const cy=H*.42,sX=36,pX=W*.4,eX=W-36;
-    const vW=W*.16,exitX=pX+vW;
 
-    // Approach timeline
-    ctx.save();ctx.strokeStyle=C.OB;ctx.lineWidth=2;ctx.shadowColor=C.OB;ctx.shadowBlur=5;
-    ctx.beginPath();ctx.moveTo(sX,cy);ctx.lineTo(pX-2,cy);ctx.stroke();
-    ctx.fillStyle=C.OB;ctx.beginPath();ctx.moveTo(pX-10,cy-4);ctx.lineTo(pX-2,cy);ctx.lineTo(pX-10,cy+4);ctx.fill();
-    ctx.font='9px "Share Tech Mono"';ctx.fillStyle=a(C.OB,.65);ctx.textAlign='center';
-    ctx.fillText('YOUR TIMELINE (α)',sX+(pX-sX)*.5,cy-16);ctx.restore();
+    const pad=36;
+    const cy=H*0.44;
+    const portalX=W/2;
+    const startX=pad+20;
+    const endX=W-pad-20;
 
-    // Portal aperture
-    portal(ctx,pX+vW*.5,cy,11,32,C.O,t);
+    // ── Point A label area ──
+    ctx.save();ctx.strokeStyle=a(C.OD,0.2);ctx.lineWidth=1;ctx.setLineDash([3,8]);
+    ctx.beginPath();ctx.moveTo(startX,cy-55);ctx.lineTo(startX,cy+35);ctx.stroke();ctx.setLineDash([]);
+    ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.OD,0.45);ctx.textAlign='center';
+    ctx.fillText('POINT A',startX,cy-62);ctx.restore();
 
-    // Upper branch: you (β version) arrives at Point B
-    const brY1=cy-44;
-    ctx.save();ctx.strokeStyle=C.OB;ctx.lineWidth=2;ctx.shadowColor=C.OB;ctx.shadowBlur=4;
-    ctx.beginPath();ctx.moveTo(exitX,cy);ctx.bezierCurveTo(exitX+35,cy,exitX+55,brY1,eX-10,brY1);ctx.stroke();
-    ctx.fillStyle=C.OB;ctx.beginPath();ctx.moveTo(eX-18,brY1-4);ctx.lineTo(eX-8,brY1);ctx.lineTo(eX-18,brY1+4);ctx.fill();
-    ctx.font='9px "Share Tech Mono"';ctx.fillStyle=a(C.OB,.7);ctx.textAlign='center';
-    ctx.fillText('YOU (β) — exits at Point B',exitX+(eX-exitX)*.5,brY1-14);
-    ctx.fillText('"adjacent timeline version"',exitX+(eX-exitX)*.5,brY1-4);ctx.restore();
+    // ── Point B label area ──
+    ctx.save();ctx.strokeStyle=a(C.OD,0.2);ctx.lineWidth=1;ctx.setLineDash([3,8]);
+    ctx.beginPath();ctx.moveTo(endX,cy-55);ctx.lineTo(endX,cy+35);ctx.stroke();ctx.setLineDash([]);
+    ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.OD,0.45);ctx.textAlign='center';
+    ctx.fillText('POINT B',endX,cy-62);ctx.restore();
 
-    // Lower branch: original you routes to β's Point B
-    const brY2=cy+44;
-    ctx.save();ctx.strokeStyle=a(C.O,.5);ctx.lineWidth=1.5;ctx.setLineDash([5,5]);
-    ctx.beginPath();ctx.moveTo(exitX,cy);ctx.bezierCurveTo(exitX+35,cy,exitX+55,brY2,eX-10,brY2);ctx.stroke();ctx.setLineDash([]);
-    ctx.font='9px "Share Tech Mono"';ctx.fillStyle=a(C.O,.5);ctx.textAlign='center';
-    ctx.fillText('YOU (α) — routed to β timeline',exitX+(eX-exitX)*.5,brY2+16);
-    ctx.fillText('"as their counterpart"',exitX+(eX-exitX)*.5,brY2+26);ctx.restore();
+    // ── Timeline floor ──
+    ctx.save();ctx.strokeStyle=a(C.OD,0.3);ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(startX,cy+20);ctx.lineTo(portalX-18,cy+20);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(portalX+18,cy+20);ctx.lineTo(endX,cy+20);ctx.stroke();
+    // Tick marks
+    for(let x=startX+20;x<W-pad-20;x+=22){
+      if(Math.abs(x-portalX)<22) continue;
+      ctx.strokeStyle=a(C.OD,0.15);ctx.lineWidth=0.5;
+      ctx.beginPath();ctx.moveTo(x,cy+16);ctx.lineTo(x,cy+24);ctx.stroke();
+    }
+    ctx.restore();
 
-    // Branch point
-    ctx.save();ctx.beginPath();ctx.arc(exitX,cy,5,0,Math.PI*2);ctx.fillStyle=C.OB;ctx.shadowColor=C.OB;ctx.shadowBlur=10;ctx.fill();ctx.restore();
+    // ── Portal ──
+    portal(ctx,portalX,cy,14,36,C.O,t);
 
-    // Animated YOU approaching portal
-    const pp=(t*.2)%1;
-    const pfx=sX+pp*(pX-sX-20);
-    fig(ctx,pfx,cy,1,C.OB);
+    // Timeline alpha label
+    ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(C.OD,0.3);ctx.textAlign='center';
+    ctx.fillText('TIMELINE α',startX+(portalX-startX)/2,cy+34);
+    ctx.fillText('TIMELINE β  (exits here)',portalX+(endX-portalX)/2,cy+34);
 
-    // Small arriving figure on upper branch
-    const arrP=Math.max(0,pp-.12);
-    if(arrP>0){
-      const aT=arrP/.88;
-      const bx=exitX+aT*(eX-exitX-14);
-      const by=cy+(brY1-cy)*(1-Math.pow(1-aT,2));
-      ctx.save();ctx.globalAlpha=.7;ctx.strokeStyle=C.OB;ctx.lineWidth=1.2;
-      ctx.beginPath();ctx.arc(bx,by-6,3,0,Math.PI*2);ctx.stroke();
-      ctx.beginPath();ctx.moveTo(bx,by-3);ctx.lineTo(bx,by+4);ctx.moveTo(bx-3,by);ctx.lineTo(bx+3,by);ctx.moveTo(bx,by+4);ctx.lineTo(bx-3,by+10);ctx.moveTo(bx,by+4);ctx.lineTo(bx+3,by+10);ctx.stroke();ctx.restore();
+    // ── Animation cycle ──
+    // 0.00–0.25: Figure α walks from startX to just left of portal
+    // 0.25–0.33: Figure α steps into portal, fades out
+    // 0.33–0.42: Portal pulses — exchange happening — nothing visible
+    // 0.42–0.50: Figure β fades in from portal right side
+    // 0.50–0.75: Figure β walks from portal to endX
+    // 0.75–0.90: Figure β stands at endX
+    // 0.90–1.00: Reset fade
+
+    const cyc=(t*0.14)%1;
+
+    let phase='', status='';
+
+    // Annotations track
+    const annotY=cy-38;
+
+    if(cyc<0.25){
+      // Alpha approaching
+      const p=cyc/0.25;
+      const ease=p*p*(3-2*p); // smoothstep
+      const fx=startX+ease*(portalX-60-startX);
+      fig(ctx,fx,cy,1,C.OB);
+
+      // Arrow showing direction
+      ctx.save();ctx.strokeStyle=a(C.OB,0.25);ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(fx+10,cy-22);ctx.lineTo(portalX-18,cy-22);
+      ctx.lineTo(portalX-26,cy-26);ctx.moveTo(portalX-18,cy-22);ctx.lineTo(portalX-26,cy-18);
+      ctx.stroke();ctx.restore();
+
+      // Label
+      ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.OB,0.6);ctx.textAlign='left';
+      ctx.fillText('YOU (α) APPROACH PORTAL',startX,annotY);
+      status='SUBJECT α MOVING FROM POINT A TOWARD ITF PORTAL';
+
+    } else if(cyc<0.33){
+      // Entering portal — fade out
+      const p=(cyc-0.25)/0.08;
+      const ease=p*p;
+      const fx=portalX-60+ease*62; // walks right into center
+      fig(ctx,fx,cy,1-ease*0.9,C.OB);
+
+      // Portal flash intensifies
+      ctx.save();ctx.globalAlpha=ease*0.4;
+      ctx.beginPath();ctx.arc(portalX,cy,20+ease*10,0,Math.PI*2);
+      ctx.fillStyle=C.OB;ctx.shadowColor=C.OB;ctx.shadowBlur=20;ctx.fill();ctx.restore();
+
+      ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.OB,0.65);ctx.textAlign='center';
+      ctx.fillText('ENTERING PORTAL',portalX,annotY);
+      status='MATTER ENCODING — ORIGINAL CONFIGURATION TERMINATING AT POINT A';
+
+    } else if(cyc<0.42){
+      // Exchange in void — just portal pulsing, nothing else
+      const p=(cyc-0.33)/0.09;
+      const pulse=Math.sin(p*Math.PI*3)*0.5;
+
+      ctx.save();ctx.globalAlpha=0.3+pulse*0.35;
+      ctx.beginPath();ctx.arc(portalX,cy,28+pulse*16,0,Math.PI*2);
+      ctx.fillStyle=C.OB;ctx.shadowColor=C.OB;ctx.shadowBlur=30;ctx.fill();ctx.restore();
+
+      // Void text
+      ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.OB,0.4+pulse*0.4);ctx.textAlign='center';
+      ctx.fillText('— VOID —',portalX,annotY);
+      status='⚡ EXCHANGE OCCURRING IN VOID LAYER — NO DURATION — NO MEMORY FORMED';
+
+    } else if(cyc<0.50){
+      // Beta emerging from portal right side
+      const p=(cyc-0.42)/0.08;
+      const ease=p*p*(3-2*p);
+      const fx=portalX+16+ease*44;
+      fig(ctx,fx,cy,ease,C.O); // Orange = beta version
+
+      // Portal still glowing slightly
+      ctx.save();ctx.globalAlpha=(1-ease)*0.25;
+      ctx.beginPath();ctx.arc(portalX,cy,24,0,Math.PI*2);
+      ctx.fillStyle=C.OB;ctx.shadowColor=C.OB;ctx.shadowBlur=15;ctx.fill();ctx.restore();
+
+      ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.O,0.7);ctx.textAlign='center';
+      ctx.fillText('YOU (β) EMERGING',portalX+50,annotY);
+      status='SUBJECT β RECONSTITUTED AT POINT B — FROM ADJACENT TIMELINE';
+
+    } else if(cyc<0.75){
+      // Beta walks to end
+      const p=(cyc-0.50)/0.25;
+      const ease=p*p*(3-2*p);
+      const fx=portalX+60+ease*(endX-portalX-60);
+      fig(ctx,fx,cy,1,C.O);
+
+      // small "?" annotation — is this still you?
+      ctx.save();ctx.font='9px "Share Tech Mono"';ctx.fillStyle=a(C.O,0.45);ctx.textAlign='center';
+      ctx.fillText('?',fx,cy-30);ctx.restore();
+
+      ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.O,0.6);ctx.textAlign='right';
+      ctx.fillText('YOU (β) MOVING TOWARD POINT B',endX,annotY);
+      status='β VERSION: SAME MEMORIES. SAME BODY. LIVED A SLIGHTLY DIFFERENT LIFE.';
+
+    } else if(cyc<0.90){
+      // Beta standing at end
+      fig(ctx,endX,cy,1,C.O);
+
+      // Alpha crossed out / ghost at start
+      fig(ctx,startX,cy,0.12,C.OD);
+      ctx.save();ctx.strokeStyle=a(C.OD,0.2);ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(startX-12,cy-22);ctx.lineTo(startX+12,cy+2);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(startX+12,cy-22);ctx.lineTo(startX-12,cy+2);ctx.stroke();
+      ctx.restore();
+
+      ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.O,0.55);ctx.textAlign='right';
+      ctx.fillText('YOU (β) AT POINT B',endX,annotY);
+      ctx.fillStyle=a(C.OD,0.35);ctx.textAlign='left';
+      ctx.fillText('YOU (α) — GONE',startX,annotY);
+      status='β BELIEVES THEY WENT IN AND CAME OUT. THEY ARE NOT LYING. THEY DO NOT KNOW.';
+
+    } else {
+      // Fade to reset
+      const p=(cyc-0.90)/0.10;
+      fig(ctx,endX,cy,1-p,C.O);
+      status='';
     }
 
-    // Labels
-    ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.OD,.5);
-    ctx.textAlign='left';ctx.fillText('POINT A',sX,H-28);
-    ctx.textAlign='right';ctx.fillText('POINT B',eX,H-28);
+    // Bottom status
+    if(status){
+      ctx.font='8px "Share Tech Mono"';
+      ctx.fillStyle=a(C.OD,0.6);ctx.textAlign='center';
+      // Word wrap manually for long strings — split at 70 chars
+      const words=status.split(' ');
+      let line='';const lines=[];const maxW=W-80;
+      ctx.font='7.5px "Share Tech Mono"';
+      for(const w of words){
+        const test=line?line+' '+w:w;
+        if(ctx.measureText(test).width>maxW&&line){lines.push(line);line=w;}
+        else{line=test;}
+      }
+      if(line)lines.push(line);
+      const statusY=H-8-(lines.length-1)*12;
+      lines.forEach((ln,i)=>{
+        ctx.fillStyle=a(C.OD,0.6);
+        ctx.fillText(ln,W/2,statusY+i*12);
+      });
+    }
 
-    ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.OD,.55+.15*Math.sin(t));ctx.textAlign='center';
-    ctx.fillText('Both versions believe they went in and came out. Neither is lying. Neither is exactly right.',W/2,H-12);
     requestAnimationFrame(draw);
   }
-  draw();
+  registerCanvas('d8', draw);
 })();
 
-// ── UI ────────────────────────────────────────────────────────────────────
-document.querySelectorAll('a.toc-item').forEach(link=>{
-  link.addEventListener('click',e=>{
-    e.preventDefault();
-    const t=document.querySelector(link.getAttribute('href'));
-    if(t)t.scrollIntoView({behavior:'smooth',block:'start'});
+// ── REDACTED ELEMENTS ─────────────────────────────────────────────────────
+document.querySelectorAll('.redacted').forEach(el => {
+  function reveal() {
+    if (el.dataset.revealed === 'true') return;
+    el.dataset.revealed = 'true';
+    el.setAttribute('aria-label', el.textContent + ' (revealed)');
+  }
+  el.addEventListener('click', reveal);
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); reveal(); }
   });
 });
-const el=document.querySelector('.topbar-title');
-const tx=el.textContent;el.textContent='';let i=0;
-const type=()=>{if(i<tx.length){el.textContent+=tx[i++];setTimeout(type,18);}};
-setTimeout(type,300);
+
+// ── ACTIVE TOC HIGHLIGHTING via IntersectionObserver ─────────────────────
+(function initTOC() {
+  const tocLinks = document.querySelectorAll('.toc-item[data-section]');
+  const sections = document.querySelectorAll('section[id]');
+  if (!sections.length || !tocLinks.length) return;
+
+  const sectionMap = {};
+  sections.forEach(sec => { sectionMap[sec.id] = sec; });
+
+  const linkMap = {};
+  tocLinks.forEach(link => {
+    const sec = link.dataset.section;
+    if (sec) linkMap[sec] = link;
+  });
+
+  let currentActive = null;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        if (currentActive) currentActive.classList.remove('active');
+        const link = linkMap[id];
+        if (link) { link.classList.add('active'); currentActive = link; }
+      }
+    });
+  }, { rootMargin: '-10% 0px -60% 0px', threshold: 0 });
+
+  sections.forEach(sec => observer.observe(sec));
+
+  // Smooth scroll on TOC click
+  tocLinks.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const id = link.dataset.section;
+      const target = id ? document.getElementById(id) : null;
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+})();
+
+// ── TOPBAR TYPEWRITER — skippable ─────────────────────────────────────────
+(function initTypewriter() {
+  const el = document.getElementById('topbar-title');
+  if (!el) return;
+  const tx = el.dataset.text || el.textContent;
+  el.textContent = '';
+  let i = 0, done = false;
+
+  function complete() {
+    if (done) return;
+    done = true;
+    el.textContent = tx;
+  }
+
+  function type() {
+    if (done) return;
+    if (i < tx.length) { el.textContent += tx[i++]; setTimeout(type, 18); }
+    else { done = true; }
+  }
+
+  el.addEventListener('click', complete);
+  el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') complete(); });
+
+  setTimeout(type, 300);
+})();
 </script>
 </body>
 </html>
