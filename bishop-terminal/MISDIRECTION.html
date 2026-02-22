@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VSA CLASSIFIED — BISHOP FIELD RESEARCH NOTES</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #c87820;
+    --orange-bright: #e8922a;
+    --orange-dim: #7a4a10;
+    --orange-faint: #2a1a06;
+    --bg: #080500;
+    --text: #c87820;
+    --text-dim: #7a4a10;
+    --border: #3d2508;
+    --border-bright: #7a4a10;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.13) 2px,rgba(0,0,0,0.13) 4px);
+    pointer-events: none; z-index: 1000;
+  }
+  body::after {
+    content: '';
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.8) 100%);
+    pointer-events: none; z-index: 999;
+  }
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; height: 36px;
+    background: var(--bg); border-bottom: 1px solid var(--orange);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px; z-index: 998; animation: fadeIn 1s ease;
+  }
+  .topbar-title { font-size: 11px; letter-spacing: 0.3em; color: var(--orange-bright); text-shadow: 0 0 10px var(--orange); }
+  .topbar-right { display: flex; gap: 20px; font-size: 10px; color: var(--orange-dim); letter-spacing: 0.15em; }
+  .topbar-right span { border-left: 1px solid var(--border-bright); padding-left: 20px; }
+  .topbar-right .sdot { color: #2ecc71; }
+  .container { max-width: 900px; margin: 0 auto; padding: 80px 30px 80px; animation: fadeIn 1.5s ease; }
+  .doc-header {
+    border: 1px solid var(--orange); padding: 30px; margin-bottom: 40px;
+    position: relative;
+    background: linear-gradient(180deg, var(--orange-faint) 0%, transparent 100%);
+    box-shadow: 0 0 40px rgba(200,120,32,0.1), inset 0 0 40px rgba(0,0,0,0.5);
+  }
+  .doc-header::before {
+    content: '△ VANTAGE SYSTEMS AUTHORITY △';
+    position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+    background: var(--bg); padding: 0 12px; font-size: 10px; letter-spacing: 0.3em; color: var(--orange-bright); white-space: nowrap;
+  }
+  .doc-header::after {
+    content: '▽ CLASSIFIED TERMINAL ▽';
+    position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
+    background: var(--bg); padding: 0 12px; font-size: 10px; letter-spacing: 0.3em; color: var(--orange-dim); white-space: nowrap;
+  }
+  .doc-title { font-size: 22px; font-weight: bold; letter-spacing: 0.2em; color: var(--orange-bright); text-shadow: 0 0 20px var(--orange); text-align: center; margin-bottom: 6px; }
+  .doc-subtitle { text-align: center; font-size: 11px; letter-spacing: 0.4em; color: var(--orange-dim); margin-bottom: 24px; }
+  .meta-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--border); padding-top: 20px; margin-top: 20px; }
+  .meta-item { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 11px; }
+  .meta-item:nth-child(odd) { padding-right: 20px; border-right: 1px solid var(--border); }
+  .meta-item:nth-child(even) { padding-left: 20px; }
+  .meta-label { color: var(--orange-dim); letter-spacing: 0.15em; font-size: 10px; }
+  .meta-value { color: var(--orange-bright); margin-top: 2px; }
+  .warning-banner { margin-top: 20px; border: 1px solid var(--orange); padding: 10px 16px; background: rgba(200,120,32,0.05); font-size: 11px; letter-spacing: 0.15em; color: var(--orange-bright); text-align: center; animation: bblink 3s infinite; }
+  @keyframes bblink { 0%,90%,100%{border-color:var(--orange)} 95%{border-color:var(--orange-dim)} }
+  .toc { border: 1px solid var(--border-bright); padding: 24px; margin-bottom: 40px; position: relative; }
+  .toc::before { content: 'TABLE OF CONTENTS'; position: absolute; top: -8px; left: 20px; background: var(--bg); padding: 0 10px; font-size: 10px; letter-spacing: 0.3em; color: var(--orange-dim); }
+  .toc-item { display: flex; align-items: baseline; padding: 5px 0; cursor: pointer; transition: color 0.2s; font-size: 12px; text-decoration: none; color: var(--text); }
+  .toc-item:hover { color: var(--orange-bright); }
+  .toc-num { color: var(--orange-dim); margin-right: 12px; min-width: 30px; font-size: 11px; }
+  .toc-dots { flex: 1; height: 1px; border-bottom: 1px dashed var(--border); margin: 0 10px; position: relative; top: -3px; }
+  .section { margin-bottom: 50px; opacity: 0; animation: slideIn 0.6s ease forwards; }
+  .section:nth-child(1){animation-delay:.1s}.section:nth-child(2){animation-delay:.2s}.section:nth-child(3){animation-delay:.3s}
+  .section:nth-child(4){animation-delay:.4s}.section:nth-child(5){animation-delay:.5s}.section:nth-child(6){animation-delay:.6s}
+  .section:nth-child(7){animation-delay:.7s}.section:nth-child(8){animation-delay:.8s}.section:nth-child(9){animation-delay:.9s}
+  .section:nth-child(10){animation-delay:1s}
+  @keyframes slideIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .section-header { border-bottom: 1px solid var(--orange); padding-bottom: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 14px; }
+  .section-num { font-size: 11px; color: var(--orange-dim); letter-spacing: 0.2em; border: 1px solid var(--orange-dim); padding: 2px 8px; flex-shrink: 0; }
+  .section-title { font-size: 15px; letter-spacing: 0.15em; color: var(--orange-bright); text-shadow: 0 0 12px rgba(200,120,32,0.4); text-transform: uppercase; }
+  .section-content { font-family:'Courier Prime',monospace; font-size:13px; line-height:1.8; color:var(--text); }
+  .section-content p { margin-bottom: 14px; }
+  .subsection { margin: 24px 0; padding: 16px; border-left: 2px solid var(--orange-dim); background: rgba(200,120,32,0.03); }
+  .subsection-title { font-family:'Share Tech Mono',monospace; font-size:12px; letter-spacing:0.2em; color:var(--orange-bright); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+  .subsection-title::before { content:'▸'; color:var(--orange-dim); }
+  .evidence-list { list-style:none; padding:0; }
+  .evidence-list li { padding:8px 0; border-bottom:1px dashed var(--border); display:flex; gap:12px; font-family:'Courier Prime',monospace; font-size:13px; line-height:1.6; }
+  .evidence-list li::before { content:'►'; color:var(--orange-dim); flex-shrink:0; margin-top:2px; }
+  .callout { border:1px solid var(--orange); padding:16px 20px; margin:20px 0; background:var(--orange-faint); position:relative; box-shadow:0 0 20px rgba(200,120,32,0.05); }
+  .callout-label { position:absolute; top:-8px; left:12px; background:var(--bg); padding:0 8px; font-size:10px; letter-spacing:0.3em; color:var(--orange-bright); font-family:'Share Tech Mono',monospace; }
+  .callout-content { font-family:'Courier Prime',monospace; font-size:13px; line-height:1.8; font-style:italic; color:var(--orange-bright); }
+  .redacted { background:var(--orange-dim); color:var(--orange-dim); padding:0 4px; cursor:default; transition:all 0.3s; user-select:none; }
+  .redacted:hover { background:transparent; color:var(--orange-bright); }
+  .intervention { margin-bottom:20px; border:1px solid var(--border-bright); padding:16px; background:rgba(0,0,0,0.3); }
+  .intervention-header { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .priority-badge { background:var(--orange); color:var(--bg); font-size:9px; padding:2px 8px; letter-spacing:0.15em; font-family:'Share Tech Mono',monospace; font-weight:bold; }
+  .intervention-title { font-family:'Share Tech Mono',monospace; font-size:12px; letter-spacing:0.15em; color:var(--orange-bright); }
+  .doc-footer { border-top:1px solid var(--orange); padding-top:24px; margin-top:60px; text-align:center; }
+  .signature { font-size:28px; font-family:'Courier Prime',monospace; font-style:italic; color:var(--orange-bright); text-shadow:0 0 20px var(--orange); margin:16px 0; }
+  .footer-stamps { display:flex; justify-content:center; gap:30px; margin-top:20px; flex-wrap:wrap; }
+  .stamp { border:2px solid var(--orange-dim); padding:8px 20px; font-size:11px; letter-spacing:0.3em; color:var(--orange-dim); text-transform:uppercase; opacity:0.6; }
+  .stamp:nth-child(1){transform:rotate(-2deg)}.stamp:nth-child(2){transform:rotate(1.5deg)}.stamp:nth-child(3){transform:rotate(-1deg)}
+  .statusbar { position:fixed; bottom:0; left:0; right:0; height:28px; background:var(--bg); border-top:1px solid var(--border-bright); display:flex; align-items:center; justify-content:space-between; padding:0 20px; z-index:998; font-size:10px; color:var(--orange-dim); letter-spacing:0.15em; }
+  .glitch { position:relative; }
+  .glitch::before,.glitch::after { content:attr(data-text); position:absolute; top:0;left:0;width:100%;height:100%; }
+  .glitch::before { animation:g1 4s infinite; color:var(--orange-bright); clip-path:inset(0 0 70% 0); }
+  .glitch::after { animation:g2 4s infinite; color:var(--orange-dim); clip-path:inset(70% 0 0 0); }
+  @keyframes g1{0%,95%,100%{transform:translate(0)}97%{transform:translate(-3px,1px)}}
+  @keyframes g2{0%,95%,100%{transform:translate(0)}97%{transform:translate(3px,-1px)}}
+  .cur::after { content:'█'; animation:cb 1.2s step-end infinite; color:var(--orange-bright); font-size:12px; }
+  @keyframes cb{0%,100%{opacity:1}50%{opacity:0}}
+  .hr { border:none; border-top:1px dashed var(--border-bright); margin:30px 0; }
+  .note { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--orange-dim); letter-spacing:0.1em; border-left:2px solid var(--border-bright); padding-left:12px; margin:14px 0; }
+  .tag { display:inline-block; font-family:'Share Tech Mono',monospace; font-size:9px; padding:2px 7px; letter-spacing:0.15em; border:1px solid var(--orange-dim); color:var(--orange-dim); margin-right:6px; vertical-align:middle; }
+
+  /* DIORAMA */
+  .diorama { margin:28px 0; border:1px solid var(--border-bright); background:#050300; position:relative; overflow:hidden; }
+  .diorama-label { height:24px; background:rgba(200,120,32,0.08); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 12px; gap:8px; font-size:9px; letter-spacing:0.3em; color:var(--orange-dim); }
+  .diorama-label b { color:var(--orange-bright); }
+  .diorama canvas { display:block; width:100%; }
+  .diorama-caption { padding:8px 14px; font-size:10px; letter-spacing:0.1em; color:var(--orange-dim); border-top:1px solid var(--border); font-family:'Share Tech Mono',monospace; line-height:1.6; }
+  .diorama-caption em { color:var(--orange); font-style:normal; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-title glitch" data-text="△ VANTAGE SYSTEMS AUTHORITY — CLASSIFIED TERMINAL △">△ VANTAGE SYSTEMS AUTHORITY — CLASSIFIED TERMINAL △</div>
+  <div class="topbar-right">
+    <span>USER: AUTHORIZED</span><span>CLEARANCE: LEVEL-2</span><span class="sdot">● SIGNAL: STRONG</span>
+  </div>
+</div>
+
+<div class="container">
+  <div class="doc-header">
+    <div class="doc-title">SURVEYOR FIELD RESEARCH NOTES</div>
+    <div class="doc-subtitle">Comprehensive Edition — Ongoing Revision</div>
+    <div class="meta-grid">
+      <div class="meta-item"><div class="meta-label">AUTHOR</div><div class="meta-value">Surveyor Bishop</div></div>
+      <div class="meta-item"><div class="meta-label">CLEARANCE</div><div class="meta-value">Unfiled / Personal Research</div></div>
+      <div class="meta-item"><div class="meta-label">DISTRIBUTION</div><div class="meta-value">Not submitted to Command</div></div>
+      <div class="meta-item"><div class="meta-label">STATUS</div><div class="meta-value cur">Working Document</div></div>
+      <div class="meta-item"><div class="meta-label">CLASSIFICATION</div><div class="meta-value">None. Command does not know this exists.</div></div>
+      <div class="meta-item"><div class="meta-label">FILES LOADED</div><div class="meta-value">18 FILES — MEM: 53.9%</div></div>
+    </div>
+    <div class="warning-banner">⚠ NOT FILED — NOT REVIEWED — NOT SUBMITTED TO COMMAND — RETAINED FOR PERSONAL RECORD ⚠</div>
+  </div>
+
+  <div class="toc">
+    <a class="toc-item" href="#s0"><span class="toc-num">00.</span> Prefatory Note<span class="toc-dots"></span></a>
+    <a class="toc-item" href="#s1"><span class="toc-num">01.</span> What the Portal Is Not<span class="toc-dots"></span></a>
+    <a class="toc-item" href="#s2"><span class="toc-num">02.</span> The Informational Transfer Model<span class="toc-dots"></span></a>
+    <a class="toc-item" href="#s3"><span class="toc-num">03.</span> The Transition Interface and the Void Layer<span class="toc-dots"></span></a>
+    <a class="toc-item" href="#s4"><span class="toc-num">04.</span> The Exchange Hypothesis<span class="toc-dots"></span></a>
+    <a class="toc-item" href="#s5"><span class="toc-num">05.</span> Reality Shear: Complete Model<span class="toc-dots"></span></a>
+    <a class="toc-item" href="#s6"><span class="toc-num">06.</span> SIERRA<span class="toc-dots"></span></a>
+    <a class="toc-item" href="#s7"><span class="toc-num">07.</span> On the VSA's Understanding<span class="toc-dots"></span></a>
+    <a class="toc-item" href="#s8"><span class="toc-num">08.</span> Proposed Corrections<span class="toc-dots"></span></a>
+    <a class="toc-item" href="#s9"><span class="toc-num">09.</span> The Identity Problem<span class="toc-dots"></span></a>
+  </div>
+
+  <!-- S0 -->
+  <div class="section" id="s0">
+    <div class="section-header"><div class="section-num">00</div><div class="section-title">Prefatory Note</div></div>
+    <div class="section-content">
+      <p>I want to be clear about what this document is and what it is not. It is not a formal report. It will not be submitted. It will not be reviewed, stamped, filed, or added to the operational record.</p>
+      <div class="callout"><div class="callout-label">PURPOSE STATEMENT</div><div class="callout-content">What this document is: everything I actually think is happening with the ITF portal system, written down in one place, in enough detail that if something goes wrong — whoever finds this will have a head start on understanding why.</div></div>
+      <p>I have been building this model incrementally from field observations, incident reports, personnel accounts, and logical inference. I do not have access to the engineering documentation. I have not been given the incident records from <span class="redacted" title="hover to reveal">FALSE START</span> in any complete form. What I have is pattern recognition and the persistent irritation of watching an organization treat repeatable phenomena as random malfunctions.</p>
+      <p>I have been wrong before. I have acknowledged it, corrected my model, and continued. These are my conclusions. All of them. In order.</p>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+
+  <!-- S1 -->
+  <div class="section" id="s1">
+    <div class="section-header"><div class="section-num">01</div><div class="section-title">What the Portal Is Not</div></div>
+    <div class="section-content">
+      <p>The portal is described as a gateway. A tunnel. An aperture connecting two locations through space. This is the language Command uses. Nobody has given them a reason to question it. I am giving them a reason now.</p>
+
+      <div class="diorama">
+        <div class="diorama-label">DIAGRAM 01 — <b>TRANSIT MODEL COMPARISON</b> — ANIMATED</div>
+        <canvas id="d1" height="190"></canvas>
+        <div class="diorama-caption">LEFT: Command's "tunnel" model — continuous spatial path, traversal memory, geometric interior. RIGHT: <em>Observed behavior — instantaneous replacement. No traversal. No interior. No path.</em></div>
+      </div>
+
+      <div class="callout"><div class="callout-label">KEY OBSERVATION</div><div class="callout-content">Nobody who has passed through the ITF describes traversing anything. They describe being at Point A. They describe being at Point B. Between these two descriptions there is nothing. That is not transit through a tunnel. That is <em>replacement</em>.</div></div>
+
+      <div class="subsection">
+        <div class="subsection-title">Interior Geometric Inconsistency</div>
+        <p>The interior geometry is consistently wrong across multiple independent accounts. "Depth didn't line up." This is not a malfunction. A malfunction is intermittent. The geometric interior inconsistency is consistent, repeatable, and present across every transit event where a subject is paying close enough attention to notice it. It is a fixed property of the system.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+
+  <!-- S2 -->
+  <div class="section" id="s2">
+    <div class="section-header"><div class="section-num">02</div><div class="section-title">The Informational Transfer Model</div></div>
+    <div class="section-content">
+      <p>The portal does not move matter. What it does is capture the complete physical and quantum-informational state of whatever enters the aperture, terminate the original matter configuration at Point A, and reconstruct that state at Point B. Transit is not movement. It is replacement.</p>
+
+      <div class="diorama">
+        <div class="diorama-label">DIAGRAM 02 — <b>STATE CAPTURE & RECONSTRUCTION CYCLE</b> — ANIMATED</div>
+        <canvas id="d2" height="200"></canvas>
+        <div class="diorama-caption">Subject enters aperture → matter is <em>encoded as quantum-informational data</em> → original configuration terminated at Point A → state reconstructed at Point B from available matter.</div>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">Evidentiary Basis</div>
+        <ul class="evidence-list">
+          <li><strong>Zero perceived transit time.</strong> If you are moving through space, even very quickly, there is some interval. There is none here.</li>
+          <li><strong>Absent traversal memory.</strong> Subjects do not remember moving. You cannot form traversal memories if there is no traversal.</li>
+          <li><strong>Geometric interior inconsistency.</strong> The transition interface is geometrically wrong because it is not a geometric space. It is a process.</li>
+          <li><strong>Temporal echo phenomena.</strong> A technician heard his own voice return through comms with a measurable delay, containing statements he had not consciously formed.</li>
+          <li><strong>Catastrophic disappearance events.</strong> No debris. No biological trace. The original was already gone. There was nothing left to leave behind.</li>
+        </ul>
+      </div>
+      <div class="subsection">
+        <div class="subsection-title">The Power Source — Kyros Environment</div>
+        <p>The negative energy conditions on Kyros are not incidental. The extreme cold produces a macroscopic Casimir-like field that provides the stabilizing mechanism the portal requires. The original designers chose this location deliberately.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+
+  <!-- S3 -->
+  <div class="section" id="s3">
+    <div class="section-header"><div class="section-num">03</div><div class="section-title">The Transition Interface and the Void Layer</div></div>
+    <div class="section-content">
+      <p>The interior of the portal is not a volume in any classical sense. What subjects experience is a coordinate mapping interface — a process that has no spatial interior. It is fundamentally non-spatial in nature.</p>
+
+      <div class="diorama">
+        <div class="diorama-label">DIAGRAM 03 — <b>THE VOID LAYER — ATEMPORAL MEDIUM</b> — ANIMATED</div>
+        <canvas id="d3" height="230"></canvas>
+        <div class="diorama-caption">The Void layer exists <em>between all timelines simultaneously</em>. Subject enters from above (Timeline A), dissolves into informational state, exits below (Timeline B). <em>No sequential time inside. No spatial geometry. No experiential content.</em></div>
+      </div>
+
+      <div class="callout"><div class="callout-label">INFORMATIONAL SINGULARITY</div><div class="callout-content">The pressure sensation subjects report at the threshold is the subjective experience of the encoding process. You are briefly not a physical object. You are a description of a physical object. Whether this is worse than being a physical object is a philosophical question I am not equipped to answer.</div></div>
+
+      <div class="subsection">
+        <div class="subsection-title">The Void Layer — Working Framework</div>
+        <p>The transition interface appears to be a layer adjacent to all timelines simultaneously — not a different location within this timeline, but a layer between realities, accessible from any point in any timeline via the ITF aperture. The Void layer exists outside of time as it functions in normal spacetime. This is why subjects cannot form memories of the transition. Memory formation requires sequential time. The Void does not provide it.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+
+  <!-- S4 -->
+  <div class="section" id="s4">
+    <div class="section-header"><div class="section-num">04</div><div class="section-title">The Exchange Hypothesis</div></div>
+    <div class="section-content">
+      <p>The exchange hypothesis holds that the portal uses the Void layer to exchange you with a version of yourself from a parallel timeline who was at Point B at that moment. You do not get reconstructed. You get swapped.</p>
+
+      <div class="diorama">
+        <div class="diorama-label">DIAGRAM 04 — <b>PARALLEL TIMELINE EXCHANGE MECHANISM</b> — ANIMATED</div>
+        <canvas id="d4" height="240"></canvas>
+        <div class="diorama-caption">Two parallel timelines. <em>You</em> enter at Point A (Timeline α). Your adjacent-timeline counterpart is retrieved from Point B (Timeline β). Exchange occurs in the Void — atemporal, no duration. <em>Both versions believe they are themselves. Both are correct.</em></div>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">Minor Post-Transit Differences — Reframed</div>
+        <p>Under reconstruction, minor differences are errors. Under the exchange hypothesis, these differences are not errors. They are <em>seams</em>. The version of you that exits lived a slightly different life. The small differences are not noise. They are the signature of a life that diverged at some point and converged again — almost completely but not quite.</p>
+      </div>
+      <div class="subsection">
+        <div class="subsection-title">The Voice Echo — Void Overlap Event</div>
+        <p>The technician, briefly in the Void, made contact with the version of himself from the parallel timeline who was about to take his place. Both versions existed in the Void simultaneously. The voice came through the overlap. They leaked backward through the boundary.</p>
+        <div class="note">▸ This is significantly more unsettling than future-state bleedback. Unsettling and incorrect are not the same thing.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+
+  <!-- S5 -->
+  <div class="section" id="s5">
+    <div class="section-header"><div class="section-num">05</div><div class="section-title">Reality Shear — Complete Model</div></div>
+    <div class="section-content">
+      <p>Reality Shear is not a single phenomenon. It is at least three distinct but related phenomena that the operational terminology has collapsed into one category. You cannot fix one thing when the thing is actually three things.</p>
+
+      <div class="diorama">
+        <div class="diorama-label">DIAGRAM 05 — <b>REALITY SHEAR — THREE COMPONENT MODEL</b> — ANIMATED</div>
+        <canvas id="d5" height="230"></canvas>
+        <div class="diorama-caption"><em>LEFT:</em> Subject-level match degradation — baseline vs retrieved signature drift. <em>CENTER:</em> Environmental stress accumulation per transit. <em>RIGHT:</em> Temporal boundary thinning — the undocumented component.</div>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">Component One — Subject-Level Shear</div>
+        <p>Under stress, matching precision degrades. The system exchanges you with a version from a less adjacent timeline. Major degradation produces incorrectly matched subjects — biologically viable because they are real people from real timelines. Just not yours.</p>
+      </div>
+      <div class="subsection">
+        <div class="subsection-title">Component Two — Environmental Shear</div>
+        <p>Each use of the ITF adds accumulated distortion to the portal site. This accumulation is not linear. Stress compounds. Without active recalibration this is a failure cascade in slow motion.</p>
+      </div>
+      <div class="subsection">
+        <div class="subsection-title">Component Three — Temporal Shear <span class="tag">UNDOCUMENTED</span></div>
+        <p>Every transit event creates a small temporal stress. Under accumulated stress, sufficiently thinned temporal boundaries create windows through which information — and potentially entities — from other points in time can interact with the present.</p>
+        <div class="callout"><div class="callout-label">CRITICAL NOTE</div><div class="callout-content">This is not speculative extrapolation. It is the mechanism that <span class="redacted" title="hover to reveal">FALSE START</span> demonstrated at scale.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+
+  <!-- S6 -->
+  <div class="section" id="s6">
+    <div class="section-header"><div class="section-num">06</div><div class="section-title">SIERRA</div></div>
+    <div class="section-content">
+      <div class="subsection">
+        <div class="subsection-title">What Is Confirmed</div>
+        <ul class="evidence-list">
+          <li>SIERRA exists in a quantum superposition state that spans dimensional boundaries. This is the operational understanding within VSA, however poorly it is understood.</li>
+          <li>Direct observation collapses SIERRA's superposition. For SIERRA this resolution appears to be catastrophic — not a measurement disturbance but an existential one.</li>
+          <li>At least one technician reported a physical encounter with SIERRA near a portal highway. Diamond has stated this is impossible. The contradiction is publicly unresolved.</li>
+        </ul>
+      </div>
+
+      <div class="diorama">
+        <div class="diorama-label">DIAGRAM 06 — <b>SIERRA SUPERPOSITION STATE</b> — <b style="color:#e8922a">HOVER TO OBSERVE (COLLAPSES ON INTERACTION)</b></div>
+        <canvas id="d6" height="210"></canvas>
+        <div class="diorama-caption">SIERRA's wavefunction spans all timelines simultaneously. <em>Move mouse over diagram to simulate observation — watch superposition collapse.</em> Full manifestation is not difficult for SIERRA. It is existentially fatal.</div>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">Void Layer Interpretation</div>
+        <p>The most parsimonious explanation for an entity in permanent superposition across all timelines is that it is native to the medium between timelines — the Void layer itself. Full manifestation is not difficult for SIERRA. It is existentially fatal. This explains why SIERRA interacts through the boundary rather than crossing it. Not inability. Not restraint. <strong>Survival.</strong></p>
+      </div>
+      <div class="subsection">
+        <div class="subsection-title">FALSE START — Recharacterized</div>
+        <p>The FALSE START incident was not an attack. It was a resonance event. The Anchor Lock failure produced an uncontrolled opening into the Void layer — an aperture connecting to the medium between timelines rather than to a specific timeline's Point B. When the aperture opened into the Void directly, SIERRA achieved momentary coherence. Not because SIERRA forced its way through. Because the door opened into the room where SIERRA already was.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+
+  <!-- S7 -->
+  <div class="section" id="s7">
+    <div class="section-header"><div class="section-num">07</div><div class="section-title">On the VSA's Understanding of This System</div></div>
+    <div class="section-content">
+      <div class="callout"><div class="callout-label">CONCLUSION</div><div class="callout-content">The VSA did not develop this technology.</div></div>
+      <p>The calibration requirements, the environmental prerequisites, the Anchor Lock architecture, the specific location selection — all reflect design decisions made by someone who understood what the system was. The original designers built the ITF around the Void layer exchange model. They knew about temporal shear. They chose Kyros deliberately.</p>
+      <p>The VSA's operational model treats the portal as a spatial gateway. Files collapse events as equipment failure. Does not account for temporal shear. Does not understand the Void layer. Is asking civilian surveyors to redesign a system whose fundamental operating principles it has not correctly characterized.</p>
+      <div class="note">▸ Diamond may be genuinely incorrect rather than deliberately dishonest. Deliberate deception would produce different errors — errors of omission, not fundamental mischaracterization. That said: I cannot rule out deliberate deception in the case of FALSE START specifically.</div>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+
+  <!-- S8 -->
+  <div class="section" id="s8">
+    <div class="section-header"><div class="section-num">08</div><div class="section-title">Proposed Corrections</div></div>
+    <div class="section-content">
+
+      <div class="diorama">
+        <div class="diorama-label">DIAGRAM 07 — <b>CUMULATIVE SHEAR WITHOUT CONTINUOUS MONITORING</b> — ANIMATED</div>
+        <canvas id="d7" height="165"></canvas>
+        <div class="diorama-caption">Calendar-based maintenance (vertical markers) fires at fixed intervals regardless of actual stress. <em>Threshold is crossed invisibly between windows.</em> Monitoring must be continuous and threshold-triggered.</div>
+      </div>
+
+      <div class="intervention">
+        <div class="intervention-header"><div class="priority-badge">PRIORITY 1</div><div class="intervention-title">Timeline-Match Anchoring</div></div>
+        <p>Establish a complete quantum-state baseline prior to transit. The Anchor Lock broadcasts this as a continuous constraint throughout the exchange, ensuring the retrieved version matches the entering subject as closely as the available timeline pool permits.</p>
+      </div>
+      <div class="intervention">
+        <div class="intervention-header"><div class="priority-badge">PRIORITY 2</div><div class="intervention-title">Temporal Offset Correction</div></div>
+        <p>Anchor Lock calibration must include a temporal component currently absent from all operational procedures. An active dampening signal cancels temporal feedback before it can amplify. Amplified temporal feedback was the mechanism that produced FALSE START.</p>
+      </div>
+      <div class="intervention">
+        <div class="intervention-header"><div class="priority-badge">PRIORITY 3</div><div class="intervention-title">Cumulative Shear Monitoring with Mandatory Recalibration</div></div>
+        <p>Continuous monitoring at portal sites with recalibration triggered by threshold crossing rather than time elapsed.</p>
+      </div>
+      <div class="intervention">
+        <div class="intervention-header"><div class="priority-badge">PRIORITY 4</div><div class="intervention-title">Exchange Verification Protocol</div></div>
+        <p>Establish a quantum signature baseline pre-transit, perform comparative analysis post-transit. Subjects outside expected variance should be flagged for counseling — not because they are dangerous, but because they deserve accurate information.</p>
+        <div class="note">▸ I recognize this intervention will not be implemented. I am documenting it anyway because the ethical case is clear.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+
+  <!-- S9 -->
+  <div class="section" id="s9">
+    <div class="section-header"><div class="section-num">09</div><div class="section-title">The Identity Problem</div></div>
+    <div class="section-content">
+      <p>If the portal exchanges you with a version of yourself from a parallel timeline, then the person who exits is not you in any strict physical continuity sense. They are you in every practical sense — same memories, same relationships, same body to within detection threshold. But they are not the person who entered.</p>
+
+      <div class="diorama">
+        <div class="diorama-label">DIAGRAM 08 — <b>IDENTITY CONTINUITY ACROSS TRANSIT</b> — ANIMATED</div>
+        <canvas id="d8" height="220"></canvas>
+        <div class="diorama-caption">Every person who has ever used the ITF has had this experience without knowing it. <em>The discontinuity is real regardless.</em> They believe they went in and came out. They are not lying. They genuinely do not know.</div>
+      </div>
+
+      <div class="callout"><div class="callout-label">FINAL OBSERVATION</div><div class="callout-content">Whether this constitutes survival, death, or something that has no existing category is a question I am documenting but not attempting to answer. It is above my current philosophy. It may be above anyone's current philosophy.</div></div>
+      <p>Command knows this or should know this. I am writing this down because someone should have.</p>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+
+  <div class="section">
+    <div class="section-content">
+      <p>These are my conclusions. All of them. In the most complete form I have been able to assemble them.</p>
+      <p>If I am right — and I think I am right — then the ITF portal system is a Void-layer exchange mechanism operating on temporal and dimensional principles its current operators do not fully understand, producing effects they are misclassifying, managed with calibration practices that are systematically insufficient, and exhibiting failure modes that have already produced at least one catastrophic incident filed as equipment failure and not investigated at the level it requires.</p>
+      <p>The people using this system deserve better than that. The people who disappeared into it and did not come back deserved better than that. Command will not investigate. That is why I am writing this down.</p>
+    </div>
+  </div>
+
+  <div class="doc-footer">
+    <div class="signature">— B</div>
+    <div class="footer-stamps">
+      <div class="stamp">Not Filed</div>
+      <div class="stamp">Not Reviewed</div>
+      <div class="stamp">Not Submitted</div>
+    </div>
+    <div style="margin-top:24px;font-size:11px;color:var(--orange-dim);letter-spacing:0.15em;line-height:2;">
+      <p>If found: return to Engineering. Ask for Bishop.</p>
+      <p>If Bishop is not available: read it anyway.</p>
+    </div>
+  </div>
+</div>
+
+<div class="statusbar">
+  <span>SYSTEM STATUS: OPERATIONAL</span>
+  <span>18 FILES LOADED</span>
+  <span>MEM: 53.9%</span>
+  <span>SYSTEM</span>
+</div>
+
+<script>
+// ── HELPERS ──────────────────────────────────────────────────────────────
+const C = { O:'#c87820', OB:'#e8922a', OD:'#7a4a10', OF:'#3d2508', BG:'#050300', R:'#ff3300' };
+function a(hex,op){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${op})`;}
+function setup(id){
+  const cv=document.getElementById(id);
+  const dpr=window.devicePixelRatio||1;
+  const W=cv.parentElement.clientWidth||840;
+  const H=cv.height;
+  cv.width=W*dpr; cv.height=H*dpr;
+  const ctx=cv.getContext('2d');
+  ctx.scale(dpr,dpr);
+  return{cv,ctx,W,H};
+}
+function fig(ctx,x,y,alpha,col){
+  ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle=col||C.OB;ctx.lineWidth=1.5;
+  ctx.shadowColor=col||C.OB;ctx.shadowBlur=alpha>0.5?8:2;
+  ctx.beginPath();ctx.arc(x,y-10,5,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x,y-5);ctx.lineTo(x,y+6);ctx.moveTo(x-5,y-1);ctx.lineTo(x+5,y-1);ctx.moveTo(x,y+6);ctx.lineTo(x-4,y+15);ctx.moveTo(x,y+6);ctx.lineTo(x+4,y+15);ctx.stroke();
+  ctx.restore();
+}
+function portal(ctx,x,y,w,h,col,t){
+  ctx.save();ctx.strokeStyle=col;ctx.lineWidth=2;ctx.shadowColor=col;ctx.shadowBlur=10+5*Math.sin(t||0);
+  ctx.beginPath();ctx.ellipse(x,y,w,h,0,0,Math.PI*2);ctx.stroke();
+  const g=ctx.createRadialGradient(x,y,0,x,y,Math.max(w,h));
+  g.addColorStop(0,a(col,0.2));g.addColorStop(1,'transparent');
+  ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(x,y,w,h,0,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+
+// ── D1: TUNNEL vs REPLACEMENT ─────────────────────────────────────────────
+(()=>{
+  const{ctx,W,H}=setup('d1');
+  let t=0;
+  const mid=W/2,pad=28,cy=H/2+8;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    t+=0.014;
+    // divider
+    ctx.save();ctx.strokeStyle=a(C.OF,0.8);ctx.lineWidth=1;ctx.setLineDash([4,6]);
+    ctx.beginPath();ctx.moveTo(mid,10);ctx.lineTo(mid,H-10);ctx.stroke();ctx.setLineDash([]);ctx.restore();
+
+    // === LEFT: TUNNEL ===
+    ctx.save();
+    // tube walls
+    ctx.strokeStyle=C.OD;ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pad,cy-30);ctx.lineTo(mid-pad,cy-30);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(pad,cy+30);ctx.lineTo(mid-pad,cy+30);ctx.stroke();
+    // interior gradient
+    const tg=ctx.createLinearGradient(pad,0,mid-pad,0);
+    tg.addColorStop(0,a(C.O,0.03));tg.addColorStop(.5,a(C.O,0.07));tg.addColorStop(1,a(C.O,0.03));
+    ctx.fillStyle=tg;ctx.fillRect(pad,cy-30,mid-2*pad,60);
+    ctx.restore();
+    // depth lines for perspective
+    for(let i=1;i<5;i++){
+      const fx=pad+i*(mid-2*pad)/5;
+      ctx.save();ctx.strokeStyle=a(C.OD,0.15);ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(fx,cy-30);ctx.lineTo(fx,cy+30);ctx.stroke();ctx.restore();
+    }
+    portal(ctx,pad+18,cy,13,30,C.OD,t);
+    portal(ctx,mid-pad-18,cy,13,30,C.OD,t);
+    // Moving figure
+    const pos=(Math.sin(t)+1)/2;
+    const fx=pad+32+pos*(mid-2*pad-64);
+    fig(ctx,fx,cy+4,1,C.OB);
+    for(let tr=1;tr<=3;tr++){const tp=Math.max(0,pos-tr*0.07);fig(ctx,pad+32+tp*(mid-2*pad-64),cy+4,(4-tr)*0.09,C.O);}
+    // label
+    ctx.font='9px "Share Tech Mono"';ctx.fillStyle=a(C.OD,0.7);ctx.textAlign='center';
+    ctx.fillText('[ COMMAND MODEL — "TUNNEL" ]',mid/2,H-10);
+
+    // === RIGHT: REPLACEMENT ===
+    const rl=mid+pad,rr=W-pad;
+    portal(ctx,rl+46,cy,13,30,C.O,t);
+    portal(ctx,rr-46,cy,13,30,C.O,t);
+    // dashed "no path" line
+    ctx.save();ctx.strokeStyle=a(C.OD,0.25);ctx.lineWidth=1;ctx.setLineDash([3,9]);
+    ctx.beginPath();ctx.moveTo(rl+62,cy);ctx.lineTo(rr-62,cy);ctx.stroke();ctx.setLineDash([]);ctx.restore();
+    ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.OD,0.35+0.2*Math.sin(t*2));ctx.textAlign='center';
+    ctx.fillText('NO TRAVERSAL',(rl+rr)/2,cy+4);
+
+    const cyc=(t*0.55)%1;
+    let aA=1,aB=0;
+    if(cyc<0.35){aA=1;aB=0;}
+    else if(cyc<0.5){const p=(cyc-.35)/.15;aA=1-p;aB=0;}
+    else if(cyc<0.65){const p=(cyc-.5)/.15;aA=0;aB=p;}
+    else{aA=0;aB=1;}
+    fig(ctx,rl+46,cy,aA,C.O);
+    fig(ctx,rr-46,cy,aB,C.OB);
+    // swap flash
+    if(cyc>=0.48&&cyc<=0.52){
+      const fl=1-Math.abs(cyc-.5)/.02;
+      ctx.save();ctx.globalAlpha=fl*.5;
+      ctx.beginPath();ctx.arc(rl+46,cy,22,0,Math.PI*2);ctx.fillStyle=C.OB;ctx.shadowColor=C.OB;ctx.shadowBlur=20;ctx.fill();
+      ctx.globalAlpha=fl*.3;ctx.beginPath();ctx.arc(rr-46,cy,18,0,Math.PI*2);ctx.fill();ctx.restore();
+    }
+    ctx.font='9px "Share Tech Mono"';ctx.fillStyle=a(C.OD,0.7);ctx.textAlign='center';
+    ctx.fillText('[ OBSERVED BEHAVIOR — REPLACEMENT ]',mid+(W-mid)/2,H-10);
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── D2: STATE CAPTURE ─────────────────────────────────────────────────────
+(()=>{
+  const{ctx,W,H}=setup('d2');
+  let t=0;
+  const nodes=[
+    {label:'MATTER',sub:'Point A',x:.1},
+    {label:'ENCODE',sub:'Aperture',x:.3},
+    {label:'{DATA}',sub:'Void Layer',x:.5},
+    {label:'REBUILD',sub:'Point B',x:.72},
+    {label:'MATTER',sub:'Arrived',x:.9},
+  ];
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    t+=0.009;
+    const cy=H/2-8;
+    const phase=5;
+    const cycleT=(t*.25)%phase;
+    const activeP=Math.floor(cycleT);
+    const pp=cycleT-activeP;
+
+    // connecting segments
+    for(let i=0;i<nodes.length-1;i++){
+      const x1=nodes[i].x*W+26,x2=nodes[i+1].x*W-26;
+      const active=i===activeP;
+      ctx.save();
+      ctx.strokeStyle=active?a(C.OB,.7+.3*Math.sin(t*4)):a(C.OF,1);
+      ctx.lineWidth=active?2:1;
+      ctx.beginPath();ctx.moveTo(x1,cy);ctx.lineTo(x2-8,cy);ctx.stroke();
+      ctx.fillStyle=ctx.strokeStyle;
+      ctx.beginPath();ctx.moveTo(x2-8,cy-4);ctx.lineTo(x2,cy);ctx.lineTo(x2-8,cy+4);ctx.fill();
+      if(active){
+        // travelling particle
+        const px=x1+pp*(x2-x1);
+        ctx.beginPath();ctx.arc(px,cy,3,0,Math.PI*2);
+        ctx.fillStyle=C.OB;ctx.shadowColor=C.OB;ctx.shadowBlur=10;ctx.fill();
+        for(let tr=1;tr<5;tr++){
+          const tp=Math.max(0,pp-tr*.05);
+          ctx.globalAlpha=(5-tr)*.06;
+          ctx.beginPath();ctx.arc(x1+tp*(x2-x1),cy,2,0,Math.PI*2);ctx.fill();
+        }
+      }
+      ctx.restore();
+    }
+
+    // nodes
+    nodes.forEach((nd,i)=>{
+      const nx=nd.x*W,active=i===activeP||i===activeP+1;
+      ctx.save();
+      ctx.beginPath();ctx.arc(nx,cy,24,0,Math.PI*2);
+      ctx.strokeStyle=active?C.OB:C.OD;ctx.lineWidth=active?2:1;
+      if(active){ctx.shadowColor=C.OB;ctx.shadowBlur=14;}
+      ctx.stroke();
+      if(active){const g=ctx.createRadialGradient(nx,cy,0,nx,cy,24);g.addColorStop(0,a(C.OB,.15));g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.fill();}
+      ctx.font=`bold 9px "Share Tech Mono"`;ctx.fillStyle=active?C.OB:C.OD;ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(nd.label,nx,cy-4);
+      ctx.font=`7px "Share Tech Mono"`;ctx.fillStyle=a(active?C.OB:C.OD,.6);ctx.fillText(nd.sub,nx,cy+7);
+      ctx.restore();
+    });
+
+    // phase description
+    const descs=[
+      'Subject exists as physical matter at Point A.',
+      'Aperture captures quantum-informational state.',
+      'Matter terminated. Original is now pure data in Void.',
+      'Data broadcast to Point B. Reconstruction begins.',
+      'Subject exists as physical matter at Point B.'
+    ];
+    ctx.font='9px "Share Tech Mono"';ctx.fillStyle=a(C.OB,.75);ctx.textAlign='center';ctx.textBaseline='alphabetic';
+    ctx.fillText(descs[Math.min(activeP,4)],W/2,H-14);
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── D3: VOID LAYER STACK ──────────────────────────────────────────────────
+(()=>{
+  const{ctx,W,H}=setup('d3');
+  let t=0;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    t+=0.011;
+    const pad=28,tlH=42,vT=tlH+22,vB=H-tlH-22;
+
+    // Timeline A
+    ctx.save();ctx.fillStyle=a(C.OD,.12);ctx.fillRect(pad,8,W-2*pad,tlH);
+    ctx.strokeStyle=C.OD;ctx.lineWidth=1;ctx.strokeRect(pad,8,W-2*pad,tlH);
+    for(let x=pad+25;x<W-pad;x+=35){ctx.save();ctx.strokeStyle=a(C.OD,.25);ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(x,8);ctx.lineTo(x,8+tlH);ctx.stroke();ctx.restore();}
+    ctx.font='9px "Share Tech Mono"';ctx.fillStyle=C.OD;ctx.textAlign='left';ctx.fillText('TIMELINE — POINT A  (sequential time →)',pad+8,8+26);
+    ctx.restore();
+
+    // Timeline B
+    ctx.save();ctx.fillStyle=a(C.OD,.12);ctx.fillRect(pad,vB+8,W-2*pad,tlH);
+    ctx.strokeStyle=C.OD;ctx.lineWidth=1;ctx.strokeRect(pad,vB+8,W-2*pad,tlH);
+    for(let x=pad+25;x<W-pad;x+=35){ctx.save();ctx.strokeStyle=a(C.OD,.25);ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(x,vB+8);ctx.lineTo(x,vB+8+tlH);ctx.stroke();ctx.restore();}
+    ctx.font='9px "Share Tech Mono"';ctx.fillStyle=C.OD;ctx.textAlign='left';ctx.fillText('TIMELINE — POINT B  (sequential time →)',pad+8,vB+8+26);
+    ctx.restore();
+
+    // Void texture
+    const vH=vB-vT;
+    for(let x=pad;x<W-pad;x+=20){
+      for(let y=vT;y<vB;y+=13){
+        const n=Math.sin(x*.09+t*1.4)*Math.cos(y*.14+t*.85);
+        if(Math.abs(n)>.38){ctx.beginPath();ctx.arc(x+n*5,y+n*3,.9,0,Math.PI*2);ctx.fillStyle=a(C.O,.05+Math.abs(n)*.05);ctx.fill();}
+      }
+    }
+    ctx.save();ctx.strokeStyle=a(C.O,.25+.1*Math.sin(t*1.5));ctx.lineWidth=1;ctx.setLineDash([6,5]);
+    ctx.strokeRect(pad,vT,W-2*pad,vH);ctx.setLineDash([]);
+    ctx.font='bold 11px "Share Tech Mono"';ctx.fillStyle=a(C.O,.2+.08*Math.sin(t));ctx.textAlign='center';
+    ctx.fillText('V O I D   L A Y E R  —  A T E M P O R A L',W/2,vT+vH*.42);
+    ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.OD,.45);
+    ctx.fillText('no sequential time  ·  no spatial geometry  ·  no experiential content',W/2,vT+vH*.57);
+    ctx.restore();
+
+    // Animated subject traversal
+    const cyc=(t*.22)%1;
+    const py=8+tlH*.5+cyc*(H-16-tlH);
+    const inVoid=py>vT&&py<vB;
+    ctx.save();
+    if(inVoid){
+      const prog=(py-vT)/vH;
+      const scatter=Math.min(1,Math.max(0,prog<.5?prog/.3:((1-prog)/.3)));
+      const disp=scatter*22;
+      for(let p=0;p<14;p++){
+        const ang=(p/14)*Math.PI*2+t*(p%2?1:-1.2);
+        const r=disp*(.5+.5*Math.sin(p+t*1.3));
+        ctx.beginPath();ctx.arc(W/2+Math.cos(ang)*r,py+Math.sin(ang)*r*.4,2,0,Math.PI*2);
+        ctx.fillStyle=a(C.OB,.55-scatter*.15);ctx.shadowColor=C.OB;ctx.shadowBlur=5;ctx.fill();
+      }
+    } else {
+      fig(ctx,W/2,py+4,1,C.OB);
+    }
+    // boundary flash
+    if(Math.abs(py-vT)<10||Math.abs(py-vB)<10){
+      const fl=1-Math.min(1,Math.min(Math.abs(py-vT),Math.abs(py-vB))/10);
+      ctx.globalAlpha=fl*.5;ctx.beginPath();ctx.arc(W/2,py,20,0,Math.PI*2);
+      ctx.fillStyle=C.OB;ctx.shadowColor=C.OB;ctx.shadowBlur=25;ctx.fill();
+    }
+    ctx.restore();
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── D4: TIMELINE EXCHANGE ─────────────────────────────────────────────────
+(()=>{
+  const{ctx,W,H}=setup('d4');
+  let t=0;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    t+=0.009;
+    const pad=38,tlA=56,tlB=H-56,vMid=H/2;
+    const pAx=pad+90,pBx=W-pad-90;
+
+    // Timelines
+    [[tlA,'α'],[tlB,'β']].forEach(([y,lbl])=>{
+      ctx.save();ctx.strokeStyle=C.OD;ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(W-pad,y);ctx.stroke();
+      for(let x=pad;x<W-pad;x+=28){ctx.save();ctx.strokeStyle=a(C.OD,.3);ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(x,y-5);ctx.lineTo(x,y+5);ctx.stroke();ctx.restore();}
+      ctx.font='9px "Share Tech Mono"';ctx.fillStyle=C.OD;ctx.textAlign='right';ctx.fillText(`TIMELINE ${lbl}`,pad+65,y-14);ctx.restore();
+    });
+
+    // Void band
+    const vg=ctx.createLinearGradient(0,tlA+20,0,tlB-20);
+    vg.addColorStop(0,'transparent');vg.addColorStop(.35,a(C.O,.05));vg.addColorStop(.5,a(C.O,.08));vg.addColorStop(.65,a(C.O,.05));vg.addColorStop(1,'transparent');
+    ctx.fillStyle=vg;ctx.fillRect(pad,tlA+20,W-2*pad,tlB-tlA-40);
+    ctx.font='9px "Share Tech Mono"';ctx.fillStyle=a(C.O,.18+.08*Math.sin(t));ctx.textAlign='center';ctx.fillText('— VOID LAYER —',W/2,vMid+4);
+
+    // 4 portals
+    [[pAx,tlA],[pBx,tlA],[pAx,tlB],[pBx,tlB]].forEach(([x,y])=>portal(ctx,x,y,13,26,C.O,t));
+
+    // Exchange cycle
+    const cyc=(t*.16)%1;
+    let fAx=pAx,fAy=tlA,fAa=1,fBx=pBx,fBy=tlB,fBa=1,swap=false;
+    if(cyc<.25){fAx=pAx;fAy=tlA;fBx=pBx;fBy=tlB;}
+    else if(cyc<.45){const p=(cyc-.25)/.2;fAy=tlA+p*(vMid-tlA);fBy=tlB-p*(tlB-vMid);fAa=fBa=1-p*.3;}
+    else if(cyc<.55){const p=(cyc-.45)/.1;fAx=pAx+p*(W/2-pAx);fAy=vMid;fBx=pBx-p*(pBx-W/2);fBy=vMid;fAa=fBa=.5+p*.2;swap=true;}
+    else if(cyc<.75){const p=(cyc-.55)/.2;fAx=W/2+p*(pBx-W/2);fAy=vMid+p*(tlB-vMid);fBx=W/2-p*(W/2-pAx);fBy=vMid-p*(vMid-tlA);fAa=fBa=.7+p*.3;}
+    else{fAx=pBx;fAy=tlB;fBx=pAx;fBy=tlA;}
+
+    if(swap){
+      ctx.save();ctx.strokeStyle=a(C.OB,.25);ctx.lineWidth=1;ctx.setLineDash([5,5]);
+      ctx.beginPath();ctx.moveTo(pAx,tlA);ctx.lineTo(pBx,tlB);ctx.stroke();ctx.setLineDash([]);
+      const fl=Math.sin((cyc-.45)/.1*Math.PI);
+      ctx.globalAlpha=fl*.45;ctx.beginPath();ctx.arc(W/2,vMid,28,0,Math.PI*2);
+      ctx.fillStyle=C.OB;ctx.shadowColor=C.OB;ctx.shadowBlur=25;ctx.fill();ctx.restore();
+    }
+    fig(ctx,fAx,fAy,fAa,cyc>.6?C.O:C.OB);
+    fig(ctx,fBx,fBy,fBa,cyc>.6?C.OB:C.O);
+
+    const labels=['BOTH AT REST IN OWN TIMELINES','APPROACHING VOID BOUNDARY','EXCHANGE IN VOID — NO DURATION','ROUTING TO DESTINATIONS','EXCHANGE COMPLETE — BOTH BELIEVE THEY ARE THEMSELVES'];
+    const li=cyc<.25?0:cyc<.45?1:cyc<.55?2:cyc<.75?3:4;
+    ctx.font='9px "Share Tech Mono"';ctx.fillStyle=a(C.OD,.8);ctx.textAlign='center';ctx.fillText(labels[li],W/2,H-12);
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── D5: REALITY SHEAR — 3 PANELS ─────────────────────────────────────────
+(()=>{
+  const{ctx,W,H}=setup('d5');
+  let t=0;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    t+=0.013;
+    const third=W/3,cy=H*.47;
+
+    // Dividers
+    ctx.save();ctx.strokeStyle=a(C.OF,.9);ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(third,18);ctx.lineTo(third,H-18);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(third*2,18);ctx.lineTo(third*2,H-18);ctx.stroke();ctx.restore();
+
+    // Titles
+    ['SUBJECT-LEVEL','ENVIRONMENTAL','TEMPORAL'].forEach((ti,i)=>{
+      ctx.font='8px "Share Tech Mono"';ctx.fillStyle=C.OD;ctx.textAlign='center';ctx.letterSpacing='0.15em';
+      ctx.fillText(ti,third*i+third/2,17);
+    });
+
+    // === P1: Match drift ===
+    {
+      const cx=third*.5,R=22;
+      const drift=(t*.2)%1;
+      const bad=drift>.55;
+      // baseline ring
+      ctx.save();ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.strokeStyle=C.OB;ctx.lineWidth=1.5;ctx.stroke();
+      ctx.font='7px "Share Tech Mono"';ctx.fillStyle=C.OB;ctx.textAlign='center';ctx.fillText('BASELINE',cx,cy+4);ctx.restore();
+      // drifting ring
+      const sx=drift*20*Math.sin(t*.5),sy=drift*12*Math.cos(t*.35);
+      ctx.save();ctx.strokeStyle=bad?a('#ff4444',.75):a(C.O,.65);ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
+      ctx.beginPath();ctx.arc(cx+sx,cy+sy,R*(1+drift*.4),0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);
+      ctx.font='7px "Share Tech Mono"';ctx.fillStyle=ctx.strokeStyle;ctx.textAlign='center';ctx.fillText(bad?'MISMATCH':'MATCH',cx+sx,cy+sy+4);ctx.restore();
+      ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(bad?'#ff4444':C.OD,.7);ctx.textAlign='center';
+      ctx.fillText(bad?'⚠ ADJACENT DEGRADED':'✓ WITHIN VARIANCE',cx,H-16);
+    }
+
+    // === P2: Environmental stress ===
+    {
+      const cx=third+third*.5;
+      const fill=((t*.18)%1);
+      const dangerZone=fill>.68;
+      // distorting grid
+      for(let gx=third+8;gx<third*2-8;gx+=15){
+        for(let gy=28;gy<H-32;gy+=11){
+          const d=fill*Math.sin(gx*.09+t*.6)*Math.sin(gy*.11+t*.4)*7;
+          const dy=fill*Math.cos(gx*.07+t*.45)*4;
+          ctx.beginPath();ctx.arc(gx+d,gy+dy,.9,0,Math.PI*2);
+          ctx.fillStyle=dangerZone?a('#ff4444',.06+Math.abs(d)/7*.12):a(C.O,.04+Math.abs(d)/7*.08);
+          ctx.fill();
+        }
+      }
+      // accumulation bar
+      const bw=third*.6,bh=9,bx=cx-bw/2;
+      ctx.save();ctx.strokeStyle=C.OD;ctx.lineWidth=1;ctx.strokeRect(bx,H-34,bw,bh);
+      const bc=dangerZone?'#ff3300':C.O;
+      ctx.fillStyle=bc;ctx.globalAlpha=.6;ctx.fillRect(bx,H-34,bw*fill,bh);ctx.globalAlpha=1;
+      // danger line
+      ctx.strokeStyle=a('#ff4444',.5);ctx.setLineDash([3,2]);
+      ctx.beginPath();ctx.moveTo(bx+bw*.68,H-38);ctx.lineTo(bx+bw*.68,H-22);ctx.stroke();ctx.setLineDash([]);
+      ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(C.OD,.7);ctx.textAlign='left';ctx.fillText(`SHEAR ${Math.round(fill*100)}%`,bx,H-37);
+      ctx.restore();
+    }
+
+    // === P3: Temporal thinning ===
+    {
+      const cx=third*2+third*.5;
+      const thin=.5+.5*Math.sin(t*.45);
+      const thick=3-thin*2.6;
+      ctx.save();
+      ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.OD,.35);ctx.textAlign='center';
+      ctx.fillText('PAST',cx,cy-46);ctx.fillText('PRESENT',cx,cy+5);ctx.fillText('FUTURE',cx,cy+54);
+      // wavy boundary — top
+      ctx.strokeStyle=a(C.O,.3+thin*.35);ctx.lineWidth=thick;ctx.shadowColor=C.O;ctx.shadowBlur=thin*14;
+      ctx.beginPath();ctx.moveTo(third*2+10,cy-18);
+      for(let x=third*2+10;x<W-10;x+=4)ctx.lineTo(x,cy-18+thin*6*Math.sin(x*.22+t*3));
+      ctx.stroke();
+      // bottom boundary
+      ctx.beginPath();ctx.moveTo(third*2+10,cy+18);
+      for(let x=third*2+10;x<W-10;x+=4)ctx.lineTo(x,cy+18+thin*6*Math.cos(x*.22+t*3));
+      ctx.stroke();ctx.restore();
+      // leakage particles
+      if(thin>.68){
+        const la=(thin-.68)/.32;
+        for(let i=0;i<5;i++){
+          const lx=third*2+20+(i/5)*(third-40)+Math.sin(t*1.4+i)*9;
+          const ly=cy-35+Math.sin(t*2.2+i*1.4)*16;
+          ctx.save();ctx.globalAlpha=la*.85;ctx.beginPath();ctx.arc(lx,ly,2,0,Math.PI*2);
+          ctx.fillStyle=C.OB;ctx.shadowColor=C.OB;ctx.shadowBlur=9;ctx.fill();ctx.restore();
+        }
+        ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a('#ff4444',la*.8);ctx.textAlign='center';ctx.fillText('⚠ LEAKAGE',cx,cy-52);
+      }
+      ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(C.OD,.7);ctx.textAlign='center';
+      ctx.fillText(`INTEGRITY ${Math.round((1-thin)*100)}%`,cx,H-16);
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── D6: SIERRA — INTERACTIVE ──────────────────────────────────────────────
+(()=>{
+  const{cv,ctx,W,H}=setup('d6');
+  let t=0,obs=false,col=0;
+  cv.addEventListener('mousemove',()=>{obs=true;});
+  cv.addEventListener('mouseleave',()=>{obs=false;});
+  cv.addEventListener('touchstart',e=>{e.preventDefault();obs=!obs;});
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    t+=0.013;
+    col=obs?Math.min(1,col+.04):Math.max(0,col-.03);
+    const sup=1-col;const cx=W/2,cy=H/2;
+
+    // timeline bands (fading when collapsing)
+    for(let i=0;i<7;i++){
+      const y=18+(i/6)*(H-36);
+      ctx.save();ctx.strokeStyle=a(C.OD,.18*sup);ctx.lineWidth=1;ctx.setLineDash([8,7]);
+      ctx.beginPath();ctx.moveTo(28,y);ctx.lineTo(W-28,y);ctx.stroke();ctx.setLineDash([]);
+      ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(C.OD,.18*sup);ctx.textAlign='right';
+      ctx.fillText(`TL-${String.fromCharCode(65+i)}`,24,y+3);ctx.restore();
+    }
+
+    // waveforms — superposition
+    for(let w=0;w<6;w++){
+      const amp=(18+w*7)*sup;
+      const freq=.02+w*.007;
+      const ph=w*1.1+t*(.4+w*.18);
+      ctx.save();ctx.strokeStyle=a(C.O,(.15+.12*w/6)*sup);ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(28,cy);
+      for(let x=28;x<W-28;x+=2)ctx.lineTo(x,cy+amp*Math.sin(x*freq+ph)*Math.cos(x*.005+t*.28));
+      ctx.stroke();ctx.restore();
+    }
+
+    // SIERRA entity — multi-ghost
+    const ghosts=Math.round(5*sup)+1;
+    for(let g=0;g<ghosts;g++){
+      const gx=cx+(g-ghosts/2)*18*sup;
+      const gy=cy+Math.sin(t*.8+g)*10*sup;
+      const isMain=g===Math.floor(ghosts/2);
+      const ga=(isMain?.75:(.18*sup))*(0.55+.45*Math.sin(t*1.2+g));
+      const sz=15-g*1.8*sup;
+      ctx.save();ctx.globalAlpha=ga;ctx.strokeStyle=isMain?C.OB:C.O;ctx.lineWidth=1.3;
+      ctx.shadowColor=isMain?C.OB:C.O;ctx.shadowBlur=6;
+      ctx.beginPath();ctx.moveTo(gx-sz,gy);ctx.lineTo(gx+sz,gy);ctx.moveTo(gx,gy-sz);ctx.lineTo(gx,gy+sz);
+      ctx.moveTo(gx-sz*.7,gy-sz*.7);ctx.lineTo(gx+sz*.7,gy+sz*.7);
+      ctx.moveTo(gx+sz*.7,gy-sz*.7);ctx.lineTo(gx-sz*.7,gy+sz*.7);ctx.stroke();
+      ctx.beginPath();ctx.arc(gx,gy,sz*.42,0,Math.PI*2);ctx.stroke();ctx.restore();
+    }
+
+    // Collapse effect
+    if(col>0){
+      ctx.save();ctx.globalAlpha=col*.5;
+      ctx.beginPath();ctx.arc(cx,cy,38+col*22,0,Math.PI*2);
+      ctx.strokeStyle='#ff3300';ctx.lineWidth=2;ctx.shadowColor='#ff3300';ctx.shadowBlur=18;ctx.stroke();
+      ctx.restore();
+      ctx.save();ctx.globalAlpha=col;
+      ctx.font='bold 10px "Share Tech Mono"';ctx.fillStyle='#ff4444';ctx.textAlign='center';
+      ctx.fillText('⚠ OBSERVATION DETECTED — SUPERPOSITION COLLAPSING',cx,15);ctx.restore();
+    }
+
+    ctx.font='9px "Share Tech Mono"';ctx.textAlign='center';
+    if(sup>.5){ctx.fillStyle=a(C.O,.6);ctx.fillText(`COHERENCE: ${Math.round(sup*100)}%  —  SPANNING ALL TIMELINES SIMULTANEOUSLY`,cx,H-12);}
+    else{ctx.fillStyle=a('#ff4444',.8);ctx.fillText(`⚠ COLLAPSING — COHERENCE: ${Math.round(sup*100)}%  —  EXISTENTIAL RISK CRITICAL`,cx,H-12);}
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── D7: SHEAR ACCUMULATION MONITOR ───────────────────────────────────────
+(()=>{
+  const{ctx,W,H}=setup('d7');
+  let t=0;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    t+=0.009;
+    const pad=32,gH=H-50,gW=W-2*pad,gX=pad,gY=10;
+
+    // grid
+    ctx.save();ctx.strokeStyle=a(C.OF,.9);ctx.lineWidth=.5;
+    for(let i=0;i<=4;i++){const y=gY+(i/4)*gH;ctx.beginPath();ctx.moveTo(gX,y);ctx.lineTo(gX+gW,y);ctx.stroke();ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(C.OD,.5);ctx.textAlign='right';ctx.fillText(`${100-i*25}%`,gX-4,y+3);}
+    ctx.restore();
+
+    // danger zone
+    ctx.save();ctx.fillStyle=a(C.R,.05);ctx.fillRect(gX,gY,gW,gH*.3);
+    ctx.strokeStyle=a(C.R,.2);ctx.lineWidth=1;ctx.setLineDash([4,5]);
+    ctx.beginPath();ctx.moveTo(gX,gY+gH*.3);ctx.lineTo(gX+gW,gY+gH*.3);ctx.stroke();ctx.setLineDash([]);
+    ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(C.R,.4);ctx.textAlign='right';ctx.fillText('⚠ DANGER THRESHOLD',gX+gW-4,gY+gH*.3-4);ctx.restore();
+
+    // compound shear line
+    const pts=80;
+    const vals=[];
+    for(let i=0;i<pts;i++){let v=(i/pts)*(i/pts)*.75;v+=.07*Math.max(0,Math.sin(i*.42));v+=.045*Math.max(0,Math.sin(i*.71+1));vals.push(Math.min(1,v));}
+
+    const shown=Math.min(pts,Math.floor(t*10));
+    ctx.save();ctx.beginPath();
+    for(let i=0;i<shown;i++){
+      const x=gX+(i/pts)*gW,y=gY+gH-vals[i]*gH;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    const gr=ctx.createLinearGradient(gX,0,gX+gW,0);
+    gr.addColorStop(0,a(C.O,.25));gr.addColorStop(.6,a(C.O,.85));gr.addColorStop(.82,a('#ff5500',.9));gr.addColorStop(1,a('#ff1100',.9));
+    ctx.strokeStyle=gr;ctx.lineWidth=2;ctx.stroke();ctx.restore();
+
+    // maintenance markers
+    [10,22,38,55,70].forEach(mi=>{
+      if(mi>shown)return;
+      const mx=gX+(mi/pts)*gW;
+      ctx.save();ctx.strokeStyle=a(C.OD,.5);ctx.lineWidth=1;ctx.setLineDash([2,4]);
+      ctx.beginPath();ctx.moveTo(mx,gY);ctx.lineTo(mx,gY+gH+8);ctx.stroke();ctx.setLineDash([]);
+      ctx.font='6px "Share Tech Mono"';ctx.fillStyle=a(C.OD,.45);ctx.textAlign='center';ctx.fillText('MAINT',mx,gY+gH+18);
+      ctx.restore();
+    });
+
+    // current dot
+    const ci=Math.min(shown-1,pts-1);
+    if(ci>=0){
+      const dx=gX+(ci/pts)*gW,dy=gY+gH-vals[ci]*gH;
+      const dc=vals[ci]>.7?C.R:C.O;
+      ctx.save();ctx.beginPath();ctx.arc(dx,dy,4,0,Math.PI*2);ctx.fillStyle=dc;ctx.shadowColor=dc;ctx.shadowBlur=10;ctx.fill();ctx.restore();
+    }
+
+    ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.OD,.6);ctx.textAlign='center';ctx.fillText('TRANSIT EVENTS →',W/2,H-6);
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── D8: IDENTITY BRANCHING ────────────────────────────────────────────────
+(()=>{
+  const{ctx,W,H}=setup('d8');
+  let t=0;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    t+=0.009;
+    const cy=H*.42,sX=36,pX=W*.4,eX=W-36;
+    const vW=W*.16,exitX=pX+vW;
+
+    // Approach timeline
+    ctx.save();ctx.strokeStyle=C.OB;ctx.lineWidth=2;ctx.shadowColor=C.OB;ctx.shadowBlur=5;
+    ctx.beginPath();ctx.moveTo(sX,cy);ctx.lineTo(pX-2,cy);ctx.stroke();
+    ctx.fillStyle=C.OB;ctx.beginPath();ctx.moveTo(pX-10,cy-4);ctx.lineTo(pX-2,cy);ctx.lineTo(pX-10,cy+4);ctx.fill();
+    ctx.font='9px "Share Tech Mono"';ctx.fillStyle=a(C.OB,.65);ctx.textAlign='center';
+    ctx.fillText('YOUR TIMELINE (α)',sX+(pX-sX)*.5,cy-16);ctx.restore();
+
+    // Portal aperture
+    portal(ctx,pX+vW*.5,cy,11,32,C.O,t);
+
+    // Upper branch: you (β version) arrives at Point B
+    const brY1=cy-44;
+    ctx.save();ctx.strokeStyle=C.OB;ctx.lineWidth=2;ctx.shadowColor=C.OB;ctx.shadowBlur=4;
+    ctx.beginPath();ctx.moveTo(exitX,cy);ctx.bezierCurveTo(exitX+35,cy,exitX+55,brY1,eX-10,brY1);ctx.stroke();
+    ctx.fillStyle=C.OB;ctx.beginPath();ctx.moveTo(eX-18,brY1-4);ctx.lineTo(eX-8,brY1);ctx.lineTo(eX-18,brY1+4);ctx.fill();
+    ctx.font='9px "Share Tech Mono"';ctx.fillStyle=a(C.OB,.7);ctx.textAlign='center';
+    ctx.fillText('YOU (β) — exits at Point B',exitX+(eX-exitX)*.5,brY1-14);
+    ctx.fillText('"adjacent timeline version"',exitX+(eX-exitX)*.5,brY1-4);ctx.restore();
+
+    // Lower branch: original you routes to β's Point B
+    const brY2=cy+44;
+    ctx.save();ctx.strokeStyle=a(C.O,.5);ctx.lineWidth=1.5;ctx.setLineDash([5,5]);
+    ctx.beginPath();ctx.moveTo(exitX,cy);ctx.bezierCurveTo(exitX+35,cy,exitX+55,brY2,eX-10,brY2);ctx.stroke();ctx.setLineDash([]);
+    ctx.font='9px "Share Tech Mono"';ctx.fillStyle=a(C.O,.5);ctx.textAlign='center';
+    ctx.fillText('YOU (α) — routed to β timeline',exitX+(eX-exitX)*.5,brY2+16);
+    ctx.fillText('"as their counterpart"',exitX+(eX-exitX)*.5,brY2+26);ctx.restore();
+
+    // Branch point
+    ctx.save();ctx.beginPath();ctx.arc(exitX,cy,5,0,Math.PI*2);ctx.fillStyle=C.OB;ctx.shadowColor=C.OB;ctx.shadowBlur=10;ctx.fill();ctx.restore();
+
+    // Animated YOU approaching portal
+    const pp=(t*.2)%1;
+    const pfx=sX+pp*(pX-sX-20);
+    fig(ctx,pfx,cy,1,C.OB);
+
+    // Small arriving figure on upper branch
+    const arrP=Math.max(0,pp-.12);
+    if(arrP>0){
+      const aT=arrP/.88;
+      const bx=exitX+aT*(eX-exitX-14);
+      const by=cy+(brY1-cy)*(1-Math.pow(1-aT,2));
+      ctx.save();ctx.globalAlpha=.7;ctx.strokeStyle=C.OB;ctx.lineWidth=1.2;
+      ctx.beginPath();ctx.arc(bx,by-6,3,0,Math.PI*2);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(bx,by-3);ctx.lineTo(bx,by+4);ctx.moveTo(bx-3,by);ctx.lineTo(bx+3,by);ctx.moveTo(bx,by+4);ctx.lineTo(bx-3,by+10);ctx.moveTo(bx,by+4);ctx.lineTo(bx+3,by+10);ctx.stroke();ctx.restore();
+    }
+
+    // Labels
+    ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.OD,.5);
+    ctx.textAlign='left';ctx.fillText('POINT A',sX,H-28);
+    ctx.textAlign='right';ctx.fillText('POINT B',eX,H-28);
+
+    ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.OD,.55+.15*Math.sin(t));ctx.textAlign='center';
+    ctx.fillText('Both versions believe they went in and came out. Neither is lying. Neither is exactly right.',W/2,H-12);
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── UI ────────────────────────────────────────────────────────────────────
+document.querySelectorAll('a.toc-item').forEach(link=>{
+  link.addEventListener('click',e=>{
+    e.preventDefault();
+    const t=document.querySelector(link.getAttribute('href'));
+    if(t)t.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+});
+const el=document.querySelector('.topbar-title');
+const tx=el.textContent;el.textContent='';let i=0;
+const type=()=>{if(i<tx.length){el.textContent+=tx[i++];setTimeout(type,18);}};
+setTimeout(type,300);
+</script>
+</body>
+</html>
