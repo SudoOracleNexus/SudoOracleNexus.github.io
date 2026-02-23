@@ -223,9 +223,252 @@
     pointer-events:none; white-space:nowrap;
   }
   @keyframes hintPulse { 0%,100%{opacity:0.3} 50%{opacity:0.85} }
+
+  /* ── BOOT SEQUENCE ── */
+  #boot-screen {
+    position:fixed; inset:0; background:#000; z-index:9999;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    font-family:'Share Tech Mono','Courier New',monospace;
+    font-size:14px; color:#c87820; letter-spacing:0.2em;
+    transition:opacity 0.8s ease;
+  }
+  #boot-screen.fade-out { opacity:0; pointer-events:none; }
+  #boot-screen::before {
+    content:'';
+    position:absolute; inset:0;
+    background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.25) 2px,rgba(0,0,0,0.25) 4px);
+    pointer-events:none;
+  }
+  .boot-lines { text-align:left; max-width:600px; width:90%; }
+  .boot-line { margin:3px 0; opacity:0; animation:bootfade 0.15s ease forwards; }
+  @keyframes bootfade { to{opacity:1} }
+  .boot-cursor { display:inline-block; width:10px; height:14px; background:#c87820; vertical-align:bottom; animation:cb 0.8s step-end infinite; margin-left:2px; }
+  .boot-logo {
+    font-size:11px; letter-spacing:0.5em; color:#e8922a;
+    text-shadow:0 0 20px #c87820;
+    margin-bottom:32px; opacity:0;
+    animation:bootfade 0.5s ease 0.2s forwards;
+  }
+  .boot-progress-bar {
+    width:300px; height:2px; background:#1a0e00; margin-top:28px;
+    border:1px solid #3d2508; overflow:hidden; opacity:0;
+    animation:bootfade 0.3s ease forwards;
+  }
+  .boot-progress-fill { height:100%; background:#c87820; width:0%; transition:width 0.05s linear; }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal-section {
+    opacity:0; transform:translateY(18px);
+    transition:opacity 0.55s ease, transform 0.55s ease;
+  }
+  .reveal-section.visible { opacity:1; transform:translateY(0); }
+
+  /* ── MARGIN ANNOTATIONS ── */
+  .annotated { position:relative; }
+  .margin-note {
+    position:absolute;
+    right:calc(100% + 18px);
+    top:0;
+    width:130px;
+    font-family:'Courier Prime','Courier New',monospace;
+    font-size:11px;
+    line-height:1.5;
+    color:#b06010;
+    opacity:0.82;
+    pointer-events:none;
+    border-left:2px solid #7a4a10;
+    padding-left:8px;
+    font-style:italic;
+  }
+  .margin-note::before {
+    content:'↳';
+    display:block;
+    font-style:normal;
+    font-size:10px;
+    color:#7a4a10;
+    margin-bottom:2px;
+  }
+  /* Right-side margin notes */
+  .margin-note.right {
+    right:auto;
+    left:calc(100% + 18px);
+    border-left:none;
+    border-right:2px solid #7a4a10;
+    padding-left:0;
+    padding-right:8px;
+  }
+  .margin-note.right::before { content:'↲'; }
+  @media (max-width:1100px) { .margin-note { display:none; } }
+
+  /* ── CIRCLED WORDS — hand-drawn marker style ── */
+  .circled {
+    display:inline-block;
+    position:relative;
+    padding:0 4px;
+    white-space:nowrap;
+  }
+  .circled svg {
+    position:absolute;
+    inset:-7px -10px;
+    width:calc(100% + 20px);
+    height:calc(100% + 14px);
+    pointer-events:none;
+    overflow:visible;
+  }
+  .circled svg path {
+    fill:none;
+    stroke:#d42010;
+    stroke-width:2.4;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    opacity:0.58;
+    stroke-dasharray:1000;
+    stroke-dashoffset:1000;
+    animation:circledraw 0.6s ease-out forwards;
+  }
+  @keyframes circledraw {
+    to { stroke-dashoffset: 0; }
+  }
+
+  /* ── GLOSSARY ── */
+  #glossary-panel {
+    position:fixed; top:36px; right:0; width:320px; height:calc(100vh - 64px);
+    background:#060300; border-left:1px solid #3d2508;
+    z-index:900; overflow-y:auto;
+    transform:translateX(100%);
+    transition:transform 0.35s ease;
+    font-family:'Share Tech Mono','Courier New',monospace;
+  }
+  #glossary-panel.open { transform:translateX(0); }
+  #glossary-panel::-webkit-scrollbar { width:4px; }
+  #glossary-panel::-webkit-scrollbar-track { background:#080500; }
+  #glossary-panel::-webkit-scrollbar-thumb { background:#3d2508; }
+  .glossary-header {
+    position:sticky; top:0;
+    background:#060300; border-bottom:1px solid #3d2508;
+    padding:12px 16px; display:flex; justify-content:space-between; align-items:center;
+    font-size:10px; letter-spacing:0.3em; color:#e8922a;
+  }
+  .glossary-close {
+    background:none; border:1px solid #3d2508; color:#c87820;
+    font-family:'Share Tech Mono',monospace; font-size:12px;
+    padding:2px 8px; cursor:pointer; letter-spacing:0.1em;
+  }
+  .glossary-close:hover { border-color:#c87820; }
+  .glossary-entry { border-bottom:1px dashed #2a1a06; padding:14px 16px; }
+  .glossary-term {
+    font-size:11px; letter-spacing:0.2em; color:#e8922a;
+    margin-bottom:6px; display:flex; align-items:center; gap:8px;
+  }
+  .glossary-term .g-tag {
+    font-size:8px; border:1px solid #3d2508; color:#7a4a10;
+    padding:1px 5px; letter-spacing:0.1em;
+  }
+  .glossary-def {
+    font-family:'Courier Prime','Courier New',monospace;
+    font-size:11px; line-height:1.7; color:#957030;
+  }
+  .glossary-bishop {
+    margin-top:8px; font-size:10px; color:#7a4a10;
+    border-left:2px solid #3d2508; padding-left:8px;
+    font-style:italic; font-family:'Courier Prime',monospace;
+  }
+  /* Glossary toggle button */
+  #glossary-toggle {
+    position:fixed; top:50%; right:0; transform:translateY(-50%);
+    background:#060300; border:1px solid #3d2508; border-right:none;
+    color:#c87820; font-family:'Share Tech Mono',monospace;
+    font-size:9px; letter-spacing:0.2em;
+    writing-mode:vertical-rl; text-orientation:mixed;
+    padding:14px 8px; cursor:pointer; z-index:901;
+    transition:background 0.2s, border-color 0.2s;
+  }
+  #glossary-toggle:hover { background:#0d0600; border-color:#c87820; color:#e8922a; }
 </style>
 </head>
 <body>
+
+<!-- ── BOOT SEQUENCE ── -->
+<div id="boot-screen" aria-hidden="true">
+  <div class="boot-logo">△ VANTAGE SYSTEMS AUTHORITY △</div>
+  <div class="boot-lines" id="boot-lines"></div>
+  <div class="boot-progress-bar" id="boot-bar"><div class="boot-progress-fill" id="boot-fill"></div></div>
+</div>
+
+<!-- ── GLOSSARY PANEL ── -->
+<button id="glossary-toggle" aria-label="Open field glossary" aria-expanded="false">FIELD GLOSSARY</button>
+<aside id="glossary-panel" aria-label="Field glossary" aria-hidden="true">
+  <div class="glossary-header">
+    <span>▸ FIELD GLOSSARY — BISHOP</span>
+    <button class="glossary-close" id="glossary-close" aria-label="Close glossary">✕ CLOSE</button>
+  </div>
+
+  <div class="glossary-entry">
+    <div class="glossary-term">ITF <span class="g-tag">CORE</span></div>
+    <div class="glossary-def">Interdimensional Transit Frame. A structure within the portal that manipulates the fabric of reality itself — folding spacetime so passage from Point A to Point B is instantaneous. Also theorized to constitute the "gap" between points.</div>
+    <div class="glossary-bishop">The ITF is not a tunnel. It is a fold. Nobody in Command seems to understand the distinction.</div>
+  </div>
+
+  <div class="glossary-entry">
+    <div class="glossary-term">ANCHOR LOCK <span class="g-tag">MECHANICAL</span></div>
+    <div class="glossary-def">The system responsible for ensuring subjects arrive at intended coordinates. Stabilizes reality shear during transit and holds the portal aperture structurally coherent. Without it, destination matching degrades and shear goes unchecked.</div>
+    <div class="glossary-bishop">Think of it as the thing that makes sure you arrive as yourself, in the right place. When it fails, neither of those is guaranteed.</div>
+  </div>
+
+  <div class="glossary-entry">
+    <div class="glossary-term">REALITY SHEAR <span class="g-tag">PHENOMENON</span></div>
+    <div class="glossary-def">Geometric stress imposed on a transiting object — specifically the structural stress caused by irregularities in the object's form passing through the ITF. Three distinct components: subject-level, environmental, and temporal. Operationally collapsed into one category. This is a mistake.</div>
+    <div class="glossary-bishop">You are the object. The shear is the stress on your geometry. It compounds. Nobody is tracking it properly.</div>
+  </div>
+
+  <div class="glossary-entry">
+    <div class="glossary-term">QUANTUM DECOHERENCE <span class="g-tag">PHYSICS</span></div>
+    <div class="glossary-def">When a quantum system loses its superposition, returning to its classical state. In portal context: reality shear is decoherence. As Diamond phrased it — "reality will eventually realize that you are not meant to have exited the ITF in that configuration, and your body naturally returns to its original state before transit."</div>
+    <div class="glossary-bishop">Diamond's phrasing is uncharacteristically poetic for someone who claims not to understand what the system does.</div>
+  </div>
+
+  <div class="glossary-entry">
+    <div class="glossary-term">NEGATIVE ENERGY <span class="g-tag">THEORETICAL</span></div>
+    <div class="glossary-def">A theoretical state where energy falls below that of a vacuum — below empty space. Observed macroscopically in the Casimir effect. Has a repulsive gravitational effect. Theorized to be present in the ITF throat between portals.</div>
+    <div class="glossary-bishop">We have always called it "the Kyros effect." I think we were observing negative energy the entire time without knowing what we were looking at.</div>
+  </div>
+
+  <div class="glossary-entry">
+    <div class="glossary-term">CASIMIR EFFECT <span class="g-tag">PHYSICS</span></div>
+    <div class="glossary-def">An attractive physical force acting between two uncharged, closely spaced conducting plates in a vacuum. Negative energy exists in the gap between these plates. The portal system may operate on an analogous principle — Point A and Point B as the "plates," the ITF throat as the gap.</div>
+    <div class="glossary-bishop">This is the model I keep coming back to. The geometry fits.</div>
+  </div>
+
+  <div class="glossary-entry">
+    <div class="glossary-term">MINKOWSKI BUBBLE <span class="g-tag">THEORETICAL</span></div>
+    <div class="glossary-def">A self-consistent structure connecting two normal spacetimes in which time flows normally, light travels normally, and all physical laws apply. Theorized as the mechanism by which a properly tuned negative energy field creates a safe passage through the ITF throat — eliminating reality shear by canceling spacetime curvature to zero inside the bubble.</div>
+    <div class="glossary-bishop">If this is achievable, it would solve the shear problem entirely. I think it is achievable. I could be wrong.</div>
+  </div>
+
+  <div class="glossary-entry">
+    <div class="glossary-term">PIEZOELECTRIC ACTUATORS <span class="g-tag">MECHANICAL / SPECULATIVE</span></div>
+    <div class="glossary-def">Ceramic devices converting electrical energy into nanometer-level linear motion via the inverse piezoelectric effect — voltage causes controlled material deformation. Theorized (by Bishop) as the mechanism for tuning negative energy density in the ITF throat by adjusting the effective plate separation, exponentially altering the Casimir-like field.</div>
+    <div class="glossary-bishop">I worked with these on the Bullet Train project. Nanometer adjustments producing enormous force — exactly what you'd need to tune something this sensitive. I have no confirmation this is what the ITF uses. It is what I would have used.</div>
+  </div>
+
+  <div class="glossary-entry">
+    <div class="glossary-term">VOID LAYER <span class="g-tag">THEORETICAL</span></div>
+    <div class="glossary-def">The atemporal medium between timelines through which ITF transit occurs. No sequential time. No spatial geometry. No experiential content. Theorized to be the native environment of SIERRA.</div>
+    <div class="glossary-bishop">You cannot remember it because you cannot form memories without sequential time. The Void does not provide it. You were not there. You were nowhere.</div>
+  </div>
+
+  <div class="glossary-entry">
+    <div class="glossary-term">THE BULLET TRAIN <span class="g-tag">HISTORICAL / PERSONAL</span></div>
+    <div class="glossary-def">A large-scale transit system resembling a monorail, capable of carrying up to 500 personnel. Used for instantaneous displacement during the period when teleportation was considered too unstable and faster-than-light travel was not viable. High maintenance overhead but operationally successful. Bishop worked on this project.</div>
+    <div class="glossary-bishop">It worked. We kept it running with constant attention. That's the part people forget — it worked because we never stopped watching it.</div>
+  </div>
+
+  <div class="glossary-entry">
+    <div class="glossary-term">SIERRA <span class="g-tag">CLASSIFIED</span></div>
+    <div class="glossary-def">Entity in permanent quantum superposition across dimensional boundaries. Native to the Void layer. Direct observation is theorized to be existentially fatal to SIERRA — not a disturbance, but a collapse from which it cannot recover.</div>
+    <div class="glossary-bishop">It does not cross the boundary because it cannot. It interacts from within. That is not weakness. That is the only way it can exist at all.</div>
+  </div>
+</aside>
 
 <a class="skip-link" href="#main-content">SKIP TO CONTENT</a>
 
@@ -241,6 +484,7 @@
 <main id="main-content">
 <div class="container">
   <div class="doc-header" role="region" aria-label="Document header">
+    <div style="text-align:center;font-size:10px;letter-spacing:0.25em;color:var(--text-dim);margin-bottom:14px;">LAST UPDATED — 02 / 22 / 2026</div>
     <div class="doc-title">SURVEYOR FIELD RESEARCH NOTES</div>
     <div class="doc-subtitle">Comprehensive Edition — Ongoing Revision</div>
     <div class="meta-grid" role="table" aria-label="Document metadata">
@@ -258,6 +502,7 @@
     <a class="toc-item" href="#s0" data-section="s0"><span class="toc-num">00.</span> Prefatory Note<span class="toc-dots" aria-hidden="true"></span></a>
     <a class="toc-item" href="#s1" data-section="s1"><span class="toc-num">01.</span> What the Portal Is Not<span class="toc-dots" aria-hidden="true"></span></a>
     <a class="toc-item" href="#s2" data-section="s2"><span class="toc-num">02.</span> The Informational Transfer Model<span class="toc-dots" aria-hidden="true"></span></a>
+    <a class="toc-item" href="#s25" data-section="s25"><span class="toc-num">02.5</span> The Throat — Negative Energy &amp; Minkowski<span class="toc-dots" aria-hidden="true"></span></a>
     <a class="toc-item" href="#s3" data-section="s3"><span class="toc-num">03.</span> The Transition Interface and the Void Layer<span class="toc-dots" aria-hidden="true"></span></a>
     <a class="toc-item" href="#s4" data-section="s4"><span class="toc-num">04.</span> The Exchange Hypothesis<span class="toc-dots" aria-hidden="true"></span></a>
     <a class="toc-item" href="#s5" data-section="s5"><span class="toc-num">05.</span> Reality Shear: Complete Model<span class="toc-dots" aria-hidden="true"></span></a>
@@ -268,12 +513,13 @@
   </nav>
 
   <!-- S0 -->
-  <section class="section" id="s0" aria-labelledby="title-s0">
+  <section class="section reveal-section" id="s0" aria-labelledby="title-s0">
     <div class="section-header"><div class="section-num">00</div><div class="section-title" id="title-s0">Prefatory Note</div></div>
     <div class="section-content">
-      <p>I want to be clear about what this document is and what it is not. It is not a formal report. It will not be submitted. It will not be reviewed, stamped, filed, or added to the operational record.</p>
+      <p>I want to be clear about what this document is and what it is not. It is not a formal report. It will not be submitted. It will not be reviewed, stamped, filed, or added to the operational record. I am a Surveyor at Site 4. I am not a researcher. I do not attend briefings. I have corridor access and observation time and that is the extent of my institutional position as it relates to what follows.</p>
       <div class="callout"><div class="callout-label">PURPOSE STATEMENT</div><div class="callout-content">What this document is: everything I actually think is happening with the ITF portal system, written down in one place, in enough detail that if something goes wrong — whoever finds this will have a head start on understanding why.</div></div>
-      <p>I have been building this model incrementally from field observations, incident reports, personnel accounts, and logical inference. I do not have access to the engineering documentation. I have not been given the incident records from <span class="redacted" tabindex="0" role="button" aria-label="Redacted text — press Enter or click to reveal" title="Click or press Enter to reveal">FALSE START</span> in any complete form. What I have is pattern recognition and the persistent irritation of watching an organization treat repeatable phenomena as random malfunctions.</p>
+      <p>I have been building this model incrementally from field observations, incident reports, personnel accounts, and things I have overheard that I was not meant to hear. I do not have access to the engineering documentation. I have not been given the incident records from <span class="redacted" tabindex="0" role="button" aria-label="Redacted text — press Enter or click to reveal" title="Click or press Enter to reveal">FALSE START</span> in any complete form. What I have is pattern recognition, a surveyor's habit of measuring what is actually there rather than what the map says should be there, and the persistent irritation of watching an organization treat repeatable phenomena as random malfunctions.</p>
+      <p>Diamond and the research team are working on the same problems. I know this because I listen. Researcher Zale gave what I am told was an extremely good explanation of the spacetime mechanics involved — someone who was in the room relayed it to me afterward — and it confirmed most of what I had already concluded independently. The researchers understand the physics. What I am less certain about is whether they understand the full scope of what they are operating. That is the gap this document is attempting to fill.</p>
       <p>I have been wrong before. I have acknowledged it, corrected my model, and continued. These are my conclusions. All of them. In order.</p>
     </div>
   </section>
@@ -281,23 +527,24 @@
   <div class="hr" aria-hidden="true"></div>
 
   <!-- S1 -->
-  <section class="section" id="s1" aria-labelledby="title-s1">
+  <section class="section reveal-section" id="s1" aria-labelledby="title-s1">
     <div class="section-header"><div class="section-num">01</div><div class="section-title" id="title-s1">What the Portal Is Not</div></div>
     <div class="section-content">
-      <p>The portal is described as a gateway. A tunnel. An aperture connecting two locations through space. This is the language Command uses. Nobody has given them a reason to question it. I am giving them a reason now.</p>
+      <p>The portal is described as a gateway. A spatial connection between two points. The official definition I have heard used is that the aperture is the singularity point at the opening of the portal — "like a camera lens," as a researcher put it. That description is accurate as far as it goes. What it does not address is what happens between the lens on one end and the lens on the other. That gap is where everything interesting and dangerous is occurring.</p>
 
       <div class="diorama" role="img" aria-labelledby="d1-caption">
-        <div class="diorama-label">DIAGRAM 01 — <b>TRANSIT MODEL COMPARISON</b> — ANIMATED</div>
+        <div class="diorama-label">DIAGRAM 01 — <b>TRANSIT MODEL COMPARISON</b> — <b style="color:#e8922a">CLICK TO PLAY</b></div>
         <canvas id="d1" height="190" aria-hidden="true"></canvas>
         <p class="sr-only">Animated diagram comparing two transit models. Left side shows Command's tunnel model: a figure moving continuously through a tube from Point A to Point B with traversal memory and geometric interior. Right side shows observed behavior: instantaneous replacement with no traversal, no interior, and no perceived path — the figure disappears at Point A and reappears at Point B with a flash, separated by nothing.</p>
         <div class="diorama-caption" id="d1-caption">LEFT: Command's "tunnel" model — continuous spatial path, traversal memory, geometric interior. RIGHT: <em>Observed behavior — instantaneous replacement. No traversal. No interior. No path.</em></div>
       </div>
 
       <div class="callout"><div class="callout-label">KEY OBSERVATION</div><div class="callout-content">Nobody who has passed through the ITF describes traversing anything. They describe being at Point A. They describe being at Point B. Between these two descriptions there is nothing. That is not transit through a tunnel. That is <em>replacement</em>.</div></div>
+      <div class="note">▸ Researchers have confirmed no known limit on simultaneous transit volume — the ITF has been used for full Cohort movements. Current repair and upgrade work is oriented toward making it reliably capable of handling large groups, which suggests the architecture supports it but the stability does not yet. This tracks with everything else I know about how the system behaves under load.</div>
 
       <div class="subsection">
         <div class="subsection-title">Interior Geometric Inconsistency</div>
-        <p>The interior geometry is consistently wrong across multiple independent accounts. "Depth didn't line up." This is not a malfunction. A malfunction is intermittent. The geometric interior inconsistency is consistent, repeatable, and present across every transit event where a subject is paying close enough attention to notice it. It is a fixed property of the system.</p>
+        <p class="annotated"><span class="margin-note">repeatable. consistent. fixed. this is not noise — this is the system behaving exactly as it was designed to</span>The interior geometry is consistently wrong across multiple independent accounts. "Depth didn't line up." This is not a malfunction. A malfunction is intermittent. The geometric interior inconsistency is consistent, repeatable, and present across every transit event where a subject is paying close enough attention to notice it. It is a fixed property of the system.</p>
       </div>
     </div>
   </section>
@@ -305,10 +552,10 @@
   <div class="hr" aria-hidden="true"></div>
 
   <!-- S2 -->
-  <section class="section" id="s2" aria-labelledby="title-s2">
+  <section class="section reveal-section" id="s2" aria-labelledby="title-s2">
     <div class="section-header"><div class="section-num">02</div><div class="section-title" id="title-s2">The Informational Transfer Model</div></div>
     <div class="section-content">
-      <p>The portal does not move matter. What it does is capture the complete physical and quantum-informational state of whatever enters the aperture, terminate the original matter configuration at Point A, and reconstruct that state at Point B. Transit is not movement. It is replacement.</p>
+      <p>The portal does not move matter through space in any conventional sense. A researcher confirmed this directly: it connects two places to allow instantaneous transit. That description is correct. What it elides is the mechanism — the portal is not a tube. There is no spatial path between the aperture at Point A and the aperture at Point B. What I believe happens is that the complete physical and quantum-informational state of whatever enters is encoded at the aperture, the original configuration is terminated, and that state is reconstructed at the destination. Transit is not movement. It is replacement.</p>
 
       <div class="diorama" role="img" aria-labelledby="d2-caption">
         <div class="diorama-label">DIAGRAM 02 — <b>STATE CAPTURE & RECONSTRUCTION CYCLE</b> — ANIMATED</div>
@@ -336,14 +583,67 @@
 
   <div class="hr" aria-hidden="true"></div>
 
+  <!-- S2.5 -->
+  <section class="section reveal-section" id="s25" aria-labelledby="title-s25">
+    <div class="section-header"><div class="section-num">02.5</div><div class="section-title" id="title-s25">The Throat — Negative Energy &amp; the Minkowski Solution</div></div>
+    <div class="section-content">
+
+      <p class="annotated">
+        <span class="margin-note">this is the part I keep coming back to — the geometry fits too well to be coincidence</span>
+        The ITF does not move matter through space. It folds space. Between Point A and Point B there is a gap — a region I am calling <span class="circled"><svg aria-hidden="true" viewBox="0 0 100 44" preserveAspectRatio="none"><path d="M 12,22 C 10,10 28,4 50,4 C 72,4 92,10 94,22 C 96,34 80,40 58,40 C 36,40 14,36 12,22" style="animation-delay:0.00s"/></svg>the throat</span> — that is neither location. What happens inside the throat determines whether transit is survivable in any meaningful sense of that word.
+      </p>
+
+      <div class="callout"><div class="callout-label">WORKING PREMISE</div><div class="callout-content">Frame the portal as a Casimir setup. Point A and Point B are the conducting plates. The throat is the gap between them. Negative energy — the same phenomenon observed between Casimir plates — exists in that gap. This is not metaphor. I believe it is the literal operating principle of the ITF.</div></div>
+
+      <div class="subsection">
+        <div class="subsection-title">What Negative Energy Does Here</div>
+        <p class="annotated">
+          <span class="margin-note right">repulsive gravitational effect — pushing against reality itself. this is why shear happens when there isn't enough of it</span>
+          Negative energy has a <span class="circled"><svg aria-hidden="true" viewBox="0 0 100 44" preserveAspectRatio="none"><path d="M 8,20 C 8,8 26,3 50,3 C 74,3 94,8 95,20 C 96,32 78,38 50,38 C 24,38 7,33 8,20 Z M 9,21 C 9,12 26,5 50,5" style="animation-delay:0.12s"/></svg>repulsive gravitational effect</span>. In the throat, it acts as a force pushing against the fabric of spacetime — against "reality itself," if you want to be imprecise about it. When there is sufficient negative energy density in the throat, this repulsion stabilizes the passage. When there is not, the environment of the throat destabilizes the transiting subject. This destabilization is what we call reality shear. The shear is not a malfunction. It is the absence of an adequate stabilizing field.
+        </p>
+        <p>The ITF produces quantum decoherence — reality shear — when the negative energy density in the throat is insufficient to deflect the geometric stress of transit. The subject passes through an environment that cannot support them in their current configuration. Their quantum state begins to return to its pre-transit baseline. I overheard Diamond put it to one of the junior researchers this way: <em>"reality will eventually realize that you are not meant to have exited the ITF in that configuration, and your body naturally returns to its original state before transit."</em> I wrote it down immediately. It is the clearest description of the mechanism I have heard from anyone in that lab, and Diamond said it in the hallway like it was obvious.</p>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">The Minkowski Bubble — Proposed Solution</div>
+        <p class="annotated">
+          <span class="margin-note">I think this is achievable. I could be wrong. I have been wrong before. But the model is internally consistent and I cannot find a flaw in it.</span>
+          A <span class="circled"><svg aria-hidden="true" viewBox="0 0 100 44" preserveAspectRatio="none"><path d="M 14,24 C 12,12 30,5 52,5 C 74,5 90,12 90,24 C 90,36 74,41 52,41 C 30,41 13,35 14,24" style="animation-delay:0.24s"/></svg>Minkowski bubble</span> is a self-consistent structure connecting two normal spacetimes. Inside it, time flows normally. Light travels normally. All physical laws apply without distortion. It is, in the most direct terms, a safety envelope for whatever passes through the throat.
+        </p>
+        <p>The mechanism is curvature. Insufficient negative energy density produces positive curvature inside the throat. Positive curvature is exactly the decoherence condition — the moment of reality shear. If we tune the negative energy density correctly, we can produce negative curvature. Negative curvature, properly calibrated, cancels the positive curvature. Net curvature approaches zero. Inside a zero-curvature region: a Minkowski bubble. The shear problem does not need to be managed. It is eliminated at the structural level.</p>
+        <div class="callout"><div class="callout-label">THEORETICAL OUTCOME</div><div class="callout-content">Properly tuned negative energy density → negative curvature → cancellation of positive curvature → net gravitational force inside the throat approaches nil → Minkowski bubble → reality shear eliminated. The subject passes through a region that imposes no geometric stress on their configuration whatsoever.</div></div>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">Tuning the Density — Piezoelectric Speculation</div>
+        <p class="annotated">
+          <span class="margin-note right">I worked on this class of device for three years. Nanometer displacement producing kilonewton-level force. Precisely what you would need.</span>
+          The question is how to tune negative energy density with the precision this requires. Remaining with the Casimir model: in a Casimir setup, the negative energy density in the gap between plates is exquisitely sensitive to plate separation. A nanometer-scale change in separation produces an exponential change in density. This is the mechanism.
+        </p>
+        <p>I do not have access to the ITF engineering documentation. I do not know what the VSA engineers used. What I can say is that if I were designing a system that required nanometer-scale controlled displacement with high speed and force, I would use <span class="circled"><svg aria-hidden="true" viewBox="0 0 100 44" preserveAspectRatio="none"><path d="M 10,22 C 8,8 28,2 50,2 C 72,2 93,8 94,22 C 95,36 76,42 50,42 C 26,42 8,36 10,22 M 12,24 C 11,15 28,8 50,8" style="animation-delay:0.36s"/></svg>piezoelectric actuators</span>. Ceramic devices. They convert electrical signals directly into linear motion at nanometer precision via the inverse piezoelectric effect. You apply voltage. The material deforms. Controllably, repeatably, at extremely high speed.</p>
+        <p>I worked with this class of device during the Bullet Train project. That system — a monorail-class transit platform capable of holding five hundred personnel — required continuous precision adjustment of its field geometry to maintain safe passage at operational speeds. The maintenance burden was significant. The system worked because we never stopped watching it and adjusting it. I believe the ITF requires the same philosophy and may use the same class of mechanism.</p>
+        <div class="note">▸ This is speculation derived from pattern recognition and prior experience. I have not confirmed it. I am documenting it because if I am right, it implies something important: the throat can be actively managed in real time, and the shear problem has an engineering solution rather than just a monitoring solution.</div>
+        <div class="note">▸ Side note: I heard two of Diamond's researchers arguing in the east corridor last week about plate geometry. One of them kept saying "it's a sensitivity problem, not a power problem." I do not know what system they were referring to. I wrote it down anyway.</div>
+      </div>
+
+      <div class="subsection">
+        <div class="subsection-title">Expanding the Throat</div>
+        <p>A secondary implication of the Casimir model: if the negative energy density can be increased by reducing plate separation, it can also be increased by expanding the effective gap volume. A larger throat with a higher negative energy density would produce a more stable Minkowski bubble — better protection for larger subjects, heavier loads, or more complex quantum configurations. The Bullet Train moved five hundred people at once. The current ITF handles individual transits. The gap between those scales may be a negative energy density problem.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="hr" aria-hidden="true"></div>
+
   <!-- S3 -->
-  <section class="section" id="s3" aria-labelledby="title-s3">
+  <section class="section reveal-section" id="s3" aria-labelledby="title-s3">
     <div class="section-header"><div class="section-num">03</div><div class="section-title" id="title-s3">The Transition Interface and the Void Layer</div></div>
     <div class="section-content">
       <p>The interior of the portal is not a volume in any classical sense. What subjects experience is a coordinate mapping interface — a process that has no spatial interior. It is fundamentally non-spatial in nature.</p>
 
       <div class="diorama" role="img" aria-labelledby="d3-caption">
-        <div class="diorama-label">DIAGRAM 03 — <b>THE VOID LAYER — ATEMPORAL MEDIUM</b> — ANIMATED</div>
+        <div class="diorama-label">DIAGRAM 03 — <b>THE VOID LAYER — ATEMPORAL MEDIUM</b> — <b style="color:#e8922a">CLICK TO PLAY</b></div>
         <canvas id="d3" height="230" aria-hidden="true"></canvas>
         <p class="sr-only">Animated vertical cross-section diagram showing three zones. Top: Timeline A with a sequential time arrow. Bottom: Timeline B. Middle: The Void Layer, rendered as a noisy textured band with dashed borders. An animated figure travels from top to bottom, fragmenting into scattered particles while inside the Void zone, then reconstituting upon exit — representing the dissolution of physical form and the absence of memory formation in an atemporal medium.</p>
         <div class="diorama-caption" id="d3-caption">The Void layer exists <em>between all timelines simultaneously</em>. Subject enters from above (Timeline A), dissolves into informational state, exits below (Timeline B). <em>No sequential time inside. No spatial geometry. No experiential content.</em></div>
@@ -361,13 +661,14 @@
   <div class="hr" aria-hidden="true"></div>
 
   <!-- S4 -->
-  <section class="section" id="s4" aria-labelledby="title-s4">
+  <section class="section reveal-section" id="s4" aria-labelledby="title-s4">
     <div class="section-header"><div class="section-num">04</div><div class="section-title" id="title-s4">The Exchange Hypothesis</div></div>
     <div class="section-content">
-      <p>The exchange hypothesis holds that the portal uses the Void layer to exchange you with a version of yourself from a parallel timeline who was at Point B at that moment. You do not get reconstructed. You get swapped.</p>
+      <p>A researcher stated clearly that the ITF is currently not capable of interdimensional travel. I wrote that word down. Currently. It is doing a significant amount of work in that sentence and I do not think the researcher intended it to. What follows is my attempt to account for the evidence that the word "currently" is either incorrect or more precisely defined than the operational documentation suggests.</p>
+      <p>The exchange hypothesis: the portal uses the Void layer as an intermediary to exchange you with a version of yourself from an adjacent timeline who was at Point B at the corresponding moment. You are not reconstructed at the destination. You are swapped. The "you" that exits at Point B is not from Point B's timeline in the way they believe they are. The minor post-transit differences — the small things that come back slightly wrong — are not reconstruction errors. They are the signature of a different life.</p>
 
       <div class="diorama" role="img" aria-labelledby="d4-caption">
-        <div class="diorama-label">DIAGRAM 04 — <b>PARALLEL TIMELINE EXCHANGE MECHANISM</b> — ANIMATED</div>
+        <div class="diorama-label">DIAGRAM 04 — <b>PARALLEL TIMELINE EXCHANGE MECHANISM</b> — <b style="color:#e8922a">CLICK TO PLAY</b></div>
         <canvas id="d4" height="240" aria-hidden="true"></canvas>
         <p class="sr-only">Animated diagram depicting two parallel horizontal timelines labeled Alpha and Beta. Portal apertures appear at Point A on Timeline Alpha and Point B on Timeline Beta. Two figures — one on each timeline — converge toward a central Void layer, cross in the middle in a flash of light representing the instantaneous exchange, then continue to the opposite destinations. A status label below cycles through: Both at rest, Approaching boundary, Exchange in Void, Routing to destinations, Exchange complete.</p>
         <div class="diorama-caption" id="d4-caption">Two parallel timelines. <em>You</em> enter at Point A (Timeline α). Your adjacent-timeline counterpart is retrieved from Point B (Timeline β). Exchange occurs in the Void — atemporal, no duration. <em>Both versions believe they are themselves. Both are correct.</em></div>
@@ -375,12 +676,13 @@
 
       <div class="subsection">
         <div class="subsection-title">Minor Post-Transit Differences — Reframed</div>
-        <p>Under reconstruction, minor differences are errors. Under the exchange hypothesis, these differences are not errors. They are <em>seams</em>. The version of you that exits lived a slightly different life. The small differences are not noise. They are the signature of a life that diverged at some point and converged again — almost completely but not quite.</p>
+        <p class="annotated"><span class="margin-note right">seams. not errors. the word matters.</span>Under reconstruction, minor differences are errors. Under the exchange hypothesis, these differences are not errors. They are <span class="circled"><svg aria-hidden="true" viewBox="0 0 100 44" preserveAspectRatio="none"><path d="M 12,22 C 10,10 28,4 50,4 C 72,4 92,10 94,22 C 96,34 80,40 58,40 C 36,40 14,36 12,22" style="animation-delay:0.48s"/></svg>seams</span>. The version of you that exits lived a slightly different life. The small differences are not noise. They are the signature of a life that diverged at some point and converged again — almost completely but not quite.</p>
       </div>
       <div class="subsection">
         <div class="subsection-title">The Voice Echo — Void Overlap Event</div>
         <p>The technician, briefly in the Void, made contact with the version of himself from the parallel timeline who was about to take his place. Both versions existed in the Void simultaneously. The voice came through the overlap. They leaked backward through the boundary.</p>
         <div class="note">▸ This is significantly more unsettling than future-state bleedback. Unsettling and incorrect are not the same thing.</div>
+        <div class="note">▸ If the ITF is genuinely not capable of interdimensional exchange, then the minor post-transit differences require a different explanation. I do not have one that satisfies me as much as this one does. I am noting the official position and continuing.</div>
       </div>
     </div>
   </section>
@@ -388,25 +690,27 @@
   <div class="hr" aria-hidden="true"></div>
 
   <!-- S5 -->
-  <section class="section" id="s5" aria-labelledby="title-s5">
+  <section class="section reveal-section" id="s5" aria-labelledby="title-s5">
     <div class="section-header"><div class="section-num">05</div><div class="section-title" id="title-s5">Reality Shear — Complete Model</div></div>
     <div class="section-content">
-      <p>Reality Shear is not a single phenomenon. It is at least three distinct but related phenomena that the operational terminology has collapsed into one category. You cannot fix one thing when the thing is actually three things.</p>
+      <p>I will start with what the researchers actually understand, because they are not wrong — they are incomplete. Researcher Zale's explanation, as relayed to me: a reality shear is produced when you mesh two areas with a topology that does not match geometrically. The spacetime curvature of one zone does not align with the curvature of another. The Einstein Tensor — the variable that gives the value of spacetime curvature in a region, how energy and velocity are distributed across it — reads differently on either side of the transit boundary. When those readings diverge beyond a stable threshold, the result is geometric strain at the interface. Reality shear.</p>
+      <p>This is correct. This is also only part of the picture. Reality shear as the VSA uses the term is not a single phenomenon. It is at least three distinct but related phenomena that the operational terminology has collapsed into one category. You cannot fix one thing when the thing is actually three things.</p>
 
       <div class="diorama" role="img" aria-labelledby="d5-caption">
         <div class="diorama-label">DIAGRAM 05 — <b>REALITY SHEAR — THREE COMPONENT MODEL</b> — ANIMATED</div>
         <canvas id="d5" height="230" aria-hidden="true"></canvas>
         <p class="sr-only">Three-panel animated diagram. Left panel: Subject-level match degradation — two concentric circles representing baseline quantum signature and retrieved signature, showing progressive drift until mismatch is flagged in red. Center panel: Environmental stress accumulation — a distorting dot grid that becomes increasingly warped over transit events, with a percentage bar filling toward a danger threshold. Right panel: Temporal boundary thinning — two wavy lines representing past/future boundaries that thin and flutter with increasing integrity loss, with particle leakage appearing above the threshold.</p>
-        <div class="diorama-caption" id="d5-caption"><em>LEFT:</em> Subject-level match degradation — baseline vs retrieved signature drift. <em>CENTER:</em> Environmental stress accumulation per transit. <em>RIGHT:</em> Temporal boundary thinning — the undocumented component.</div>
+        <div class="diorama-caption" id="d5-caption"><em>LEFT:</em> Subject topology mismatch — baseline curvature signature vs retrieved. <em>CENTER:</em> Environmental Einstein Tensor drift across transit events — stress accumulates non-linearly. <em>RIGHT:</em> Temporal boundary thinning — undocumented third component.</div>
       </div>
 
       <div class="subsection">
         <div class="subsection-title">Component One — Subject-Level Shear</div>
-        <p>Under stress, matching precision degrades. The system exchanges you with a version from a less adjacent timeline. Major degradation produces incorrectly matched subjects — biologically viable because they are real people from real timelines. Just not yours.</p>
+        <p>The subject's own spacetime topology — their quantum-informational configuration — must be compatible with the topology of the destination zone for transit to be stable. Under stress, this matching precision degrades. The system retrieves a version whose curvature signature is close but not exact. Minor divergence produces the small post-transit differences that get filed as "adjustment period." Major divergence produces subjects who are biologically viable — real people from real timelines — but not the one who entered.</p>
       </div>
       <div class="subsection">
         <div class="subsection-title">Component Two — Environmental Shear</div>
-        <p>Each use of the ITF adds accumulated distortion to the portal site. This accumulation is not linear. Stress compounds. Without active recalibration this is a failure cascade in slow motion.</p>
+        <p>The spacetime curvature of a zone is not static. Each use of the ITF introduces stress into the local curvature field — the Einstein Tensor reading for the site shifts slightly with every transit event. This accumulation is not linear. Stress compounds. A site that begins with stable curvature readings will, without active recalibration, drift toward the conditions that make shear events common.</p>
+        <p>Zone Nadir is the extreme case. The VSA operates a site there, and by all accounts it is the most shear-prone location in their operational portfolio — not because the ITF is poorly maintained there, but because the zone's own spacetime curvature is inherently unstable. Nadir does not need portal use to generate shear conditions. The curvature instability is environmental, pre-existing, and significant enough that shear events occur there with or without transit activity. I have not been to Nadir. From what I have heard from people who have, I am not in a hurry to go.</p>
       </div>
       <div class="subsection">
         <div class="subsection-title">Component Three — Temporal Shear <span class="tag">UNDOCUMENTED</span></div>
@@ -419,7 +723,7 @@
   <div class="hr" aria-hidden="true"></div>
 
   <!-- S6 -->
-  <section class="section" id="s6" aria-labelledby="title-s6">
+  <section class="section reveal-section" id="s6" aria-labelledby="title-s6">
     <div class="section-header"><div class="section-num">06</div><div class="section-title" id="title-s6">SIERRA</div></div>
     <div class="section-content">
       <div class="subsection">
@@ -453,20 +757,21 @@
   <div class="hr" aria-hidden="true"></div>
 
   <!-- S7 -->
-  <section class="section" id="s7" aria-labelledby="title-s7">
+  <section class="section reveal-section" id="s7" aria-labelledby="title-s7">
     <div class="section-header"><div class="section-num">07</div><div class="section-title" id="title-s7">On the VSA's Understanding of This System</div></div>
     <div class="section-content">
       <div class="callout"><div class="callout-label">CONCLUSION</div><div class="callout-content">The VSA did not develop this technology.</div></div>
       <p>The calibration requirements, the environmental prerequisites, the Anchor Lock architecture, the specific location selection — all reflect design decisions made by someone who understood what the system was. The original designers built the ITF around the Void layer exchange model. They knew about temporal shear. They chose Kyros deliberately.</p>
-      <p>The VSA's operational model treats the portal as a spatial gateway. Files collapse events as equipment failure. Does not account for temporal shear. Does not understand the Void layer. Is asking civilian surveyors to redesign a system whose fundamental operating principles it has not correctly characterized.</p>
-      <div class="note">▸ Diamond may be genuinely incorrect rather than deliberately dishonest. Deliberate deception would produce different errors — errors of omission, not fundamental mischaracterization. That said: I cannot rule out deliberate deception in the case of <span class="redacted" tabindex="0" role="button" aria-label="Redacted text — press Enter or click to reveal" title="Click or press Enter to reveal">FALSE START</span> specifically.</div>
+      <p>The VSA's <em>public</em> operational model treats the portal as a spatial gateway. Files collapse events as equipment failure. Does not account for temporal shear. Does not understand the Void layer. Whether the private model is more accurate, I cannot say with certainty. What I can say is that Diamond's team is actively investigating — the research division is not idle, and Command is clearly pushing for solutions. The issue is that they are looking for engineering fixes to what they believe are engineering problems. If the fundamental model is wrong, the fixes will not hold.</p>
+      <p>I have watched Diamond brief a room full of command officers and use language that suggested a far more sophisticated understanding than what appears in official documentation. Either Diamond understands more than gets written down, or Diamond is also working from incomplete information and filling gaps with good intuition. Either possibility is interesting. Neither is reassuring.</p>
+      <div class="note">▸ Diamond may be genuinely incorrect rather than deliberately dishonest. Deliberate deception would produce different errors — errors of omission, not fundamental mischaracterization. That said: I cannot rule out deliberate deception in the case of <span class="redacted" tabindex="0" role="button" aria-label="Redacted text — press Enter or click to reveal" title="Click or press Enter to reveal">FALSE START</span> specifically. And Diamond was in the room for that one.</div>
     </div>
   </section>
 
   <div class="hr" aria-hidden="true"></div>
 
   <!-- S8 -->
-  <section class="section" id="s8" aria-labelledby="title-s8">
+  <section class="section reveal-section" id="s8" aria-labelledby="title-s8">
     <div class="section-header"><div class="section-num">08</div><div class="section-title" id="title-s8">Proposed Corrections</div></div>
     <div class="section-content">
 
@@ -500,13 +805,13 @@
   <div class="hr" aria-hidden="true"></div>
 
   <!-- S9 -->
-  <section class="section" id="s9" aria-labelledby="title-s9">
+  <section class="section reveal-section" id="s9" aria-labelledby="title-s9">
     <div class="section-header"><div class="section-num">09</div><div class="section-title" id="title-s9">The Identity Problem</div></div>
     <div class="section-content">
-      <p>If the portal exchanges you with a version of yourself from a parallel timeline, then the person who exits is not you in any strict physical continuity sense. They are you in every practical sense — same memories, same relationships, same body to within detection threshold. But they are not the person who entered.</p>
+      <p class="annotated"><span class="margin-note">I have thought about this more than I would like to admit. I do not have a satisfying answer. I am not sure one exists.</span>If the portal exchanges you with a version of yourself from a parallel timeline, then the person who exits is not you in any strict physical continuity sense. They are you in every practical sense — same memories, same relationships, same body to within <span class="circled"><svg aria-hidden="true" viewBox="0 0 100 44" preserveAspectRatio="none"><path d="M 8,20 C 8,8 26,3 50,3 C 74,3 94,8 95,20 C 96,32 78,38 50,38 C 24,38 7,33 8,20 Z M 9,21 C 9,12 26,5 50,5" style="animation-delay:0.60s"/></svg>detection threshold</span>. But they are not the person who entered.</p>
 
       <div class="diorama" role="img" aria-labelledby="d8-caption">
-        <div class="diorama-label">DIAGRAM 08 — <b>IDENTITY CONTINUITY ACROSS TRANSIT</b> — ANIMATED</div>
+        <div class="diorama-label">DIAGRAM 08 — <b>IDENTITY CONTINUITY ACROSS TRANSIT</b> — <b style="color:#e8922a">CLICK TO PLAY</b></div>
         <canvas id="d8" height="220" aria-hidden="true"></canvas>
         <p class="sr-only">Animated branching diagram. A figure approaches from the left along Timeline Alpha. At the portal aperture, the path splits into two branches: an upper branch labeled "You (Beta) — exits at Point B, adjacent timeline version" in bright orange, and a lower dashed branch labeled "You (Alpha) — routed to Beta timeline as their counterpart." A small animated figure travels the upper path, while the original figure disappears into the portal. Text at the bottom reads: Both versions believe they went in and came out. Neither is lying. Neither is exactly right.</p>
         <div class="diorama-caption" id="d8-caption">Every person who has ever used the ITF has had this experience without knowing it. <em>The discontinuity is real regardless.</em> They believe they went in and came out. They are not lying. They genuinely do not know.</div>
@@ -519,11 +824,12 @@
 
   <div class="hr" aria-hidden="true"></div>
 
-  <section class="section" aria-label="Closing statement">
+  <section class="section reveal-section" aria-label="Closing statement">
     <div class="section-content">
       <p>These are my conclusions. All of them. In the most complete form I have been able to assemble them.</p>
       <p>If I am right — and I think I am right — then the ITF portal system is a Void-layer exchange mechanism operating on temporal and dimensional principles its current operators do not fully understand, producing effects they are misclassifying, managed with calibration practices that are systematically insufficient, and exhibiting failure modes that have already produced at least one catastrophic incident filed as equipment failure and not investigated at the level it requires.</p>
-      <p>The people using this system deserve better than that. The people who disappeared into it and did not come back deserved better than that. Command will not investigate. That is why I am writing this down.</p>
+      <p>The people using this system deserve better than that. The people who disappeared into it and did not come back deserved better than that. Command will investigate — Diamond's team is on it, officially, with resources and access I do not have. That is good. That is better than nothing.</p>
+      <p>But I had time. And I have the same information they have, minus the clearance and plus the willingness to say plainly what the evidence suggests. So I wrote it down. Mostly to think it through. Partly because if Diamond is wrong about something, someone should have the alternate model written up somewhere. And partly, if I am honest, because it is something to do.</p>
     </div>
   </section>
 
@@ -584,16 +890,133 @@ function portal(ctx,x,y,w,h,col,t){
 // ── INTERSECTION OBSERVER — pause offscreen canvases ─────────────────────
 const animationHandles = {};
 const canvasActive = {};
+const canvasPaused = {}; // for click-to-play canvases
 
-function registerCanvas(id, drawFn) {
+// Delta-time: use real elapsed ms so speed is device-independent
+let lastFrameTime = performance.now();
+function getDelta() {
+  const now = performance.now();
+  const dt = Math.min((now - lastFrameTime) / 1000, 0.05); // cap at 50ms
+  lastFrameTime = now;
+  return dt;
+}
+
+// Speed constant: animations use this instead of hardcoded increments
+// e.g. t += SPEED * dt  (SPEED replaces the old magic number * 60fps assumption)
+const ANIM_SPEED = 60; // matches original 60fps feel
+
+function registerCanvas(id, drawFn, clickToPlay) {
   const el = document.getElementById(id);
   if (!el) return;
   canvasActive[id] = false;
+  canvasPaused[id] = !!clickToPlay;
+
+  if (clickToPlay) {
+    // Create an HTML overlay button that sits over the canvas — no extra canvas space
+    const wrapper = el.closest('.diorama');
+    if (wrapper) {
+      // Make diorama position:relative (already is) and canvas wrapper relative
+      el.style.display = 'block';
+
+      const overlay = document.createElement('div');
+      overlay.id = id + '-overlay';
+      overlay.style.cssText = `
+        position:absolute;
+        inset:24px 0 0 0;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        gap:10px;
+        pointer-events:none;
+        z-index:10;
+      `;
+
+      const btn = document.createElement('button');
+      btn.id = id + '-playbtn';
+      btn.setAttribute('aria-label', 'Play diagram animation');
+      btn.style.cssText = `
+        background:rgba(8,5,0,0.75);
+        border:1px solid #7a4a10;
+        color:#c87820;
+        font-family:'Share Tech Mono',monospace;
+        font-size:11px;
+        letter-spacing:0.25em;
+        padding:10px 22px;
+        cursor:pointer;
+        pointer-events:auto;
+        display:flex;
+        align-items:center;
+        gap:10px;
+        transition:border-color 0.2s, color 0.2s;
+      `;
+      btn.innerHTML = `<svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor"><polygon points="0,0 12,7 0,14"/></svg> PLAY DIAGRAM`;
+
+      btn.addEventListener('mouseenter', () => { btn.style.borderColor='#c87820'; btn.style.color='#e8922a'; });
+      btn.addEventListener('mouseleave', () => { btn.style.borderColor='#7a4a10'; btn.style.color='#c87820'; });
+
+      overlay.appendChild(btn);
+      // Insert overlay inside diorama, after the canvas
+      el.insertAdjacentElement('afterend', overlay);
+
+      // Dark tint on canvas while paused
+      el.style.opacity = '0.35';
+      el.style.filter = 'brightness(0.6)';
+
+      btn.addEventListener('click', () => {
+        if (canvasPaused[id]) {
+          // Start playing
+          canvasPaused[id] = false;
+          el.style.opacity = '';
+          el.style.filter = '';
+          // Pin to top-right corner inside canvas, above caption
+          overlay.style.cssText = `
+            position:absolute;
+            top:28px;
+            right:8px;
+            bottom:auto;
+            left:auto;
+            display:flex;
+            flex-direction:row;
+            align-items:flex-start;
+            justify-content:flex-end;
+            pointer-events:none;
+            z-index:10;
+          `;
+          btn.innerHTML = `<svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor"><rect x="0" y="0" width="3" height="12"/><rect x="7" y="0" width="3" height="12"/></svg> PAUSE`;
+          btn.setAttribute('aria-label', 'Pause diagram animation');
+          if (!animationHandles[id + '_running']) {
+            animationHandles[id + '_running'] = true;
+            drawFn();
+          }
+        } else {
+          // Pause
+          canvasPaused[id] = true;
+          el.style.opacity = '0.35';
+          el.style.filter = 'brightness(0.6)';
+          overlay.style.cssText = `
+            position:absolute;
+            inset:24px 0 0 0;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            gap:10px;
+            pointer-events:none;
+            z-index:10;
+          `;
+          btn.innerHTML = `<svg width="12" height="14" viewBox="0 0 12 14" fill="currentColor"><polygon points="0,0 12,7 0,14"/></svg> PLAY DIAGRAM`;
+          btn.setAttribute('aria-label', 'Play diagram animation');
+          animationHandles[id + '_running'] = false;
+        }
+      });
+    }
+  }
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       canvasActive[id] = entry.isIntersecting;
-      if (entry.isIntersecting && !animationHandles[id + '_running']) {
+      if (entry.isIntersecting && !animationHandles[id + '_running'] && !canvasPaused[id]) {
         animationHandles[id + '_running'] = true;
         drawFn();
       }
@@ -608,26 +1031,23 @@ function registerCanvas(id, drawFn) {
   const s=setup('d1');
   if(!s) return;
   const{ctx,W,H}=s;
-  let t=0;
+  let t=0, lastT=performance.now();
   function draw(){
-    if(!canvasActive['d1']){animationHandles['d1_running']=false;return;}
+    if(!canvasActive['d1']||canvasPaused['d1']){animationHandles['d1_running']=false;return;}
+    const now=performance.now(), dt=Math.min((now-lastT)/1000,0.05); lastT=now;
     ctx.clearRect(0,0,W,H);
-    t+=0.012;
+    t+=0.7*dt;
     const mid=W/2,pad=28,cy=H/2+8;
 
-    // Divider
     ctx.save();ctx.strokeStyle=a(C.OF,0.8);ctx.lineWidth=1;ctx.setLineDash([4,6]);
     ctx.beginPath();ctx.moveTo(mid,10);ctx.lineTo(mid,H-10);ctx.stroke();ctx.setLineDash([]);ctx.restore();
 
-    // === LEFT: TUNNEL MODEL ===
-    // tube walls
     ctx.save();ctx.strokeStyle=C.OD;ctx.lineWidth=1;
     ctx.beginPath();ctx.moveTo(pad,cy-28);ctx.lineTo(mid-pad,cy-28);ctx.stroke();
     ctx.beginPath();ctx.moveTo(pad,cy+28);ctx.lineTo(mid-pad,cy+28);ctx.stroke();
     const tg=ctx.createLinearGradient(pad,0,mid-pad,0);
     tg.addColorStop(0,a(C.O,0.03));tg.addColorStop(.5,a(C.O,0.08));tg.addColorStop(1,a(C.O,0.03));
     ctx.fillStyle=tg;ctx.fillRect(pad,cy-28,mid-2*pad,56);ctx.restore();
-    // perspective lines inside tunnel
     for(let i=1;i<6;i++){
       const fx=pad+i*(mid-2*pad)/6;
       ctx.save();ctx.strokeStyle=a(C.OD,0.12);ctx.lineWidth=1;
@@ -635,7 +1055,6 @@ function registerCanvas(id, drawFn) {
     }
     portal(ctx,pad+16,cy,12,28,C.OD,t);
     portal(ctx,mid-pad-16,cy,12,28,C.OD,t);
-    // Smooth continuous figure with motion trail
     const pos=(Math.sin(t*0.9)+1)/2;
     const fx=pad+32+pos*(mid-2*pad-64);
     for(let tr=4;tr>=1;tr--){
@@ -644,28 +1063,18 @@ function registerCanvas(id, drawFn) {
       fig(ctx,tfx,cy+4,(5-tr)*0.07,C.O);
     }
     fig(ctx,fx,cy+4,1,C.OB);
-    // Labels
     ctx.font='9px "Share Tech Mono"';ctx.fillStyle=a(C.OD,0.65);ctx.textAlign='center';
     ctx.fillText('[ COMMAND MODEL — "TUNNEL" ]',mid/2,H-10);
     ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(C.OD,0.4);ctx.textAlign='left';
     ctx.fillText('A',pad+4,cy-32);ctx.textAlign='right';ctx.fillText('B',mid-pad-4,cy-32);
 
-    // === RIGHT: REPLACEMENT MODEL ===
     const rl=mid+pad,rr=W-pad;
     const pAx=rl+52,pBx=rr-52;
-
-    // Draw portal at A and portal at B
     portal(ctx,pAx,cy,12,28,C.O,t);
     portal(ctx,pBx,cy,12,28,C.O,t);
+    ctx.save();ctx.strokeStyle=a(C.OD,0.15);ctx.lineWidth=1;ctx.setLineDash([3,11]);
+    ctx.beginPath();ctx.moveTo(pAx+14,cy);ctx.lineTo(pBx-14,cy);ctx.stroke();ctx.setLineDash([]);ctx.restore();
 
-    // No path between them — show a big X / void gap
-    ctx.save();
-    ctx.strokeStyle=a(C.OD,0.15);ctx.lineWidth=1;ctx.setLineDash([3,11]);
-    ctx.beginPath();ctx.moveTo(pAx+14,cy);ctx.lineTo(pBx-14,cy);ctx.stroke();
-    ctx.setLineDash([]);ctx.restore();
-
-    // Cycle: figure at A (wait) → flash → figure at B (wait) → flash back
-    // Phase: 0..0.3 = at A, 0.3..0.38 = vanish flash A, 0.38..0.62 = at B, 0.62..0.7 = vanish flash B, 0.7..1 = at A again
     const cyc=(t*0.38)%1;
     let showA=false,showB=false,flashA=false,flashB=false;
     let flashIntA=0,flashIntB=0;
@@ -678,28 +1087,17 @@ function registerCanvas(id, drawFn) {
     if(showA) fig(ctx,pAx,cy,1,C.OB);
     if(showB) fig(ctx,pBx,cy,1,C.OB);
 
-    // Flash at A portal (disappear) — ellipse matches portal shape
     if(flashA){
-      ctx.save();
-      ctx.shadowColor=C.OB;ctx.shadowBlur=24;
-      ctx.globalAlpha=flashIntA*0.55;
-      ctx.fillStyle=C.OB;
-      ctx.beginPath();ctx.ellipse(pAx,cy,16,32,0,0,Math.PI*2);ctx.fill();
-      ctx.restore();
+      ctx.save();ctx.shadowColor=C.OB;ctx.shadowBlur=24;ctx.globalAlpha=flashIntA*0.55;
+      ctx.fillStyle=C.OB;ctx.beginPath();ctx.ellipse(pAx,cy,16,32,0,0,Math.PI*2);ctx.fill();ctx.restore();
       fig(ctx,pAx,cy,1-flashIntA,C.OB);
     }
-    // Flash at B portal (appear) — ellipse matches portal shape
     if(flashB){
-      ctx.save();
-      ctx.shadowColor=C.OB;ctx.shadowBlur=24;
-      ctx.globalAlpha=flashIntB*0.55;
-      ctx.fillStyle=C.OB;
-      ctx.beginPath();ctx.ellipse(pBx,cy,16,32,0,0,Math.PI*2);ctx.fill();
-      ctx.restore();
+      ctx.save();ctx.shadowColor=C.OB;ctx.shadowBlur=24;ctx.globalAlpha=flashIntB*0.55;
+      ctx.fillStyle=C.OB;ctx.beginPath();ctx.ellipse(pBx,cy,16,32,0,0,Math.PI*2);ctx.fill();ctx.restore();
       fig(ctx,pBx,cy,flashIntB,C.OB);
     }
 
-    // Status text inside the gap
     let statusTxt='';
     if(showA) statusTxt='SUBJECT AT POINT A';
     else if(flashA) statusTxt='— INSTANTANEOUS —';
@@ -707,24 +1105,21 @@ function registerCanvas(id, drawFn) {
     else if(flashB) statusTxt='— INSTANTANEOUS —';
     ctx.font='8px "Share Tech Mono"';
     ctx.fillStyle=a((flashA||flashB)?C.OB:C.OD,(flashA||flashB)?0.9:0.4);
-    ctx.textAlign='center';
-    ctx.fillText(statusTxt,(rl+rr)/2,cy+4);
-
+    ctx.textAlign='center';ctx.fillText(statusTxt,(rl+rr)/2,cy+4);
     ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(C.OD,0.4);ctx.textAlign='center';
     ctx.fillText('A',(pAx-8),cy-32);ctx.fillText('B',(pBx+8),cy-32);
-
     ctx.font='9px "Share Tech Mono"';ctx.fillStyle=a(C.OD,0.65);ctx.textAlign='center';
     ctx.fillText('[ OBSERVED BEHAVIOR — REPLACEMENT ]',mid+(W-mid)/2,H-10);
 
     requestAnimationFrame(draw);
   }
-  registerCanvas('d1', draw);
+  registerCanvas('d1', draw, true);
 })();
 
 // ── D2: STATE CAPTURE ─────────────────────────────────────────────────────
 (function initD2(){
   const s=setup('d2');if(!s)return;
-  const{ctx,W,H}=s;let t=0;
+  const{ctx,W,H}=s;let t=0,lastT=performance.now();
   const nodes=[
     {label:'MATTER',sub:'Point A',x:.1},
     {label:'ENCODE',sub:'Aperture',x:.3},
@@ -735,7 +1130,8 @@ function registerCanvas(id, drawFn) {
   function draw(){
     if(!canvasActive['d2']){animationHandles['d2_running']=false;return;}
     ctx.clearRect(0,0,W,H);
-    t+=0.009;
+    const _now=performance.now(),_dt=Math.min((_now-lastT)/1000,0.05);lastT=_now;
+    t+=0.54*_dt;
     const cy=H/2-8;
     const phase=5;
     const cycleT=(t*.25)%phase;
@@ -786,11 +1182,12 @@ function registerCanvas(id, drawFn) {
 // ── D3: VOID LAYER STACK ──────────────────────────────────────────────────
 (function initD3(){
   const s=setup('d3');if(!s)return;
-  const{ctx,W,H}=s;let t=0;
+  const{ctx,W,H}=s;let t=0,lastT=performance.now();
   function draw(){
-    if(!canvasActive['d3']){animationHandles['d3_running']=false;return;}
+    if(!canvasActive['d3']||canvasPaused['d3']){animationHandles['d3_running']=false;return;}
+    const now=performance.now(),dt=Math.min((now-lastT)/1000,0.05);lastT=now;
     ctx.clearRect(0,0,W,H);
-    t+=0.011;
+    t+=0.66*dt;
     const pad=28,tlH=42,vT=tlH+22,vB=H-tlH-22;
 
     // Timeline A (top)
@@ -894,22 +1291,23 @@ function registerCanvas(id, drawFn) {
 
     requestAnimationFrame(draw);
   }
-  registerCanvas('d3', draw);
+  registerCanvas('d3', draw, true);
 })();
 
 // ── D4: TIMELINE EXCHANGE ─────────────────────────────────────────────────
 (function initD4(){
   const s=setup('d4');if(!s)return;
-  const{ctx,W,H}=s;let t=0;
+  const{ctx,W,H}=s;let t=0,lastT=performance.now();
 
   // Layout: two horizontal timelines, Alpha on top, Beta on bottom
   // Left side = Point A zone, Right side = Point B zone
   // Void band runs vertically through the center
 
   function draw(){
-    if(!canvasActive['d4']){animationHandles['d4_running']=false;return;}
+    if(!canvasActive['d4']||canvasPaused['d4']){animationHandles['d4_running']=false;return;}
+    const now=performance.now(),dt=Math.min((now-lastT)/1000,0.05);lastT=now;
     ctx.clearRect(0,0,W,H);
-    t+=0.009;
+    t+=0.54*dt;
 
     const pad=20;
     const tlA=H*0.28; // y of timeline alpha
@@ -1103,17 +1501,18 @@ function registerCanvas(id, drawFn) {
 
     requestAnimationFrame(draw);
   }
-  registerCanvas('d4', draw);
+  registerCanvas('d4', draw, true);
 })();
 
 // ── D5: REALITY SHEAR — 3 PANELS ─────────────────────────────────────────
 (function initD5(){
   const s=setup('d5');if(!s)return;
-  const{ctx,W,H}=s;let t=0;
+  const{ctx,W,H}=s;let t=0,lastT=performance.now();
   function draw(){
     if(!canvasActive['d5']){animationHandles['d5_running']=false;return;}
     ctx.clearRect(0,0,W,H);
-    t+=0.013;
+    const _nd5=performance.now(),_dd5=Math.min((_nd5-lastT)/1000,0.05);lastT=_nd5;
+    t+=0.78*_dd5;
     const third=W/3,cy=H*.47;
     ctx.save();ctx.strokeStyle=a(C.OF,.9);ctx.lineWidth=1;
     ctx.beginPath();ctx.moveTo(third,18);ctx.lineTo(third,H-18);ctx.stroke();
@@ -1136,83 +1535,148 @@ function registerCanvas(id, drawFn) {
       ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(bad?'#ff4444':C.OD,.7);ctx.textAlign='center';
       ctx.fillText(bad?'⚠ ADJACENT DEGRADED':'✓ WITHIN VARIANCE',cx,H-16);
     }
-    // P2 — Environmental Shear
+    // P2 — Environmental Shear: transit event log with compounding stress
     {
-      const cx=third+third*.5;
-      const fill=((t*.18)%1);
-      const dangerZone=fill>.68;
-      const panL=third+6, panR=third*2-6, panT=24, panB=H-38;
-      const panW=panR-panL, panH=panB-panT;
+      const cx = third + third * 0.5;
+      const panL = third + 8, panR = third*2 - 8, panT = 24, panB = H - 20;
+      const panW = panR - panL, panH = panB - panT;
 
-      // Draw a portal site: a central portal icon with radiating distortion
-      const pcx=cx, pcy=(panT+panB)/2-8;
-      const gridSpacing=18;
+      // Slow cycle: 0→1 over ~12s, represents site accumulation across many uses
+      const cycle = (t * 0.072) % 1;
+      const danger = cycle > 0.68;
 
-      // Distorted grid background — the "portal site environment"
-      for(let gx=panL;gx<=panR;gx+=gridSpacing){
-        for(let gy=panT;gy<=panB;gy+=gridSpacing){
-          const dx=gx-pcx, dy=gy-pcy;
-          const dist=Math.sqrt(dx*dx+dy*dy);
-          const shearFactor=fill*(1+0.6*(1/(1+dist*0.025)));
-          const warpX=shearFactor*Math.sin(dist*0.12-t*0.8+gx*0.05)*8;
-          const warpY=shearFactor*Math.cos(dist*0.10-t*0.7+gy*0.05)*5;
-          const nx=gx+warpX, ny=gy+warpY;
-          // Clamp to panel
-          if(nx<panL||nx>panR||ny<panT||ny>panB) continue;
-          const intensity=Math.min(1,fill*2*(1+0.5/(1+dist*0.018)));
-          const col=dangerZone?a('#ff4444',0.06+intensity*0.14):a(C.O,0.04+intensity*0.1);
-          ctx.beginPath();ctx.arc(nx,ny,1,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();
+      // How many transit events have "occurred" so far in this cycle
+      const maxEvents = 9;
+      const eventsShown = Math.floor(cycle * maxEvents * 1.15); // slightly ahead of fill
+      const eventsFilled = Math.min(maxEvents, eventsShown);
 
-          // Connect grid lines
-          if(gx+gridSpacing<=panR){
-            const dx2=gx+gridSpacing-pcx, dist2=Math.sqrt(dx2*dx2+dy*dy);
-            const sf2=fill*(1+0.6/(1+dist2*0.025));
-            const nx2=gx+gridSpacing+sf2*Math.sin(dist2*0.12-t*0.8+(gx+gridSpacing)*0.05)*8;
-            const ny2=gy+sf2*Math.cos(dist2*0.10-t*0.7+gy*0.05)*5;
-            if(nx2>=panL&&nx2<=panR&&ny2>=panT&&ny2<=panB){
-              ctx.save();ctx.strokeStyle=dangerZone?a('#ff4444',0.05+intensity*0.08):a(C.O,0.03+intensity*0.06);
-              ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(nx,ny);ctx.lineTo(nx2,ny2);ctx.stroke();ctx.restore();
-            }
-          }
-        }
-      }
+      // Color scheme
+      const baseCol = danger ? '#ff4444' : C.O;
+      const dimCol  = danger ? '#7a1a0a' : C.OD;
 
-      // Central portal icon (the ITF aperture)
-      const pRad=14+fill*4*Math.sin(t*2.2);
+      // ── Transit event log — stacked rows ──
+      // Each row = one transit event, shows:
+      //   [event #]  [portal icon]  [shear added]  [total bar]
+      const rowH = 18;
+      const logT = panT + 12;
+      const logL = panL + 6;
+      const logR = panR - 6;
+      const barW = 60;
+
+      // Column x positions
+      const colNum  = logL + 14;
+      const colIcon = logL + 30;
+      const colDelta= logR - barW - 28;
+      const colBar  = logR - barW;
+
+      // Header
+      ctx.font = '6px "Share Tech Mono"';
+      ctx.fillStyle = a(C.OD, 0.4);
+      ctx.textAlign = 'left';
+      ctx.fillText('EVENT', logL, logT - 2);
+      ctx.fillText('+SHEAR', colDelta, logT - 2);
+      ctx.fillText('CUMULATIVE', colBar, logT - 2);
+
+      // Divider under header
       ctx.save();
-      ctx.strokeStyle=dangerZone?a('#ff4444',0.5+fill*0.3):a(C.OB,0.5+fill*0.2);
-      ctx.lineWidth=2;ctx.shadowColor=dangerZone?'#ff3300':C.OB;ctx.shadowBlur=8+fill*12;
-      ctx.beginPath();ctx.ellipse(pcx,pcy,pRad*0.55,pRad,0,0,Math.PI*2);ctx.stroke();
-      // Radiating stress cracks from portal
-      if(fill>0.3){
-        const crackCount=Math.floor(fill*6);
-        for(let c=0;c<crackCount;c++){
-          const ang=(c/crackCount)*Math.PI*2+(t*0.2);
-          const len=(fill-0.3)*120*(.6+.4*Math.sin(c*1.7));
-          const ex=pcx+Math.cos(ang)*len, ey=pcy+Math.sin(ang)*len*0.6;
-          if(ex<panL||ex>panR||ey<panT||ey>panB) continue;
-          ctx.strokeStyle=dangerZone?a('#ff4444',0.12+fill*0.08):a(C.O,0.08+fill*0.07);
-          ctx.lineWidth=0.8;ctx.setLineDash([3,5]);
-          ctx.beginPath();ctx.moveTo(pcx,pcy);ctx.lineTo(ex,ey);ctx.stroke();
+      ctx.strokeStyle = a(C.OD, 0.25);
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      ctx.moveTo(panL, logT + 2);
+      ctx.lineTo(panR, logT + 2);
+      ctx.stroke();
+      ctx.restore();
+
+      // Per-event shear values (non-linear — compounds)
+      const shearAdds = [0.06, 0.08, 0.09, 0.10, 0.11, 0.13, 0.14, 0.15, 0.14];
+      let cumulative = 0;
+      const thresholdPct = 0.68;
+
+      for (let i = 0; i < maxEvents; i++) {
+        const ry = logT + 8 + i * rowH;
+        if (ry + rowH > panB - 22) break;
+
+        const eventNum = i + 1;
+        const isVisible = i < eventsFilled;
+        const isActive  = i === eventsFilled - 1 && cycle > 0; // most recent event
+        const shear = shearAdds[i] || 0.10;
+        cumulative += isVisible ? shear : 0;
+        const cumPct = Math.min(1, cumulative);
+        const isPast68 = cumPct > thresholdPct;
+
+        const rowAlpha = isVisible ? (isActive ? 1 : 0.7) : 0.18;
+        const rowCol   = isPast68 ? '#ff4444' : C.O;
+
+        // Event number
+        ctx.font = '7px "Share Tech Mono"';
+        ctx.fillStyle = a(rowCol, rowAlpha * 0.6);
+        ctx.textAlign = 'right';
+        ctx.fillText(`${String(eventNum).padStart(2,'0')}`, colNum, ry + 6);
+
+        // Small portal glyph
+        if (isVisible) {
+          const pulse = isActive ? 0.6 + 0.4*Math.sin(t * 4) : 0.5;
+          ctx.save();
+          ctx.strokeStyle = a(rowCol, rowAlpha * pulse);
+          ctx.lineWidth = 1;
+          ctx.shadowColor = rowCol;
+          ctx.shadowBlur = isActive ? 6 : 0;
+          ctx.beginPath();
+          ctx.ellipse(colIcon, ry + 4, 4, 7, 0, 0, Math.PI*2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // +shear delta
+        if (isVisible) {
+          ctx.font = '7px "Share Tech Mono"';
+          ctx.fillStyle = a(isPast68 ? '#ff4444' : C.OB, rowAlpha * 0.85);
+          ctx.textAlign = 'left';
+          ctx.fillText(`+${Math.round(shear*100)}%`, colDelta, ry + 6);
+        }
+
+        // Cumulative bar
+        ctx.save();
+        ctx.strokeStyle = a(C.OD, 0.2);
+        ctx.lineWidth = 0.5;
+        ctx.strokeRect(colBar, ry, barW, 8);
+        if (isVisible) {
+          const barFill = isPast68 ? '#ff3300' : C.O;
+          ctx.fillStyle = barFill;
+          ctx.globalAlpha = rowAlpha * 0.6;
+          ctx.fillRect(colBar, ry, barW * cumPct, 8);
+          ctx.globalAlpha = 1;
+          // threshold marker at 68%
+          ctx.strokeStyle = a('#ff4444', 0.5);
+          ctx.lineWidth = 1;
+          ctx.setLineDash([2,2]);
+          ctx.beginPath();
+          ctx.moveTo(colBar + barW * thresholdPct, ry - 1);
+          ctx.lineTo(colBar + barW * thresholdPct, ry + 9);
+          ctx.stroke();
           ctx.setLineDash([]);
         }
+        ctx.restore();
       }
-      ctx.restore();
 
-      // Accumulation bar at bottom
-      const bw=panW*0.7, bh=8, bx=cx-bw/2;
-      ctx.save();
-      ctx.strokeStyle=C.OD;ctx.lineWidth=1;ctx.strokeRect(bx,panB+4,bw,bh);
-      const bc=dangerZone?'#ff3300':C.O;
-      ctx.fillStyle=bc;ctx.globalAlpha=0.65;ctx.fillRect(bx,panB+4,bw*fill,bh);ctx.globalAlpha=1;
-      ctx.strokeStyle=a('#ff4444',0.5);ctx.lineWidth=1;ctx.setLineDash([3,2]);
-      ctx.beginPath();ctx.moveTo(bx+bw*0.68,panB);ctx.lineTo(bx+bw*0.68,panB+16);ctx.stroke();ctx.setLineDash([]);
-      ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(dangerZone?'#ff4444':C.OD,0.8);ctx.textAlign='left';
-      ctx.fillText(`SITE SHEAR ${Math.round(fill*100)}%`,bx,panB+1);
-      ctx.restore();
+      // ── Bottom status ──
+      const statusY = panB - 6;
+      ctx.font = '7px "Share Tech Mono"';
+      ctx.textAlign = 'center';
+      if (danger) {
+        const blink = Math.sin(t * 5) > 0;
+        ctx.fillStyle = a('#ff4444', blink ? 0.9 : 0.5);
+        ctx.fillText('⚠ THRESHOLD EXCEEDED — RECALIBRATION REQUIRED', cx, statusY);
+      } else {
+        ctx.fillStyle = a(C.OD, 0.6);
+        ctx.fillText(`CUMULATIVE SITE SHEAR: ${Math.round(cycle * 100)}%  ·  THRESHOLD: 68%`, cx, statusY);
+      }
 
-      ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(dangerZone?'#ff4444':C.OD,.65);ctx.textAlign='center';
-      ctx.fillText(dangerZone?'⚠ SITE INTEGRITY CRITICAL':'ACCUMULATION BUILDING',cx,H-14);
+      // ── Small note: non-linear compounding ──
+      ctx.font = '6px "Share Tech Mono"';
+      ctx.fillStyle = a(C.OD, 0.28);
+      ctx.textAlign = 'center';
+      ctx.fillText('STRESS IS NON-LINEAR — EACH EVENT COMPOUNDS THE LAST', cx, panT + 8);
     }
     // P3
     {
@@ -1368,11 +1832,12 @@ function registerCanvas(id, drawFn) {
 // ── D7: SHEAR ACCUMULATION MONITOR ───────────────────────────────────────
 (function initD7(){
   const s=setup('d7');if(!s)return;
-  const{ctx,W,H}=s;let t=0;
+  const{ctx,W,H}=s;let t=0,lastT=performance.now();
   function draw(){
     if(!canvasActive['d7']){animationHandles['d7_running']=false;return;}
     ctx.clearRect(0,0,W,H);
-    t+=0.009;
+    const _nd7=performance.now(),_dd7=Math.min((_nd7-lastT)/1000,0.05);lastT=_nd7;
+    t+=0.54*_dd7;
     const pad=32,gH=H-50,gW=W-2*pad,gX=pad,gY=10;
     ctx.save();ctx.strokeStyle=a(C.OF,.9);ctx.lineWidth=.5;
     for(let i=0;i<=4;i++){const y=gY+(i/4)*gH;ctx.beginPath();ctx.moveTo(gX,y);ctx.lineTo(gX+gW,y);ctx.stroke();ctx.font='7px "Share Tech Mono"';ctx.fillStyle=a(C.OD,.5);ctx.textAlign='right';ctx.fillText(`${100-i*25}%`,gX-4,y+3);}
@@ -1416,17 +1881,13 @@ function registerCanvas(id, drawFn) {
 // ── D8: IDENTITY BRANCHING ────────────────────────────────────────────────
 (function initD8(){
   const s=setup('d8');if(!s)return;
-  const{ctx,W,H}=s;let t=0;
-
-  // Layout: single horizontal timeline
-  // Left = Point A, Center = Portal, Right = Point B
-  // Strict sequence: person walks in → enters portal → pause → new person exits portal → walks to B
-  // Then reset. The key point: you never see the exit figure BEFORE the entry figure enters.
+  const{ctx,W,H}=s;let t=0,lastT=performance.now();
 
   function draw(){
-    if(!canvasActive['d8']){animationHandles['d8_running']=false;return;}
+    if(!canvasActive['d8']||canvasPaused['d8']){animationHandles['d8_running']=false;return;}
+    const now=performance.now(),dt=Math.min((now-lastT)/1000,0.05);lastT=now;
     ctx.clearRect(0,0,W,H);
-    t+=0.009;
+    t+=0.54*dt;
 
     const pad=36;
     const cy=H*0.44;
@@ -1507,10 +1968,10 @@ function registerCanvas(id, drawFn) {
       const fx=portalX-60+ease*62; // walks right into center
       fig(ctx,fx,cy,1-ease*0.9,C.OB);
 
-      // Portal flash intensifies
-      ctx.save();ctx.globalAlpha=ease*0.4;
-      ctx.beginPath();ctx.arc(portalX,cy,20+ease*10,0,Math.PI*2);
-      ctx.fillStyle=C.OB;ctx.shadowColor=C.OB;ctx.shadowBlur=20;ctx.fill();ctx.restore();
+      // Portal flash intensifies — ellipse matches portal shape
+      ctx.save();ctx.globalAlpha=ease*0.45;
+      ctx.beginPath();ctx.ellipse(portalX,cy,16+ease*8,36+ease*10,0,0,Math.PI*2);
+      ctx.fillStyle=C.OB;ctx.shadowColor=C.OB;ctx.shadowBlur=24;ctx.fill();ctx.restore();
 
       ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.OB,0.65);ctx.textAlign='center';
       ctx.fillText('ENTERING PORTAL',portalX,annotY);
@@ -1522,7 +1983,7 @@ function registerCanvas(id, drawFn) {
       const pulse=Math.sin(p*Math.PI*3)*0.5;
 
       ctx.save();ctx.globalAlpha=0.3+pulse*0.35;
-      ctx.beginPath();ctx.arc(portalX,cy,28+pulse*16,0,Math.PI*2);
+      ctx.beginPath();ctx.ellipse(portalX,cy,16+pulse*10,36+pulse*14,0,0,Math.PI*2);
       ctx.fillStyle=C.OB;ctx.shadowColor=C.OB;ctx.shadowBlur=30;ctx.fill();ctx.restore();
 
       // Void text
@@ -1539,7 +2000,7 @@ function registerCanvas(id, drawFn) {
 
       // Portal still glowing slightly
       ctx.save();ctx.globalAlpha=(1-ease)*0.25;
-      ctx.beginPath();ctx.arc(portalX,cy,24,0,Math.PI*2);
+      ctx.beginPath();ctx.ellipse(portalX,cy,14,36,0,0,Math.PI*2);
       ctx.fillStyle=C.OB;ctx.shadowColor=C.OB;ctx.shadowBlur=15;ctx.fill();ctx.restore();
 
       ctx.font='8px "Share Tech Mono"';ctx.fillStyle=a(C.O,0.7);ctx.textAlign='center';
@@ -1608,7 +2069,7 @@ function registerCanvas(id, drawFn) {
 
     requestAnimationFrame(draw);
   }
-  registerCanvas('d8', draw);
+  registerCanvas('d8', draw, true);
 })();
 
 // ── REDACTED ELEMENTS ─────────────────────────────────────────────────────
@@ -1663,6 +2124,192 @@ document.querySelectorAll('.redacted').forEach(el => {
       if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   });
+})();
+
+// ── SOUND EFFECTS — Web Audio API ────────────────────────────────────────
+(function initSounds(){
+  let ctx = null;
+  function getCtx(){
+    if(!ctx) ctx = new (window.AudioContext||window.webkitAudioContext)();
+    return ctx;
+  }
+
+  function playHover(){
+    try {
+      const ac = getCtx();
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.connect(gain); gain.connect(ac.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ac.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1040, ac.currentTime + 0.06);
+      gain.gain.setValueAtTime(0.0, ac.currentTime);
+      gain.gain.linearRampToValueAtTime(0.012, ac.currentTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.08);
+      osc.start(ac.currentTime);
+      osc.stop(ac.currentTime + 0.09);
+    } catch(e){}
+  }
+
+  // Real recorded-style mouse click — embedded as base64 WAV, no network needed
+  const CLICK_B64 = 'UklGRrgHAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YZQHAAAAAIIAtgPYBaMLXg+/EVMXyxbDGi0Z8hk5HYYhcR3IH1ckUifnIuIdxhxGDEsIG/f/6JXc39Ox0BDI2cvd0MrWfuKD6hT2hQHvDKMQ4xKSFc4UxhOLFjQXVBfSG9IeySJFI2sgix4zFHcKDv4X7frdPs3AwHi1yqy2qGimD6lFrVezKroGwjXJK8+s1Q/bSeJr6SLyq/tBBpwSwR8KLDA4dUJbSltPs1EMUA9MzEUfPu80NyzPI1wcxxVGEF8LSwddA4//Wvsd9gTylO2u6dPmUuVq5V3nP+uX8B/3SP5TBcwLNREhFUUX5hfWFoUUQBFlDVwJUgWFAc/9Pvqg9sPyhu7I6ZrkHd+M2UfUps8VzOvJacmvyrjNXNJV2ETfxeZy7vb1D/2SA3MJuA56E84X1RubHyAjUCYIKRsrVCyILJMraikXJr4hmBzsFiARdQs9BrMB/P0n+yz58/dY9zH3WPeu9yH4rPhU+Sn6O/uZ/Er+RgB8AsoEAQfxCGUKMQs0C1wKqggxBhMDf/+o+8P3/vOA8GPts+py6JzmJ+UH5DbjteKL4sTidOOv5ITm/+gg7N3vHPS8+JH9agIaB3MLUQ+bEkMVRxeuGIcZ5RnbGXgZyhjYF6IWKRVrE2YRHg+cDO8JLgdyBNsBh/+O/Qb8+/pw+mD6u/ps+1v8bP2I/pv/kgBoARcCngIAA0ADXgNbAzID3QJUAo4BhAA0/5z9xfu7+ZH3XvU780Hxh+8h7h3tguxS7IrsI+0Q7kjvv/Bs8kb0SPZt+LL6Ef2F/wMCgQTwBkAJXws8DcgO+A/DECgRKRHPECUQOQ8aDtgMgAseCrsIXQcJBsIEiwNlAlUBXwCK/9j+Uf75/dP93v0Y/nr++v6N/yYAuAA3AZgB0gHiAcQBegEGAW8Auf/r/gn+GP0c/Br7FPoO+Q34FPcs9lv1qvQh9MnzqPPE8x/0ufSP9Zv21vc3+bP6QPzU/Wf/8QBrAtIDIQVUBmcHWQglCckJQQqLCqUKjwpJCtgJPwmFCLEHzAbfBfMEDgQ4A3UCyQE1AbkAVQAHAM//qP+S/4r/kP+h/7v/3P8AACUARwBhAG0AaQBRAJ8A2f94/wD/c/7W/S79f/zR+yf7h/r1+XT5Cfm0+Hf4VPhN+GL4lPjk+FH53PmC+kP7GvwE/fz9/f4AAP8A9gHeArMDcQQVBZ4FCwZcBpEGqwatBpYGagYpBtYFdAUEBYoECASDA/0CfAIBApABKwHVAI8AVwAvABMABAD+//7/AQAGAAsADQALAAMA9v/g/8L/m/9r/zL/7/6j/k/+9P2U/TD9zPxr/A78u/ty+zj7Dvv3+vL6Afsk+1r7ovv7+2P82fxb/eb9ef4S/63/RwDgAHQBAAKDAvgCXwO2A/sDLQROBFwEWgRIBCgE/APGA4gDRAP8ArECZQIaAtEBiwFJAQ0B1gCmAH0AWwBAACsAGwAQAAgAAQD7//P/6f/a/8f/rv+Q/2z/Q/8V/+P+rf51/jv+Af7I/ZH9Xv0v/Qb95PzL/Lv8tvy8/M787PwV/Uv9iv3U/Sb+fv7c/j3/oP8CAGMAwQAbAW8BvAECAj4CcQKaArkCzgLYAtgCzgK8AqMCggJcAjICBQLWAacBeAFLASAB+ADTALEAkgB3AF4ASQA2ACUAFgAIAPz/7v/h/9L/wf+u/5n/gf9m/0n/Kf8H/+P+v/6a/nb+VP41/hj+AP7t/d791v3U/dn95f33/RH+Mf5X/oP+tf7r/iX/Yv+h/+H/HwBdAJkA0gAGATYBYAGFAaMBvAHNAdkB3wHeAdkBzgG/AawBlQF8AWEBRQEoAQsB7gDSALgAnwCHAHIAXgBMADwALQAeABEAAwD3/+n/2//N/73/rP+a/4j/dP9f/0n/M/8c/wb/8P7b/sj+tv6n/pv+kv6N/oz+j/6X/qL+sv7H/t/++/4a/zz/Yf+H/6//2P8AACcATwB0AJgAuQDXAPEACAEbASoBNQE8AT8BPwE7ATQBKwEfAREBAgHxAOAAzgC7AKkAlwCGAHUAZQBVAEcAOQAsACAAFAAIAP7/8v/n/9v/z//C/7X/p/+Z/4v/fP9u/1//Uf9D/zb/Kv8f/xb/D/8K/wf/Bv8I/wz/FP8e/yv/Ov9L/1//df+M/6X/v//Z//P/DQAnAEAAVwBuAIIAlQCmALQAwADJANAA1ADXANYA1ADQAMoAwwC6ALAApQCaAI8AgwB3AGsAXwBTAEgAPQAzACgAHgAVAAsAAgD5//D/5//e/9T/y//B/7f/rf+j/5n/j/+G/33/dP9t/2b/YP9c/1j/V/9W/1j/W/9g/2b/bv94/4P/kP+d/6z/vP/N/97/7/8AABEAIQAxAEEATwBcAGgAcgB7AIMAiQCNAJAAkQCRAI8AjQCJAIQAfwB5AHIAagBjAFsAUwBKAEIAOgAyACoAIwAbABQADAAFAP//+P/w/+n/4v/b/9T/zf/G/7//uP+y/6v/pf+g/5v/lv+T/5D/jv+M/4z/jf+P/5L/lv+c/6L/qf+x/7r/xP/O/9n/5P/v//v/BQAQABsAJgAvADkAQQBJAE8AVQBaAF0AYABiAA==';
+
+  let clickBuffer = null;
+  async function ensureClickBuffer(){
+    if(clickBuffer) return;
+    try {
+      const ac = getCtx();
+      const binary = atob(CLICK_B64);
+      const bytes = new Uint8Array(binary.length);
+      for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+      clickBuffer = await ac.decodeAudioData(bytes.buffer);
+    } catch(e){}
+  }
+  // Pre-decode after first user gesture
+  document.addEventListener('mousedown', ()=>ensureClickBuffer(), {once:true});
+
+  function playClick(){
+    try {
+      const ac = getCtx();
+      if(clickBuffer){
+        const src = ac.createBufferSource();
+        src.buffer = clickBuffer;
+        const gain = ac.createGain();
+        gain.gain.value = 0.22;
+        src.connect(gain); gain.connect(ac.destination);
+        src.start(ac.currentTime);
+      } else {
+        // Fallback: synthesized snap
+        const sr = ac.sampleRate;
+        const bufLen = Math.floor(sr * 0.014);
+        const buf = ac.createBuffer(1, bufLen, sr);
+        const d = buf.getChannelData(0);
+        for(let i=0;i<bufLen;i++){const t=i/sr;d[i]=(Math.random()*2-1)*Math.exp(-t*900);}
+        const src = ac.createBufferSource(); src.buffer=buf;
+        const hp = ac.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=700;
+        const g = ac.createGain(); g.gain.value=1.1;
+        src.connect(hp); hp.connect(g); g.connect(ac.destination);
+        src.start(ac.currentTime);
+      }
+    } catch(e){}
+  }
+
+  // Attach hover sound to intentionally interactive elements only
+  const hoverTargets = 'a, button, .toc-item, .redacted, .topbar-title, canvas[tabindex]';
+  let lastHovered = null;
+
+  document.addEventListener('mouseover', e => {
+    const el = e.target.closest(hoverTargets);
+    if(el && el !== lastHovered){
+      lastHovered = el;
+      playHover();
+    }
+  });
+  document.addEventListener('mouseout', e => {
+    const el = e.target.closest(hoverTargets);
+    if(el === lastHovered) lastHovered = null;
+  });
+
+  // Attach click sound globally
+  document.addEventListener('mousedown', e => {
+    playClick();
+  });
+})();
+
+// ── BOOT SEQUENCE ────────────────────────────────────────────────────────
+(function initBoot(){
+  const screen = document.getElementById('boot-screen');
+  const linesEl = document.getElementById('boot-lines');
+  const fill = document.getElementById('boot-fill');
+  if(!screen) return;
+
+  // Hide main content during boot
+  document.getElementById('main-content').style.visibility = 'hidden';
+  document.querySelector('.topbar').style.visibility = 'hidden';
+  document.querySelector('.statusbar') && (document.querySelector('.statusbar').style.visibility = 'hidden');
+
+  const lines = [
+    { text: 'VSA SECURE TERMINAL v4.2.1', delay: 200 },
+    { text: 'INITIALIZING ENCRYPTED SESSION...', delay: 500 },
+    { text: 'VERIFYING CLEARANCE CREDENTIALS...', delay: 900 },
+    { text: 'CLEARANCE: LEVEL-1 — PERSONAL RESEARCH PARTITION', delay: 1300 },
+    { text: 'LOADING DOCUMENT: BISHOP_FIELDNOTES_COMPREHENSIVE.doc', delay: 1700 },
+    { text: 'DECRYPTING...', delay: 2100 },
+    { text: 'CLASSIFICATION: PERSONAL RESEARCH — NOT FOR DISTRIBUTION', delay: 2400 },
+    { text: 'WARNING: THIS DOCUMENT IS RETAINED FOR PERSONAL RECORD ONLY', delay: 2800 },
+    { text: 'ACCESSING CLASSIFIED TERMINAL...', delay: 3200, bright: true },
+  ];
+
+  lines.forEach(({text, delay, bright}) => {
+    setTimeout(() => {
+      const div = document.createElement('div');
+      div.className = 'boot-line';
+      div.style.animationDelay = '0s';
+      div.style.color = bright ? '#e8922a' : '#c87820';
+      div.textContent = '> ' + text;
+      linesEl.appendChild(div);
+      // Progress
+      const pct = Math.min(100, ((delay - 200) / 3200) * 100);
+      fill.style.width = pct + '%';
+    }, delay);
+  });
+
+  // Blinking cursor at end
+  setTimeout(() => {
+    const cur = document.createElement('div');
+    cur.className = 'boot-line';
+    cur.style.animationDelay = '0s';
+    cur.innerHTML = '> <span class="boot-cursor"></span>';
+    linesEl.appendChild(cur);
+    fill.style.width = '100%';
+  }, 3600);
+
+  // Fade out and reveal content
+  setTimeout(() => {
+    screen.classList.add('fade-out');
+    setTimeout(() => {
+      screen.style.display = 'none';
+      document.getElementById('main-content').style.visibility = '';
+      document.querySelector('.topbar').style.visibility = '';
+      document.querySelector('.statusbar') && (document.querySelector('.statusbar').style.visibility = '');
+      // Trigger scroll reveals after boot
+      initScrollReveal();
+    }, 900);
+  }, 4400);
+})();
+
+// ── SCROLL REVEAL ─────────────────────────────────────────────────────────
+function initScrollReveal(){
+  const sections = document.querySelectorAll('.reveal-section');
+  if(!sections.length) return;
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }});
+  }, { threshold: 0.06, rootMargin: '0px 0px -40px 0px' });
+  sections.forEach(s => obs.observe(s));
+}
+
+// ── GLOSSARY PANEL ────────────────────────────────────────────────────────
+(function initGlossary(){
+  const panel = document.getElementById('glossary-panel');
+  const toggle = document.getElementById('glossary-toggle');
+  const close = document.getElementById('glossary-close');
+  if(!panel || !toggle) return;
+
+  function openGlossary(){
+    panel.classList.add('open');
+    panel.setAttribute('aria-hidden','false');
+    toggle.setAttribute('aria-expanded','true');
+    toggle.style.right = '320px';
+  }
+  function closeGlossary(){
+    panel.classList.remove('open');
+    panel.setAttribute('aria-hidden','true');
+    toggle.setAttribute('aria-expanded','false');
+    toggle.style.right = '0';
+  }
+  toggle.addEventListener('click', () => panel.classList.contains('open') ? closeGlossary() : openGlossary());
+  close && close.addEventListener('click', closeGlossary);
+  document.addEventListener('keydown', e => { if(e.key === 'Escape' && panel.classList.contains('open')) closeGlossary(); });
 })();
 
 // ── TOPBAR TYPEWRITER — skippable ─────────────────────────────────────────
