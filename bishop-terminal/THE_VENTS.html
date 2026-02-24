@@ -155,8 +155,9 @@
     border: 1px solid var(--faint);
     box-shadow: 0 0 20px rgba(200,100,10,0.08), inset 0 0 40px rgba(0,0,0,0.95);
     background: #030100;
-    transition: border-color 0.3s, box-shadow 0.3s;
+    transition: border-color 0.3s, box-shadow 0.3s, filter 1.5s;
   }
+  #canvas-wrap.desaturate { filter: saturate(0.08) brightness(0.85); }
   #canvas-wrap::after {
     content: ''; position: absolute; inset: 0; pointer-events: none;
     background: radial-gradient(ellipse at center, rgba(200,80,0,0.04) 0%, transparent 70%);
@@ -311,10 +312,10 @@
   #terror-face {
     width: min(75vw, 560px);
     animation: terrorPulse 4s ease-in-out infinite;
-    opacity: 0.05;
+    opacity: 0;
     transition: opacity 3s 1s;
   }
-  #terror-screen.show #terror-face { opacity: 1; }
+  #terror-screen.show #terror-face { opacity: 0.05; }
   @keyframes terrorPulse {
     0%,100%{transform:scale(1)}
     40%{transform:scale(1.012)}
@@ -342,27 +343,64 @@
 
 <div id="level-flash"></div>
 
+<!-- FOUND FOOTAGE MESSAGE OVERLAY -->
+<div id="footage-overlay" style="
+  position:fixed;inset:0;background:rgba(0,0,0,0.92);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;z-index:45;transition:opacity 0.3s;
+">
+  <div style="font-size:0.55rem;color:#550010;letter-spacing:0.4em;margin-bottom:1.2rem;animation:blink 2s step-end infinite">▲ RECOVERED TERMINAL LOG ▲</div>
+  <div id="footage-text" style="
+    font-family:'Share Tech Mono',monospace;font-size:0.78rem;
+    color:#7a3a04;letter-spacing:0.12em;line-height:2.4;text-align:center;
+    max-width:500px;border:1px solid #2a0800;padding:2rem 2.5rem;
+    background:rgba(6,3,0,0.95);
+  "></div>
+  <div style="font-size:0.52rem;color:#2a0800;letter-spacing:0.3em;margin-top:1.5rem;animation:blink 1.5s step-end infinite">[ LOADING NEXT SECTOR ]</div>
+</div>
+
+<!-- MARCUS BODY — dialogue overlay -->
+<div id="marcus-overlay" style="
+  position:fixed;inset:0;background:rgba(0,0,0,0.88);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;z-index:48;transition:opacity 0.6s;
+">
+  <div style="font-size:0.5rem;color:#2a0808;letter-spacing:0.5em;margin-bottom:1.8rem">— TECHNICIAN INTERNAL —</div>
+  <div id="marcus-lines" style="
+    font-family:'Share Tech Mono',monospace;
+    color:#8a5030;letter-spacing:0.14em;line-height:2.8;text-align:center;
+    max-width:460px;font-size:0.74rem;
+  "></div>
+  <div id="marcus-continue" style="
+    font-size:0.55rem;color:#2a0800;letter-spacing:0.35em;
+    margin-top:2.5rem;opacity:0;transition:opacity 1s;cursor:pointer;
+    border:1px solid #2a0800;padding:0.6rem 1.6rem;
+    animation:blink 2s step-end infinite;
+  ">[ KEEP MOVING ]</div>
+</div>
+
 <div id="splash">
-  <div class="splash-warning">▲ CLASSIFIED TERMINAL ▲</div>
+  <div class="splash-warning">▲ SITE 4 — INTERNAL COMMUNICATION ▲</div>
   <div class="splash-title">VENT CRAWLER</div>
-  <div class="splash-sub">MAINTENANCE PROTOCOL // STATION ALPHA-7 // SECTOR UNKNOWN</div>
+  <div class="splash-sub">TECHNICIAN BRIEF // SITE 4 // VENTILATION LEVEL B</div>
   <div class="splash-click">[ PRESS TO ENTER ]</div>
   <div class="splash-click" id="splash-levelselect" style="margin-top:0.8rem;font-size:0.7rem;border-color:var(--faint);color:var(--dim);animation:none;padding:0.5rem 1.4rem">[ SELECT SECTOR ]</div>
   <div class="splash-lore">
-    <span>SIGNAL LOST ON 16 OF 18 TECHNICIANS</span><br>
-    NAVIGATE THE VENTILATION SHAFTS<br>
-    SURVIVE 5 SECTORS TO REACH THE REACTOR CORE<br>
-    <span>SOMETHING ELSE IS USING THE VENTS</span><br>
-    DO NOT LET HIM FIND YOU
+    <span>TECHNICIAN MARCUS — MISSING // 1HR 22MIN NO CONTACT</span><br>
+    LAST KNOWN POSITION: VENTILATION LEVEL B, SECTOR 2<br>
+    YOU ARE ORDERED TO LOCATE AND RETRIEVE<br>
+    USE THE MAINTENANCE SHAFTS. STAY LOW.<br>
+    <span>SOMETHING IS WRONG WITH THE VENTS</span><br>
+    FIND HIM. GET OUT.
   </div>
-  <div class="splash-coords">LAT 00°00′00″ — LON 00°00′00″ — DEPTH -04.7km — TEMP 38.2°C — O₂ CRITICAL</div>
+  <div class="splash-coords">SITE 4 // DEPTH -02.1km // TEMP 41.8°C // LAST CONTACT: 01:22:07 AGO</div>
 </div>
 
 <div id="complete-screen">
   <div class="splash-warning">▲ TRANSMISSION RECEIVED ▲</div>
   <div class="complete-title">YOU ESCAPED</div>
-  <div class="complete-sub">REACTOR CORE REACHED // STATION ALPHA-7 OFFLINE</div>
-  <div class="complete-sub" style="color:#550010;margin-top:0.3rem;font-size:0.62rem">THE LAST TECHNICIAN. THEY WON&#39;T FIND YOU NOW.</div>
+  <div class="complete-sub">SITE 4 — VENTILATION LEVEL B // EXITED VIA CORE ACCESS</div>
+  <div class="complete-sub" style="color:#550010;margin-top:0.3rem;font-size:0.62rem">MARCUS IS STILL IN THERE. YOU COULDN'T BRING HIM BACK.</div>
   <div class="complete-stats" id="complete-stats"></div>
   <button class="overlay-btn" id="restart-btn">[ DESCEND AGAIN ]</button>
 </div>
@@ -445,11 +483,11 @@
 const CELL = 40, WALL = 4, TOTAL_LEVELS = 5;
 
 const LEVEL_CONFIG = [
-  { cols:11, rows:9,  gates:0, lore:"SECTOR 2 — COOLING TUNNELS // SOMETHING MOVED DOWN THERE" },
-  { cols:13, rows:11, gates:0, lore:"SECTOR 3 — SECURITY LOCKS ENGAGED // IT KNOWS YOUR ROUTE" },
-  { cols:15, rows:13, gates:1, lore:"SECTOR 4 — MAINTENANCE SHAFTS // SCRATCHING ON THE WALLS" },
-  { cols:17, rows:13, gates:2, lore:"SECTOR 5 — REACTOR ACCESS // IT IS DIRECTLY BELOW YOU" },
-  { cols:21, rows:17, gates:3, lore:"STATION ALPHA-7 — REACTOR CORE // DO NOT STOP. DO NOT STOP." },
+  { cols:11, rows:9,  gates:0, lore:"SECTOR 1 — ENTRY SHAFTS // NO RESPONSE FROM MARCUS // KEEP MOVING" },
+  { cols:13, rows:11, gates:0, lore:"SECTOR 2 — LOWER TUNNELS // LAST PING FROM MARCUS WAS HERE // SOMETHING FEELS WRONG" },
+  { cols:15, rows:13, gates:0, lore:"SECTOR 3 — JUNCTION B // HIS RADIO IS NEARBY // YOU CAN HEAR IT CRACKLING" },
+  { cols:17, rows:13, gates:1, lore:"SECTOR 4 — MAINTENANCE SHAFTS // MARCUS IS SOMEWHERE IN HERE" },
+  { cols:21, rows:17, gates:2, lore:"SECTOR 5 — SITE 4 CORE ACCESS // GET OUT. GET OUT NOW." },
 ];
 
 const GATE_COLORS = [
@@ -474,6 +512,18 @@ let enemyStepCount = 0;
 let enemyMoveTimer = 0;
 let level5Deaths = 0;
 
+// New feature state
+let smearMarks = [];           // random dark stains on floor
+let deadTechs = [];            // grey dots — dead technicians (sector 3+)
+let enemyFrozen = false;       // "he stopped moving" pause
+let enemyFreezeTimer = 0;
+let enemyBacktracking = false;
+let enemyBacktrackSteps = 0;
+let stepGlitchTimer = null;    // step counter glitch
+let desatActive = false;       // proximity desaturation
+let marcusBody = null;         // body position on level 4
+let marcusFound = false;       // has player found the body yet
+
 const ENEMY_SPAWN_STEPS  = 3;
 const ENEMY_BASE_INTERVAL = 2;
 const ENEMY_MIN_INTERVAL  = 1;
@@ -488,6 +538,39 @@ let lastScrapeTime = 0;
 function initAudio() {
   if (audioCtx) return;
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+// ── Metal vent bang — loaded from file ────────────────────────────────
+let ventBangAudio = null;
+function loadVentBang() {
+  try {
+    ventBangAudio = new Audio('metal_vent.mp3');
+    ventBangAudio.volume = 0.45;
+  } catch(e) {}
+}
+function playVentBang() {
+  if (!ventBangAudio) return;
+  try {
+    const clone = ventBangAudio.cloneNode();
+    clone.volume = 0.3 + Math.random() * 0.25;
+    clone.playbackRate = 0.85 + Math.random() * 0.3;
+    clone.play().catch(()=>{});
+  } catch(e) {}
+}
+let ventBangTimeout = null;
+function scheduleVentBang() {
+  if (ventBangTimeout) clearTimeout(ventBangTimeout);
+  if (!gameActive) return;
+  const delay = 8000 + Math.random() * 18000;
+  ventBangTimeout = setTimeout(() => {
+    if (!gameActive) return;
+    playVentBang();
+    // occasionally a second bang shortly after
+    if (Math.random() < 0.4) {
+      setTimeout(() => { if (gameActive) playVentBang(); }, 400 + Math.random() * 500);
+    }
+    scheduleVentBang();
+  }, delay);
 }
 
 function playVentSound() {
@@ -938,16 +1021,70 @@ function enemyIntervalForStep(stepsSinceSpawn) {
 
 function moveEnemy() {
   if (!enemy || !enemyActive) return;
-  const path = bfsPath(enemy.x, enemy.y, player.x, player.y, null);
+
+  // FROZEN — he stopped moving
+  if (enemyFrozen) {
+    enemyFreezeTimer--;
+    if (enemyFreezeTimer <= 0) {
+      enemyFrozen = false;
+      hudThreat.textContent = '⚠ HE IS ALREADY IN THE VENTS ⚠';
+      // sprint: move twice immediately
+      doEnemyStep(); doEnemyStep();
+    }
+    return;
+  }
+
+  // Random freeze trigger (~5% chance per move, only after step 5)
+  if (!enemyBacktracking && enemyStepCount > 5 && Math.random() < 0.05) {
+    enemyFrozen = true;
+    enemyFreezeTimer = 3; // 3 player steps of pause
+    hudThreat.textContent = '⚠ HE STOPPED MOVING ⚠';
+    return;
+  }
+
+  // Random backtrack trigger (~8% chance, only after step 4)
+  if (!enemyBacktracking && enemyStepCount > 4 && Math.random() < 0.08) {
+    enemyBacktracking = true;
+    enemyBacktrackSteps = 2 + Math.floor(Math.random() * 3); // 2-4 steps away
+  }
+
+  doEnemyStep();
+}
+
+function doEnemyStep() {
+  if (!enemy) return;
+  let path;
+  if (enemyBacktracking) {
+    // Move AWAY from player using reverse BFS — head toward farthest reachable cell
+    // Simple approach: BFS away = find path to a cell far from player
+    const farCell = findFarCell();
+    path = farCell ? bfsPath(enemy.x, enemy.y, farCell.x, farCell.y, null) : null;
+    enemyBacktrackSteps--;
+    if (enemyBacktrackSteps <= 0) enemyBacktracking = false;
+  } else {
+    path = bfsPath(enemy.x, enemy.y, player.x, player.y, null);
+  }
   if (!path || path.length < 2) return;
   const next = path[1];
   enemy.x = next.x;
   enemy.y = next.y;
   playEnemyMoveSound();
   spawnParticles(enemy.x, enemy.y, '#00cc44', 3);
-  if (enemy.x === player.x && enemy.y === player.y) {
-    onDeath();
+  if (enemy.x === player.x && enemy.y === player.y) onDeath();
+}
+
+function findFarCell() {
+  // Pick a cell that's far from the player
+  const px = player.x, py = player.y;
+  let best = null, bestDist = 0;
+  // Sample random cells and pick the farthest reachable one
+  for (let i = 0; i < 12; i++) {
+    const cx = Math.floor(Math.random() * COLS);
+    const cy = Math.floor(Math.random() * ROWS);
+    const d = Math.abs(cx - px) + Math.abs(cy - py);
+    if (d > bestDist) { best = {x:cx, y:cy}; bestDist = d; }
   }
+  return best;
 }
 
 function drawEnemy(t) {
@@ -1099,6 +1236,65 @@ function draw(t) {
     ctx.fillText(btn.pressed?'ON':'■', bx, by+9);
     ctx.restore();
   }
+  // SMEAR MARKS — dark stains, no explanation
+  for (const sm of smearMarks) {
+    const sx = sm.x * CELL + CELL/2 + sm.ox;
+    const sy = sm.y * CELL + CELL/2 + sm.oy;
+    ctx.save();
+    ctx.globalAlpha = sm.opacity;
+    ctx.fillStyle = sm.color;
+    ctx.beginPath();
+    ctx.ellipse(sx, sy, sm.w, sm.h, sm.angle, 0, Math.PI*2);
+    ctx.fill();
+    if (sm.streak) {
+      ctx.globalAlpha = sm.opacity * 0.5;
+      ctx.fillRect(sx + sm.streak.dx, sy + sm.streak.dy, sm.streak.w, sm.streak.h);
+    }
+    ctx.restore();
+  }
+
+  // MARCUS BODY — crumpled figure on level 4
+  if (marcusBody && !marcusFound) {
+    const mbx = marcusBody.x * CELL + CELL/2;
+    const mby = marcusBody.y * CELL + CELL/2;
+    ctx.save();
+    // Dark blood pool
+    ctx.globalAlpha = 0.45;
+    ctx.fillStyle = '#1a0400';
+    ctx.beginPath(); ctx.ellipse(mbx + 4, mby + 5, 14, 9, 0.4, 0, Math.PI*2); ctx.fill();
+    // Body silhouette — crumpled on their side
+    ctx.globalAlpha = 0.9;
+    ctx.fillStyle = '#1c1408';
+    ctx.beginPath(); ctx.ellipse(mbx, mby, 10, 6, 0.3, 0, Math.PI*2); ctx.fill(); // torso
+    ctx.fillStyle = '#180e06';
+    ctx.beginPath(); ctx.arc(mbx + 9, mby - 3, 5, 0, Math.PI*2); ctx.fill(); // head
+    // Arm out
+    ctx.strokeStyle = '#161006'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(mbx + 4, mby + 2); ctx.lineTo(mbx + 14, mby + 8); ctx.stroke();
+    // Legs
+    ctx.beginPath(); ctx.moveTo(mbx - 6, mby + 4); ctx.lineTo(mbx - 14, mby + 9); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(mbx - 4, mby + 5); ctx.lineTo(mbx - 11, mby + 12); ctx.stroke();
+    // Name tag — barely visible
+    ctx.globalAlpha = 0.35;
+    ctx.fillStyle = '#7a5020';
+    ctx.font = '5px Share Tech Mono'; ctx.textAlign = 'center';
+    ctx.fillText('MARCUS', mbx, mby - 14);
+    ctx.restore();
+  }
+
+  // DEAD TECHNICIAN DOTS — grey, unmoving, no explanation
+  for (const dt of deadTechs) {
+    const dtx = dt.x * CELL + CELL/2;
+    const dty = dt.y * CELL + CELL/2;
+    ctx.save();
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = '#2a2420';
+    ctx.beginPath(); ctx.arc(dtx, dty, 7, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#1a1410';
+    ctx.beginPath(); ctx.arc(dtx, dty, 3.5, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+
   const ex=exitPos.x*CELL+CELL/2, ey=exitPos.y*CELL+CELL/2;
   const ep=0.55+0.45*Math.sin(t*0.003);
   ctx.save();
@@ -1135,6 +1331,22 @@ function draw(t) {
   ctx.fillStyle='#c8640a'; ctx.beginPath(); ctx.arc(px,py,2.5,0,Math.PI*2); ctx.fill();
   ctx.restore();
   drawEnemy(t);
+
+  // PROXIMITY DESATURATION — amber drains to grey when he's close
+  if (enemy && enemyActive) {
+    const dist = Math.abs(enemy.x - player.x) + Math.abs(enemy.y - player.y);
+    if (dist <= 4 && !desatActive) {
+      desatActive = true;
+      canvasWrap.classList.add('desaturate');
+    } else if (dist > 4 && desatActive) {
+      desatActive = false;
+      canvasWrap.classList.remove('desaturate');
+    }
+  } else if (desatActive) {
+    desatActive = false;
+    canvasWrap.classList.remove('desaturate');
+  }
+
   if(gameActive) animFrame=requestAnimationFrame(draw);
 }
 
@@ -1177,11 +1389,64 @@ function initLevel(){
   buttons=[]; gates=[];
   if(cfg.gates>0) placeGatesAndButtons(cfg.gates);
   enemy = null; enemyActive = false; enemyStepCount = 0; enemyMoveTimer = 0;
-  canvasWrap.classList.remove('danger');
+  enemyFrozen = false; enemyFreezeTimer = 0;
+  enemyBacktracking = false; enemyBacktrackSteps = 0;
+  desatActive = false;
+  canvasWrap.classList.remove('danger','desaturate');
   hudThreat.classList.remove('active');
+  hudThreat.textContent = '⚠ HE IS ALREADY IN THE VENTS ⚠';
   deathOverlay.classList.remove('show');
+  if (stepGlitchTimer) { clearTimeout(stepGlitchTimer); stepGlitchTimer = null; }
+
+  // MARCUS BODY — only on level 4, placed in middle of maze far from start/exit
+  marcusBody = null;
+  marcusFound = false;
+  if (level === 4) {
+    // Place somewhere in the middle third of the maze
+    const mx = Math.floor(COLS * 0.4) + Math.floor(Math.random() * Math.floor(COLS * 0.25));
+    const my = Math.floor(ROWS * 0.35) + Math.floor(Math.random() * Math.floor(ROWS * 0.3));
+    marcusBody = { x: Math.max(1, Math.min(COLS-2, mx)), y: Math.max(1, Math.min(ROWS-2, my)) };
+  }
+  smearMarks = [];
+  const smearCount = 3 + Math.floor(Math.random() * 5);
+  const smearColors = ['#1a0800','#2a0a00','#1a0600','#150a04'];
+  for (let i = 0; i < smearCount; i++) {
+    const cx = 1 + Math.floor(Math.random() * (COLS - 2));
+    const cy = 1 + Math.floor(Math.random() * (ROWS - 2));
+    smearMarks.push({
+      x: cx, y: cy,
+      ox: (Math.random()-0.5) * 14,
+      oy: (Math.random()-0.5) * 14,
+      w: 5 + Math.random() * 8,
+      h: 3 + Math.random() * 5,
+      angle: Math.random() * Math.PI,
+      opacity: 0.25 + Math.random() * 0.35,
+      color: smearColors[Math.floor(Math.random() * smearColors.length)],
+      streak: Math.random() < 0.5 ? {
+        dx: (Math.random()-0.5)*10, dy: (Math.random()-0.5)*10,
+        w: 2 + Math.random()*6, h: 1 + Math.random()*3
+      } : null
+    });
+  }
+
+  // DEAD TECHNICIAN DOTS — only from sector 3 onward
+  deadTechs = [];
+  if (level >= 3) {
+    const techCount = 1 + Math.floor(Math.random() * 3);
+    const occupied = new Set(['0,0', `${COLS-1},${ROWS-1}`]);
+    for (let i = 0; i < techCount; i++) {
+      let tx, ty, tries = 0;
+      do { tx = Math.floor(Math.random()*COLS); ty = Math.floor(Math.random()*ROWS); tries++; }
+      while (occupied.has(`${tx},${ty}`) && tries < 30);
+      if (tries < 30) { deadTechs.push({x:tx, y:ty}); occupied.add(`${tx},${ty}`); }
+    }
+  }
+
   if (whistleTimeout) clearTimeout(whistleTimeout);
   scheduleWhistle();
+  if (ventBangTimeout) clearTimeout(ventBangTimeout);
+  scheduleVentBang();
+
   hudLevel.textContent=`SECTOR: ${String(level).padStart(2,'0')} / 05`;
   hudSteps.textContent=`STEPS: 0`;
   updateLegend();
@@ -1212,6 +1477,24 @@ function tryMove(dx,dy,wi){
   player.x=nx; player.y=ny;
   steps++;
   hudSteps.textContent=`STEPS: ${steps}`;
+
+  // MARCUS BODY CHECK — trigger dialogue on level 4
+  if (marcusBody && !marcusFound && player.x === marcusBody.x && player.y === marcusBody.y) {
+    marcusFound = true;
+    showMarcusDialogue(null);
+    return; // don't process further this step
+  }
+
+  // Occasional glitch — shows wrong number then snaps back
+  if (Math.random() < 0.04) {
+    const realSteps = steps;
+    const fakeNum = realSteps + Math.floor(Math.random() * 80) - 40;
+    hudSteps.textContent = `STEPS: ${Math.max(0,fakeNum)}`;
+    if (stepGlitchTimer) clearTimeout(stepGlitchTimer);
+    stepGlitchTimer = setTimeout(() => {
+      hudSteps.textContent = `STEPS: ${realSteps}`;
+    }, 180 + Math.random() * 220);
+  }
   playVentSound();
   spawnParticles(player.x,player.y,'#c8640a',4);
   if (level === TOTAL_LEVELS) {
@@ -1249,21 +1532,30 @@ function onDeath() {
   enemyActive = false;
   level5Deaths++;
   if (whistleTimeout) { clearTimeout(whistleTimeout); whistleTimeout = null; }
+  if (ventBangTimeout) { clearTimeout(ventBangTimeout); ventBangTimeout = null; }
+  if (stepGlitchTimer) { clearTimeout(stepGlitchTimer); stepGlitchTimer = null; }
+
+  // 2-second freeze — canvas stays on screen, silent, his dot on yours
+  // Keep rendering for 2s but frozen (gameActive=false stops the loop, so force one more frame)
+  // Actually just let the last frame sit. Then after 2s show death screen.
   playDeathSound();
   const wrap = canvasWrap;
   wrap.style.transition = 'box-shadow 0.1s';
-  wrap.style.boxShadow = '0 0 80px rgba(255,0,30,0.9)';
-  if (level5Deaths >= 3) {
-    setTimeout(() => {
-      wrap.style.boxShadow = '';
-      playTerrorLaugh();
-      terrorScr.classList.add('show');
-    }, 300);
-  } else {
-    const taunts = ['[ TRY AGAIN ]','[ HE KNOWS YOUR PATH NOW ]'];
-    retryBtn.textContent = taunts[Math.min(level5Deaths - 1, taunts.length - 1)];
-    setTimeout(() => { wrap.style.boxShadow = ''; deathOverlay.classList.add('show'); }, 200);
-  }
+
+  setTimeout(() => {
+    wrap.style.boxShadow = '0 0 80px rgba(255,0,30,0.9)';
+    if (level5Deaths >= 3) {
+      setTimeout(() => {
+        wrap.style.boxShadow = '';
+        playTerrorLaugh();
+        terrorScr.classList.add('show');
+      }, 300);
+    } else {
+      const taunts = ['[ TRY AGAIN ]','[ HE KNOWS YOUR PATH NOW ]'];
+      retryBtn.textContent = taunts[Math.min(level5Deaths - 1, taunts.length - 1)];
+      setTimeout(() => { wrap.style.boxShadow = ''; deathOverlay.classList.add('show'); }, 200);
+    }
+  }, 2000); // 2 second freeze
 }
 
 // ════════════════════════════════════════════
@@ -1296,6 +1588,88 @@ document.addEventListener('keydown',e=>{
   if(move&&gameActive){ e.preventDefault(); tryMove(...move); }
 });
 
+const FOOTAGE_LOGS = [
+  `SITE 4 INTERNAL LOG — DAY 3\nTECHNICIAN MARCUS — LAST KNOWN: SECTOR 2\nNO RESPONSE TO RADIO // NO RESPONSE TO TAPS ON VENT WALL\n// ASSIGNED RETRIEVAL: TECHNICIAN [YOU]`,
+  `SITE 4 SAFETY BOARD — MEMO 7:\n"SOMETHING IS USING THE VENTILATION SYSTEM\nIT IS NOT STAFF. IT IS NOT EQUIPMENT.\nDO NOT ENTER THE VENTS ALONE"\n// MEMO FILED. MEMO IGNORED.`,
+  `RECOVERED VOICE — TECHNICIAN MARCUS:\n"...there's someone else in here with me...\n...he doesn't respond when I call out...\n...he just keeps crawling..." [SIGNAL LOST]`,
+  `SITE 4 ENTRY LOG — DAY 1:\nNEW INTAKE: TWO TECHNICIANS — MARCUS & [YOU]\nASSIGNED TO VENTILATION LEVEL B\nROUTINE MAINTENANCE. ROUTINE INSPECTION.\n// NOTHING ROUTINE ABOUT WHAT HAPPENED NEXT`,
+  `MEDICAL LOG — SITE 4:\nBLUNT FORCE TRAUMA CONSISTENT WITH FALL\nSCRATCH MARKS — NOT FROM TOOLS\nNO FURTHER DETAILS\n// SUBJECT: FOUR PREVIOUS TECHNICIANS. SAME VENTS.`,
+  `SECURITY CAMERA — VENT JUNCTION B4 // 03:12AM:\nFIGURE DETECTED. NOT IN STAFF REGISTRY.\nFACIAL RECOGNITION: FAILED\nFOOTAGE FLAGGED FOR REVIEW\n// REVIEW NEVER COMPLETED. REVIEWER: MISSING.`,
+  `SITE 4 SUPERVISOR NOTE:\n"THE NEW TECHNICIANS ASKED ABOUT\nTHE SCRATCHING SOUNDS IN THE WALLS.\nI TOLD THEM IT WAS THE PIPES.\n// IT IS NOT THE PIPES."`,
+];
+
+const footageOverlay = document.getElementById('footage-overlay');
+const footageText    = document.getElementById('footage-text');
+
+function showFootageThen(cb) {
+  // Pick a random log
+  const log = FOOTAGE_LOGS[Math.floor(Math.random() * FOOTAGE_LOGS.length)];
+  footageText.textContent = log;
+  footageOverlay.style.opacity = '1';
+  footageOverlay.style.pointerEvents = 'auto';
+  setTimeout(() => {
+    footageOverlay.style.opacity = '0';
+    footageOverlay.style.pointerEvents = 'none';
+    setTimeout(cb, 400);
+  }, 3200);
+}
+
+// ── Marcus body discovery dialogue ─────────────────────────────────────
+const MARCUS_DIALOGUE = [
+  "...Marcus.",
+  "Oh god.",
+  "He's — he's not moving.",
+  "There's blood on the vent walls.",
+  "How long has he been here.",
+  "I need to get out of here.",
+  "I need to get out of here RIGHT NOW."
+];
+
+const marcusOverlay  = document.getElementById('marcus-overlay');
+const marcusLines    = document.getElementById('marcus-lines');
+const marcusContinue = document.getElementById('marcus-continue');
+
+function showMarcusDialogue(cb) {
+  gameActive = false;
+  marcusLines.innerHTML = '';
+  marcusOverlay.style.opacity = '1';
+  marcusOverlay.style.pointerEvents = 'auto';
+  marcusContinue.style.opacity = '0';
+  marcusContinue.style.pointerEvents = 'none';
+
+  let i = 0;
+  function typeLine() {
+    if (i >= MARCUS_DIALOGUE.length) {
+      // Show continue prompt after last line
+      setTimeout(() => { marcusContinue.style.opacity = '1'; marcusContinue.style.pointerEvents = 'auto'; }, 600);
+      return;
+    }
+    const line = document.createElement('div');
+    line.style.opacity = '0';
+    line.style.transition = 'opacity 0.5s';
+    line.textContent = MARCUS_DIALOGUE[i];
+    // Last two lines get red tint — panic
+    if (i >= 5) line.style.color = '#cc3010';
+    marcusLines.appendChild(line);
+    requestAnimationFrame(() => { line.style.opacity = '1'; });
+    i++;
+    // Pause longer on the first line (the reveal) and last line (panic)
+    const delay = i === 1 ? 1800 : i >= 6 ? 900 : 1100;
+    setTimeout(typeLine, delay);
+  }
+  setTimeout(typeLine, 400);
+
+  function dismiss() {
+    marcusContinue.removeEventListener('click', dismiss);
+    marcusOverlay.style.opacity = '0';
+    marcusOverlay.style.pointerEvents = 'none';
+    gameActive = true;
+    animFrame = requestAnimationFrame(draw);
+    if (cb) cb();
+  }
+  marcusContinue.addEventListener('click', dismiss);
+}
+
 function flashThen(cb){
   levelFlash.classList.add('flash');
   setTimeout(()=>{ levelFlash.classList.remove('flash'); cb(); }, 150);
@@ -1312,6 +1686,7 @@ document.querySelectorAll('.lvlsel-btn').forEach(btn => {
     level5Deaths = 0;
     retryBtn.textContent = '[ TRY AGAIN ]';
     initAudio();
+    loadVentBang();
     setTimeout(() => flashThen(initLevel), 300);
   });
 });
@@ -1327,19 +1702,21 @@ lvlselBack.addEventListener('click', () => {
 
 splash.addEventListener('click',()=>{
   initAudio();
+  loadVentBang();
   splash.classList.add('hidden');
   gameUI.classList.add('visible');
   level=1; levelSteps=[];
   setTimeout(()=>flashThen(initLevel),300);
 });
 
-nextBtn.addEventListener('click',()=>{ level++; flashThen(initLevel); });
-retryBtn.addEventListener('click',()=>{ flashThen(initLevel); });
+nextBtn.addEventListener('click',()=>{ level++; winOverlay.classList.remove('show'); showFootageThen(()=>flashThen(initLevel)); });
+retryBtn.addEventListener('click',()=>{ if(ventBangTimeout){clearTimeout(ventBangTimeout);ventBangTimeout=null;} flashThen(initLevel); });
 restartBtn.addEventListener('click',()=>{
   completeSrc.classList.remove('show');
   gameUI.style.opacity='';
   level=1; levelSteps=[]; level5Deaths=0;
   retryBtn.textContent='[ TRY AGAIN ]';
+  if(ventBangTimeout){clearTimeout(ventBangTimeout);ventBangTimeout=null;}
   flashThen(initLevel);
 });
 </script>
