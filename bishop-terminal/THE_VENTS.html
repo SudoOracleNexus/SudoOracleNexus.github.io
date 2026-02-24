@@ -316,6 +316,7 @@
     transition: opacity 3s 1s;
   }
   #terror-screen.show #terror-face { opacity: 0.05; }
+  #terror-screen.show #terror-menu-btn { opacity: 1; }
   @keyframes terrorPulse {
     0%,100%{transform:scale(1)}
     40%{transform:scale(1.012)}
@@ -356,7 +357,12 @@
     max-width:500px;border:1px solid #2a0800;padding:2rem 2.5rem;
     background:rgba(6,3,0,0.95);
   "></div>
-  <div style="font-size:0.52rem;color:#2a0800;letter-spacing:0.3em;margin-top:1.5rem;animation:blink 1.5s step-end infinite">[ LOADING NEXT SECTOR ]</div>
+  <div id="footage-proceed" style="
+    font-size:0.58rem;color:#4a1800;letter-spacing:0.35em;
+    margin-top:2rem;cursor:pointer;border:1px solid #3a1000;
+    padding:0.65rem 2rem;animation:blink 2s step-end infinite;
+    transition:color 0.2s,border-color 0.2s;
+  ">[ PROCEED TO NEXT SECTOR ]</div>
 </div>
 
 <!-- MARCUS BODY — dialogue overlay -->
@@ -442,7 +448,7 @@
   <div class="hud" style="justify-content:center;margin-top:-4px;">
     <div id="hud-threat">⚠ HE IS ALREADY IN THE VENTS ⚠</div>
   </div>
-  <div class="controls-hint">WASD / ARROWS — MOVE &nbsp;|&nbsp; STEP ON BUTTONS — UNLOCK GATE &nbsp;|&nbsp; ◉ EXIT — DO NOT LET HIM CATCH YOU</div>
+  <div class="controls-hint" id="controls-hint">WASD / ARROWS — MOVE &nbsp;|&nbsp; STEP ON BUTTONS — UNLOCK GATE &nbsp;|&nbsp; ◉ EXIT</div>
 </div>
 
 <!-- LEVEL SELECT -->
@@ -475,6 +481,14 @@
     &nbsp;<br>
     he has been in here a very long time
   </div>
+  <div id="terror-menu-btn" style="
+    position:absolute;bottom:2.5rem;
+    font-family:'Share Tech Mono',monospace;
+    font-size:0.55rem;color:#1a0800;letter-spacing:0.35em;
+    cursor:pointer;border:1px solid #1a0800;padding:0.55rem 1.6rem;
+    opacity:0;transition:opacity 2s 6s;
+    animation:none;
+  ">[ RETURN TO SITE 4 BRIEFING ]</div>
 </div>
 <script>
 // ════════════════════════════════════════════
@@ -541,20 +555,28 @@ function initAudio() {
 }
 
 // ── Metal vent bang — loaded from file ────────────────────────────────
-let ventBangAudio = null;
+let ventBangBuffer = null;
 function loadVentBang() {
-  try {
-    ventBangAudio = new Audio('metal_vent.mp3');
-    ventBangAudio.volume = 0.45;
-  } catch(e) {}
+  // Load via fetch into AudioContext buffer — works even when AudioContext unlocked after gesture
+  fetch('metal_vent.mp3')
+    .then(r => r.arrayBuffer())
+    .then(buf => {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      return audioCtx.decodeAudioData(buf);
+    })
+    .then(decoded => { ventBangBuffer = decoded; })
+    .catch(() => {}); // file not present — silent fail
 }
 function playVentBang() {
-  if (!ventBangAudio) return;
+  if (!ventBangBuffer || !audioCtx) return;
   try {
-    const clone = ventBangAudio.cloneNode();
-    clone.volume = 0.3 + Math.random() * 0.25;
-    clone.playbackRate = 0.85 + Math.random() * 0.3;
-    clone.play().catch(()=>{});
+    const src = audioCtx.createBufferSource();
+    src.buffer = ventBangBuffer;
+    src.playbackRate.value = 0.85 + Math.random() * 0.3;
+    const gain = audioCtx.createGain();
+    gain.gain.value = 0.35 + Math.random() * 0.25;
+    src.connect(gain); gain.connect(audioCtx.destination);
+    src.start();
   } catch(e) {}
 }
 let ventBangTimeout = null;
@@ -898,6 +920,20 @@ const retryBtn    = document.getElementById('retry-btn');
 const canvasWrap  = document.getElementById('canvas-wrap');
 const hudThreat   = document.getElementById('hud-threat');
 const terrorScr   = document.getElementById('terror-screen');
+const terrorMenuBtn = document.getElementById('terror-menu-btn');
+
+terrorMenuBtn.addEventListener('click', () => {
+  terrorScr.classList.remove('show');
+  gameUI.classList.remove('visible');
+  splash.classList.remove('hidden');
+  // Reset game state
+  level = 1; level5Deaths = 0; levelSteps = [];
+  retryBtn.textContent = '[ TRY AGAIN ]';
+  gameActive = false;
+  cancelAnimationFrame(animFrame);
+  if (ventBangTimeout) { clearTimeout(ventBangTimeout); ventBangTimeout = null; }
+  if (whistleTimeout) { clearTimeout(whistleTimeout); whistleTimeout = null; }
+});
 const levelSelScr = document.getElementById('level-select');
 const lvlselBack  = document.getElementById('lvlsel-back');
 const splashLvlBtn= document.getElementById('splash-levelselect');
@@ -1011,6 +1047,7 @@ function spawnEnemy() {
   enemyMoveTimer = ENEMY_BASE_INTERVAL;
   canvasWrap.classList.add('danger');
   hudThreat.classList.add('active');
+  document.getElementById('controls-hint').innerHTML = 'WASD / ARROWS &mdash; MOVE &nbsp;|&nbsp; STEP ON BUTTONS &mdash; UNLOCK GATE &nbsp;|&nbsp; &#9711; EXIT &mdash; <span style="color:var(--rust)">DO NOT LET HIM CATCH YOU</span>';
   playEnemySpawnSound();
 }
 
@@ -1395,6 +1432,7 @@ function initLevel(){
   canvasWrap.classList.remove('danger','desaturate');
   hudThreat.classList.remove('active');
   hudThreat.textContent = '⚠ HE IS ALREADY IN THE VENTS ⚠';
+  document.getElementById('controls-hint').innerHTML = 'WASD / ARROWS &mdash; MOVE &nbsp;|&nbsp; STEP ON BUTTONS &mdash; UNLOCK GATE &nbsp;|&nbsp; &#9711; EXIT';
   deathOverlay.classList.remove('show');
   if (stepGlitchTimer) { clearTimeout(stepGlitchTimer); stepGlitchTimer = null; }
 
@@ -1600,18 +1638,21 @@ const FOOTAGE_LOGS = [
 
 const footageOverlay = document.getElementById('footage-overlay');
 const footageText    = document.getElementById('footage-text');
+const footageProceed = document.getElementById('footage-proceed');
 
 function showFootageThen(cb) {
-  // Pick a random log
   const log = FOOTAGE_LOGS[Math.floor(Math.random() * FOOTAGE_LOGS.length)];
   footageText.textContent = log;
   footageOverlay.style.opacity = '1';
   footageOverlay.style.pointerEvents = 'auto';
-  setTimeout(() => {
+
+  function onProceed() {
+    footageProceed.removeEventListener('click', onProceed);
     footageOverlay.style.opacity = '0';
     footageOverlay.style.pointerEvents = 'none';
-    setTimeout(cb, 400);
-  }, 3200);
+    setTimeout(cb, 350);
+  }
+  footageProceed.addEventListener('click', onProceed);
 }
 
 // ── Marcus body discovery dialogue ─────────────────────────────────────
