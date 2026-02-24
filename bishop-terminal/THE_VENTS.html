@@ -353,7 +353,7 @@
     NAVIGATE THE VENTILATION SHAFTS<br>
     SURVIVE 5 SECTORS TO REACH THE REACTOR CORE<br>
     <span>SOMETHING ELSE IS USING THE VENTS</span><br>
-    DO NOT LET IT FIND YOU
+    DO NOT LET HIM FIND YOU
   </div>
   <div class="splash-coords">LAT 00°00′00″ — LON 00°00′00″ — DEPTH -04.7km — TEMP 38.2°C — O₂ CRITICAL</div>
 </div>
@@ -388,23 +388,23 @@
       <div class="win-text" id="win-title">SECTOR CLEAR</div>
       <div class="win-sub" id="win-sub"></div>
       <div class="win-stats" id="win-stats"></div>
-      <div class="win-sub" style="color:#550010;font-size:0.6rem;margin-top:1rem;animation:blink 3s step-end infinite">IT IS STILL IN THERE</div>
+      <div class="win-sub" style="color:#550010;font-size:0.6rem;margin-top:1rem;animation:blink 3s step-end infinite">HE IS STILL IN THERE</div>
       <button class="overlay-btn" id="next-btn">[ DESCEND DEEPER ]</button>
     </div>
     <div id="death-overlay">
-      <div class="death-text">IT FOUND YOU</div>
+      <div class="death-text">HE FOUND YOU</div>
       <div class="death-sub">TECHNICIAN 17 — DECEASED</div>
       <div class="death-sub" style="color:#330008;font-size:0.6rem;margin-top:0.3rem;letter-spacing:0.35em">CAUSE: UNKNOWN</div>
-      <div class="death-hint" style="margin-top:1.2rem">IT HAS BEEN HERE LONGER THAN THE STATION</div>
-      <div class="death-hint">IT MOVES FASTER EACH TIME IT HUNTS</div>
+      <div class="death-hint" style="margin-top:1.2rem">HE HAS BEEN IN THE VENTS LONGER THAN YOU KNOW</div>
+      <div class="death-hint">HE MOVES FASTER EACH TIME HE HUNTS</div>
       <button class="overlay-btn" id="retry-btn" style="border-color:#6a1500;color:#cc2200;margin-top:2rem;border-width:1px">[ TRY AGAIN ]</button>
     </div>
   </div>
   <div id="gate-legend"></div>
   <div class="hud" style="justify-content:center;margin-top:-4px;">
-    <div id="hud-threat">⚠ IT IS ALREADY HERE ⚠</div>
+    <div id="hud-threat">⚠ HE IS ALREADY IN THE VENTS ⚠</div>
   </div>
-  <div class="controls-hint">WASD / ARROWS — MOVE &nbsp;|&nbsp; STEP ON BUTTONS — UNLOCK GATE &nbsp;|&nbsp; ◉ EXIT — DO NOT STOP MOVING</div>
+  <div class="controls-hint">WASD / ARROWS — MOVE &nbsp;|&nbsp; STEP ON BUTTONS — UNLOCK GATE &nbsp;|&nbsp; ◉ EXIT — DO NOT LET HIM CATCH YOU</div>
 </div>
 
 <!-- LEVEL SELECT -->
@@ -435,7 +435,7 @@
     you were never going to make it out<br>
     none of them do<br>
     &nbsp;<br>
-    it has been waiting a very long time
+    he has been in here a very long time
   </div>
 </div>
 <script>
@@ -1260,7 +1260,7 @@ function onDeath() {
       terrorScr.classList.add('show');
     }, 300);
   } else {
-    const taunts = ['[ TRY AGAIN ]','[ IT KNOWS YOUR PATH NOW ]'];
+    const taunts = ['[ TRY AGAIN ]','[ HE KNOWS YOUR PATH NOW ]'];
     retryBtn.textContent = taunts[Math.min(level5Deaths - 1, taunts.length - 1)];
     setTimeout(() => { wrap.style.boxShadow = ''; deathOverlay.classList.add('show'); }, 200);
   }
