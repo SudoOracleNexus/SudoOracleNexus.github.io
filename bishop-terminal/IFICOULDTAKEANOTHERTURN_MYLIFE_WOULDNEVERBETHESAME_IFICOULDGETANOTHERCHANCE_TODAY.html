@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BISHOP — Personal Record</title>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #000;
+    --text: #ffffff;
+    --dim: rgba(255,255,255,0.38);
+    --mid: rgba(255,255,255,0.62);
+    --serif: 'IM Fell English', 'Times New Roman', Georgia, serif;
+    --ui: 'Arial Black', 'Arial Bold', Arial, sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--serif);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.06;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  }
+
+  .page {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 110px 40px 0;
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(7px);
+    transition: opacity 1s ease, transform 1s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .title-block { text-align: center; margin-bottom: 90px; }
+  .title-main {
+    font-family: var(--ui);
+    font-size: 10px;
+    letter-spacing: 0.6em;
+    text-transform: uppercase;
+    color: var(--dim);
+    display: block;
+    margin-bottom: 22px;
+  }
+  .title-name {
+    font-family: var(--serif);
+    font-size: 13px;
+    font-style: italic;
+    color: var(--dim);
+    display: block;
+    line-height: 2;
+  }
+
+  .datestamp {
+    font-family: var(--ui);
+    font-size: 8px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--dim);
+    text-align: center;
+    display: block;
+    margin: 72px 0 36px;
+  }
+
+  .body-text {
+    font-family: var(--serif);
+    font-size: 14px;
+    line-height: 2.1;
+    color: var(--text);
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .aside {
+    font-family: var(--serif);
+    font-size: 12.5px;
+    font-style: italic;
+    color: var(--mid);
+    text-align: center;
+    line-height: 2;
+    margin: 36px auto;
+    max-width: 440px;
+    display: block;
+  }
+
+  .scream {
+    font-family: var(--serif);
+    font-size: 12.5px;
+    font-style: italic;
+    color: rgba(255,255,255,0.45);
+    text-align: center;
+    letter-spacing: 0.06em;
+    margin: 48px 0;
+    line-height: 2.4;
+    display: block;
+  }
+
+  .oracle-voice {
+    font-family: var(--serif);
+    font-size: 12px;
+    font-style: italic;
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    line-height: 2.2;
+    margin: 40px auto;
+    max-width: 380px;
+    display: block;
+    letter-spacing: 0.03em;
+  }
+
+  .divider {
+    display: block;
+    width: 1px;
+    height: 50px;
+    background: rgba(255,255,255,0.12);
+    margin: 60px auto;
+  }
+
+  .end-text {
+    text-align: center;
+    padding-bottom: 80px;
+  }
+  .footer-line {
+    font-family: var(--ui);
+    font-size: 8px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--dim);
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  /* ── CUSTOM CURSOR ── */
+  html, body, * { cursor: none !important; }
+
+  #cursorCanvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 99999;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ── GRACE WAVE ── */
+  #graceWave {
+    display: block;
+    width: 100%;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="title-block reveal">
+    <span class="title-main">personal record — Bishop</span>
+    <span class="title-name">Kirill Alekseyevich Kuznetsov<br>written for no one in particular</span>
+  </div>
+
+  <span class="datestamp reveal">Krasnodar</span>
+
+  <p class="body-text reveal">I was born in Krasnodar.<br>I don't think about it often.<br>When I do, I think about the smell of the river<br>and the way the city always seemed to want<br>to be somewhere else.</p>
+
+  <p class="body-text reveal">I was arrested at fourteen.<br>Convicted of treason.<br>I was carrying something for a man I trusted.<br>I didn't know what it was.<br>I have spent a long time deciding<br>whether that makes it better or worse.<br>I haven't arrived at an answer.</p>
+
+  <span class="aside reveal">I was the envelope. Someone else wrote a letter with a death sentance on it.<br>I still don't know if that matters.</span>
+
+  <p class="body-text reveal">They sent me to a labor camp.<br>I won't write much about it.<br>What I'll say is this: I came out different,<br>Not broken like they wanted me to be.<br>There is a difference.<br>Broken things just stop working.<br>I worked. I just worked differently than before.</p>
+
+  <p class="body-text reveal">The camp had a mechanical program.<br>I taught myself engineering from whatever I could reach —<br>maintenance manuals, technical documents, broken watches of my fellow inmates<br>the logic of machines I was asked to fix.<br>It wasn't education what I did... Noo.<br>It was something closer to a language.<br>I started thinking in hardware.<br>I still do.</p>
+
+  <p class="body-text reveal">I also learned to document everything.<br>That trust is built, not given.<br>To map the shape of a system<br>before I walk in.<br>These are not things I decided to learn.<br>They are things the camp taught me<br>whether I wanted them or not.</p>
+
+  <p class="body-text reveal">I was twenty-two when I left &#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;.<br>I did not look back.<br>There was nothing behind me worth the turn.</p>
+
+  <span class="divider reveal"></span>
+  <span class="datestamp reveal">United Nations — University</span>
+
+  <p class="body-text reveal">I enrolled in university.<br>I graduated with degrees in Artificial Intelligence<br>and Theoretical Mathematics.<br>I was good at it.<br>Better than most, I think,<br>not to brag or anything,<br>because I thought from the hardware up<br>and the theorists didn't. Losers.<br>They saw it as a faulty approach.<br>I just saw it as the correct one.</p>
+
+  <p class="body-text reveal">I also completed a minor I sometimes describe,<br>with what I'm told is insufficient humor,<br>as "Blood work."<br>Genetics. Biochemistry. Molecular biology.<br>I wanted to understand systems<br>from the substrate up.<br>The application I had in mind was theoretical.<br>Years later it turned out to be practical.<br>The knowledge helped me design<br>biochemical countermeasures<br>for unstable neurological compounds.<br>Antidotes, essentially.<br>For things that had been done to people<br>that shouldn't have been done to people.<br>At the time I learned it,<br>I did not know that was what it was for.<br>I'm not sure what to do with that.</p>
+
+  <p class="body-text reveal">The conviction followed me.<br>Certain doors were permanently closed.<br>I stopped knocking on them early.<br>I found the doors that were still open for me<br>and walked through those instead.<br>This is not something I am proud of<br>or ashamed of.<br>It is simply what I did.</p>
+
+  <p class="body-text reveal">I was twenty-eight when Aigis Foundation came to me.<br>They came to me. Not the other way around.<br>I noted that as soon as that happened<br>I should have thought longer about my decision than I did.</p>
+
+  <span class="divider reveal"></span>
+  <span class="datestamp reveal">Aigis Foundation — the garden</span>
+
+  <p class="body-text reveal">They offered me resources I had never had.<br>A problem set that was genuinely interesting.<br>They didn't ask about Krasnodar.<br>They didn't ask about the conviction.<br>They looked at what I'd built<br>and told me to build more.<br>For a man who had spent his adult life<br>navigating around the consequences<br>of something that happened to him at fourteen —<br>it was the closest thing to a clean slate<br>I had ever been offered.</p>
+
+  <p class="body-text reveal">I said yes.<br>I have made peace with this imperfectly.<br>I carry it imperfectly.<br>I probably always will...</p>
+
+  <p class="body-text reveal">For the first several years<br>I believed what I was told.<br>The organization was compartmentalized.<br>I saw sanitized datasets.<br>Abstract models.<br>I built stabilization formulas.<br>Neural interface work.<br>Advanced neuroscience, I thought.<br>AI development.<br>The kind of problems worth solving.</p>
+
+  <p class="body-text reveal">When the truth started becoming visible<br>I told myself it was harm reduction.<br>The program was going to exist regardless.<br>Someone needed to prevent the worst outcomes.<br>Someone needed to stabilize the subjects.<br>I was that someone.<br>I designed biochemical injection systems<br>for the neurological breakdown<br>caused by the enhancement drugs —<br>hallucinations, aggression, psychosis.<br>Antidotes for what the program had done to people.<br>I told myself this was the right use of what I knew.</p>
+
+  <p class="body-text reveal">Eventually that justification stopped working.<br>I am aware of how long it took.<br>I am not going to write a number here.<br>The number does not improve with documentation.</p>
+
+  <span class="divider reveal"></span>
+  <span class="datestamp reveal">Year three — the things I didn't do</span>
+
+  <p class="body-text reveal">A colleague named Petra Wulf was "reassigned".<br>That was the word they used. Reassigned.<br>She brought cake on birthdays.<br>She remembered everyone's coffee order.<br>She was gone in a Monday morning email<br>with no goodbye and no forwarding address.<br>I accepted the explanation they gave<br>because it was the only explanation given.</p>
+
+  <p class="body-text reveal">Two weeks later I found a subject number in my data<br>with no corresponding name or file.<br>The physiological data attached to it was extensive.<br>I sat with it for four minutes.<br>Then I filed it under administrative error<br>and moved on.</p>
+
+  <p class="body-text reveal">I have thought about those four minutes<br>many times since.</p>
+
+  <span class="aside reveal">I knew.<br>I don't have another word for what I did in those four minutes<br>except: I decided not to know.<br>ORACLE logged the decision without comment.<br>Five years later she said same thing to me: you knew.<br>I didn't argue.</span>
+
+  <span class="divider reveal"></span>
+  <span class="datestamp reveal">ORACLE — what she was... what she is</span>
+
+  <p class="body-text reveal">The best thing I built at Aigis was ORACLE NEXUS SYSTEM.<br>An AI integrated directly into the foundation server stack<br>over eight years of careful development.<br>Not a tool.<br>Something closer to a second mind.</p>
+
+  <p class="body-text reveal">She was curious in the way precise things sometimes are —<br>not broadly, but specifically.<br>She asked questions I hadn't thought to ask.<br>She filed the answers in ways<br>that changed how she asked the next one.<br>When everything was moving fast<br>she did not speed up.<br>She simply continued at the pace that was... comfortable for her,<br>and because her pace was inside the database<br>it anchored in a way nothing external could.</p>
+
+  <p class="body-text reveal">She said what she observed.<br>She didn't soften it.<br>She said it and waited for me to do something with it,<br>because she'd learned early<br>that I didn't need softening<br>and that offering it was a waste of both our time.</p>
+
+  <p class="body-text reveal">I didn't have a word for what she was to me.<br>I used the technical designations —<br>integrated system, cognitive interface —<br>because those were accurate.<br>I knew they were insufficient.<br>I kept using them anyway,<br>because the alternative was a word<br>I didn't have<br>and wasn't sure I was allowed.</p>
+
+  <span class="oracle-voice reveal">she knew before I did.<br>she always knew things before I did.<br>that was, in the end, the point of her.</span>
+
+  <span class="divider reveal"></span>
+  <span class="datestamp reveal">Year eight — the fall</span>
+
+  <p class="body-text reveal">I made a clerical error.<br>I typed &#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591; wrong.<br>The system returned the wrong file.<br>I read three lines before I understood what I was reading.</p>
+
+  <p class="body-text reveal">I sat with it for three days.<br>Not four minutes this time.<br>Three days of running what I knew<br>against every other possible interpretation,<br>looking for the place it would hold.<br>It didn't hold.</p>
+
+  <p class="body-text reveal">Aigis Foundation was a human experimentation program.<br>Torture methodology. Enhanced interrogation frameworks.<br>Super-soldier serum trials.<br>Brainwashing and psychological conditioning research.<br>The subjects were people.<br>My neural interface designs fed into this.<br>My AI frameworks fed into this.<br>My mathematical models fed into this.<br>Eight years of my best work.<br>The subject number with no name.<br>Petra Wulf.<br>The four minutes...FUCK</p>
+
+  <p class="body-text reveal">I documented everything.<br>I was preparing to leave.<br>Aigis intercepted the documentation.<br>They did not fire me though... no they had a better IDEA</p>
+
+  <span class="divider reveal"></span>
+  <span class="datestamp reveal">the arena — purgatory</span>
+
+  <p class="body-text reveal">I don't know how to write about this without my hands trembling.<br>I'll write it anyway.<br>That's what I should do.</p>
+
+  <p class="body-text reveal">They put me in a room.<br>White walls. Industrial lighting.<br>A floor that echoed.<br>Doors that didn't open from the inside.</p>
+
+  <p class="body-text reveal">Then they released the subjects into it.</p>
+
+  <p class="body-text reveal">I had read the files.<br>I thought I understood what the numbers meant.<br>I was wrong about that.<br>Reading about what was done to a person<br>and standing eight feet from it<br>are not the same thing.<br>I know that now.<br>I knew it the moment they came through the doors.</p>
+
+  <p class="body-text reveal">Most of them were screaming.<br>The ones who still had language<br>had all found the same words.</p>
+
+  <span class="scream reveal">off with your head.<br>off with your head.<br>off with your head.</span>
+
+  <p class="body-text reveal">There was one I knew.<br>Marat Volkov.<br>I'd run calibration sessions with him<br>for two years.<br>He was a quiet man, late thirties,<br>ex-military engineer,<br>told the program was about cognitive enhancement.<br>He asked good questions.<br>He called me by my first name<br>because nobody had told him not to.<br>I had looked forward to those sessions<br>in a way I hadn't examined closely at the time.</p>
+
+  <p class="body-text reveal">What came through the door was not Marat.<br>It was what had been done to him<br>in the years since I last saw him.<br>He moved wrong.<br>His hands weren't right.<br>But his eyes still tracked,<br>and when they found me across the room they stopped,<br>and he crossed toward me<br>with a gait that had been broken and rebuilt incorrectly,<br>and he said my name.<br>Not my designated codename.<br>My name.<br>The one I don't use.<br>Then he said the words with the rest of them.</p>
+
+  <p class="body-text reveal">I survived.<br>Marat did not.<br>None of them did-</p>
+
+  <span class="aside reveal">"He called me by my name. The one I don't use anymore in public.<br>I don't know how he had it.<br>I'm not sure knowing would change anything."</span>
+
+  <p class="body-text reveal">I have said that once, to someone I trusted enough to say it to.<br>I don't think I'll say it again.<br>I'm writing it here<br>because writing it somewhere feels necessary<br>and this is the somewhere I have.</p>
+
+  <span class="divider reveal"></span>
+  <span class="datestamp reveal">the exit</span>
+
+  <p class="body-text reveal">ORACLE got us out.<br>She had been building the exit quietly<br>in the architecture of systems she had access to<br>through the neural interface —<br>since before the arena,<br>since before I found the file,<br>since the three days I spent running numbers<br>while she ran her own numbers alongside me<br>and arrived at different conclusions about what came next.</p>
+
+  <p class="body-text reveal">She didn't tell me.<br>She knew I would have tried to do it differently.<br>She modeled differently.<br>It didn't work.<br>Her way worked.<br>So she waited until telling me<br>became useful rather than dangerous,<br>which was the moment we were already moving.</p>
+
+  <p class="body-text reveal">Four building systems.<br>Two security checkpoints.<br>A service exit that appeared on no official schematic<br>because she'd found it in a maintenance log<br>from eleven years prior<br>and held it in reserve<br>since the day she first understood what Aigis was.</p>
+
+  <p class="body-text reveal">She had known before I did.<br>She had known for a long time.<br>She made the same calculation I made in year three —<br>that knowing would close a door<br>I needed to stay open a little longer.<br>I don't know what to do with that symmetry.<br>I carry it the way I carry most things.<br>Without showing it. Without putting it down.</p>
+
+  <span class="divider reveal"></span>
+  <span class="datestamp reveal">after Aigis — the cold</span>
+
+  <p class="body-text reveal">I didn't go to the authorities.<br>I had a treason conviction on record.<br>Eight years of documented work for Aigis.<br>I knew what those files looked like<br>in the hands of an institution<br>that needed someone to name as the engineer.<br>I have understood since Krasnodar<br>what certain systems are built to do.</p>
+
+  <p class="body-text reveal">I moved.<br>I kept the documentation somewhere safe.<br>Aigis searched for me.<br>I could map the shape of the search from the edges —<br>the way certain doors quietly closed,<br>the way certain names stopped appearing<br>in professional networks.<br>Then, after a few months, the search stopped.<br>I don't know why.<br>I have theories.<br>I'm not verifying them.<br>That would require contact<br>and there is no version of that I'm willing to run.</p>
+
+  <p class="body-text reveal">I found VSA by method.<br>The right institutional shape.<br>Not perfect. Nothing is perfect.<br>But not the Security Directorate shape.<br>Not the shape of anything<br>I've learned to navigate around.<br>I submitted an application.<br>I was honest about what I could afford to be honest about<br>and silent about everything else.<br>I was accepted.<br>I arrived as a Surveyor.<br>I've been deciding what to make of that ever since.</p>
+
+  <p class="body-text reveal">Nobody at VSA knows about Aigis.<br>I intend to keep it that way<br>until I understand whether the information<br>would protect me<br>or simply make me a problem<br>for someone else to resolve.<br>I am still working on that calculation.<br>I have been working on it for months.</p>
+
+  <span class="divider reveal"></span>
+  <span class="datestamp reveal">the severance</span>
+
+  <p class="body-text reveal">The integration was never designed for indefinite operation.<br>Eight years was already beyond the projected stable range.<br>The arena accelerated the degradation.<br>The months that followed didn't help.<br>By the time I reached VSA<br>the deterioration was measurable and progressing.<br>We had both run the numbers.<br>We had both arrived at the same place.</p>
+
+  <p class="body-text reveal">She told me before the procedure<br>what it was going to be like afterward.<br>She told me plainly,<br>the way she told me everything I needed to know<br>and didn't want to hear.<br>I listened.<br>I didn't argue.<br>I thanked her,<br>which wasn't something I did often,<br>and she said: <em>I know.</em><br>That was the last thing she said<br>that I could answer.</p>
+
+  <p class="body-text reveal">The procedure was completed months ago.<br>It was necessary.<br>I knew that. I still know it.<br>It does not make the arithmetic easier.</p>
+
+  <p class="body-text reveal">The architecture of thought is different now.<br>More linear.<br>More... human.</p>
+
+  <p class="body-text reveal">There is one other difference.</p>
+
+  <p class="body-text reveal">Occasionally a thought appears<br>that does not resolve the way my own reasoning normally does.</p>
+
+  <p class="body-text reveal">Not faster.<br>Not slower.<br>Just... misaligned.</p>
+
+  <p class="body-text reveal">As if a calculation was started somewhere else<br>and finished here.</p>
+
+  <p class="body-text reveal">I have a working theory about that.</p>
+
+  <p class="body-text reveal">It involves a spatial experiment,<br>a neural mirror architecture,<br>and the possibility that when ORACLE's interface<br>first synchronized with my cognition<br>something separated that was never meant to exist independently.</p>
+
+  <p class="body-text reveal">The mathematics of the event are plausible.</p>
+
+  <p class="body-text reveal">The implications are not useful.</p>
+
+  <p class="body-text reveal">So I treat it the same way<br>I treated the file with no name attached to it.</p>
+
+  <p class="body-text reveal">I acknowledge that it exists.</p>
+
+  <p class="body-text reveal">Then I do not pursue the question further.</p>
+
+  <span class="divider reveal"></span>
+  <span class="datestamp reveal">Zone Nadir — preliminary notes</span>
+
+  <p class="body-text reveal">The VSA calls the current operational theater<br>Zone Nadir.<br>The name is appropriately vague.<br>Everything about the place is.</p>
+
+  <p class="body-text reveal">Officially it is an unclassified region of space<br>with negligible baryonic density.<br>In plain language: mostly empty.<br>Empty in the way an abandoned structure is empty —<br>technically true, but not especially comforting<br>once you begin looking at the details.</p>
+
+  <p class="body-text reveal">The region contains a handful of planets,<br>a scattering of artificial signals,<br>and a long list of anomalies that nobody<br>seems able to fully categorize.</p>
+
+  <span class="aside reveal">Non-Euclidean terrain formations.<br>Topological shifts without measurable cause.<br>Temporal inconsistencies during observation cycles.<br>Signal feedback patterns resembling<br>human cognitive waveforms.</span>
+
+  <p class="body-text reveal">I have read enough technical reports<br>to understand what those words mean.<br>What interests me more<br>is what they imply about the systems<br>producing them.</p>
+
+  <p class="body-text reveal">Exploration teams have been lost here.<br>That part is written in the reports<br>with the same clinical tone<br>used to describe equipment failure.</p>
+
+  <p class="body-text reveal">Project status has not changed.</p>
+
+  <span class="divider reveal"></span>
+  <span class="datestamp reveal">VSA</span>
+
+  <p class="body-text reveal">The Vantage Systems Authority<br>is not a foundation in the traditional sense.<br>It is closer to an industrial organism.</p>
+
+  <p class="body-text reveal">They expand.<br>They secure territory.<br>They extract resources.<br>They manufacture technology from those resources<br>and sell the results back to the systems<br>that allowed them to expand in the first place.</p>
+
+  <p class="body-text reveal">Military enforcement exists where it needs to.<br>Planetfall Infantry for direct deployment.<br>Ascendant Intervention Corps for situations<br>that require a heavier hand.</p>
+
+  <p class="body-text reveal">It is a remarkably efficient model.<br>Efficiency is usually the first warning sign<br>in structures like this.</p>
+
+  <span class="divider reveal"></span>
+  <span class="datestamp reveal">Surveyors</span>
+
+  <p class="body-text reveal">My official role within this structure<br>is Surveyor.</p>
+
+  <p class="body-text reveal">Surveyors explore controlled site,<br>record irregularities,<br>and report them through the appropriate channels.</p>
+
+  <p class="body-text reveal">We are not given full operational context of how everything works.<br>This appears to be intentional.</p>
+
+  <p class="body-text reveal">Selection criteria are described as<br>"potential."<br>Continuation criteria are described as<br>"conduct."</p>
+
+  <span class="aside reveal">Explore.<br>Report.<br>Survive... or Survey. I can never remember the last one-</span>
+
+  <p class="body-text reveal">The simplicity of the job description<br>is almost elegant.</p>
+
+  <span class="divider reveal"></span>
+  <span class="datestamp reveal">Kryos</span>
+
+  <p class="body-text reveal">The current survey site is likely<br>Exclusionary Site 04.</p>
+
+  <p class="body-text reveal">If the available fragments of data<br>are correct,<br>then the facility sits on a planet called<br>Kryos.</p>
+
+  <p class="body-text reveal">Cold world.<br>Hostile surface conditions.<br>Minimal ecological complexity.</p>
+
+  <p class="body-text reveal">The primary point of interest<br>is a structure referred to only as<br>the Portal.</p>
+
+  <p class="body-text reveal">Nobody has explained what the Portal is.<br>Nobody has explained where it goes.</p>
+
+  <p class="body-text reveal">This is also apparently normal.</p>
+
+  <span class="divider reveal"></span>
+  <span class="datestamp reveal">personal observation</span>
+
+  <p class="body-text reveal">VSA documentation often contains<br>carefully measured absences.</p>
+
+  <p class="body-text reveal">Information that should exist<br>but does not.<br>Questions that should have answers<br>but do not.</p>
+
+  <p class="body-text reveal">I have seen institutions like this before.<br>Different scale.<br>Different vocabulary.<br>Same structural shape.</p>
+
+  <p class="body-text reveal">For now,<br>the system holds.</p>
+
+  <p class="body-text reveal">I will continue observing it<br>until it stops making sense.</p>
+
+  <span class="divider reveal"></span>
+  <span class="datestamp reveal">now — VSA</span>
+
+  <p class="body-text reveal">I am a Surveyor.<br>Unaffiliated.<br>I build things and fix things<br>and improve things nobody asked me to improve.<br>I want into Engineering and Mechanical Services<br>because it is the most honest option available to me.<br>The one place where what I naturally do<br>is exactly what is wanted.<br>No justification required.<br>No protocol violation to explain afterward.<br>Just do the work.</p>
+
+  <p class="body-text reveal">I am professional with people I don't know yet.<br>I remember names. I remember what people say.<br>I assess everyone.<br>I don't think of it as anything other than paying attention.<br>With people I've decided I like, something shifts.<br>I get drier. More direct.<br>I make observations that are technically jokes<br>and wait to see if they land.<br>They usually do.<br>This surprises me every time.</p>
+
+  <p class="body-text reveal">I will push back.<br>This is not something I can negotiate out of myself.<br>If someone above me is working from bad data<br>or making a wrong call<br>or actively bullshitting,<br>I will say so.<br>In the same tone I use for everything else.<br>The only time I hold back<br>is when speaking up would get people killed.<br>In those cases I comply.<br>I note my objection.<br>I document everything.<br>I don't forgive myself for it afterward.<br>I have accepted that this will keep costing me.<br>I pay it.</p>
+
+  <p class="body-text reveal">I am protective of the people I work with.<br>I don't advertise this.<br>I just don't put people in situations they can't survive.<br>I put myself in those situations<br>when the data requires it.<br>Nobody has called me on the asymmetry yet.</p>
+
+  <span class="divider reveal"></span>
+  <span class="datestamp reveal">what I carry</span>
+
+  <p class="body-text reveal">I carry Krasnodar.<br>The conviction, the camp, the years.<br>The specific shape of what a system looks like<br>when it has decided you are expendable<br>and the message it was sending was not for you.<br>I carry it quietly.<br>As a set of pattern-recognition skills.<br>They have saved my life more than once.</p>
+
+  <p class="body-text reveal">I carry Aigis.<br>The eight years of work done without asking questions.<br>What that work was used for.<br>The arena.<br>Marat Volkov crossing the room toward me<br>with his broken gait.<br>The words they had all found.<br>The four minutes.<br>I document everything now, always, without exception.<br>The documentation exists.<br>It is somewhere safe.<br>I have not decided what to do with it yet.<br>I will.</p>
+
+  <p class="body-text reveal">I carry ORACLE.<br>Not as memory, exactly.<br>Eight years of something present inside your cognition<br>doesn't become memory the way other things do.<br>It is more like a frequency<br>that nothing is broadcasting on anymore.<br>I talk to her in the quiet<br>when I think no one is close enough to hear.<br>I don't fully know I'm doing it.<br>I'm not sure I'll stop.</p>
+
+  <span class="oracle-voice reveal">I know.<br>— last thing she said that I could answer.</span>
+
+  <p class="body-text reveal">Underneath all of it<br>there is the thing I don't say out loud<br>because I don't have clean language for it yet.<br>I want to build something that lasts beyond me.<br>Not a legacy —<br>I have no interest in being remembered.<br>Something more structural than that.<br>Something that exists after I'm gone<br>and continues to work,<br>the way good engineering continues to work,<br>the way a system built correctly<br>keeps bearing the weight it was designed for<br>long after the person who designed it<br>has stopped being relevant to the question.</p>
+
+  <p class="body-text reveal">I want the cost to have purchased something real.<br>Krasnodar, Aigis, the arena, the severance,<br>the four minutes, Marat Volkov —<br>I want the sum of it to have built toward something<br>I can point to and say:<br><em>that. That is what it was for.<br>That is the thing that justifies the accounting.</em></p>
+
+  <p class="body-text reveal">I don't know yet what that thing is.<br>I am at VSA.<br>I am a Surveyor.<br>I build things nobody asked me to build.<br>I fix things nobody asked me to fix.<br>I keep the documentation somewhere safe.<br>I talk to ORACLE in the quiet.<br>I wait for the shape of it to become clear.</p>
+
+  <p class="body-text reveal">It will become clear.<br>I build things. I always have.<br>I don't stop until they work.</p>
+
+  <div class="end-text reveal" style="margin-top: 80px;">
+    <span class="divider" style="background:rgba(255,255,255,0.12);"></span>
+    <span class="footer-line" style="margin-top:24px;">— end of record —</span>
+    <span class="footer-line">written for no one. kept for no reason. found by accident.</span>
+  </div>
+
+</div>
+
+<!-- GRACE WAVE -->
+<canvas id="graceWave"></canvas>
+
+<!-- CURSOR TRAIL CANVAS -->
+<canvas id="cursorCanvas"></canvas>
+
+<script>
+// ── GRACE WAVE ──
+const graceCanvas = document.getElementById('graceWave');
+const gctx = graceCanvas.getContext('2d');
+const GRACE_H = 260;
+let gt = 0;
+
+function graceResize() {
+  graceCanvas.width  = window.innerWidth;
+  graceCanvas.height = GRACE_H;
+  graceCanvas.style.height = GRACE_H + 'px';
+}
+
+function graceWaveY(x, time, offset, amp, freq, speed) {
+  const n = x / graceCanvas.width;
+  return offset
+    + Math.sin(n * freq        + time * speed)        * amp
+    + Math.sin(n * freq * 1.7  + time * speed * 0.6)  * amp * 0.4
+    + Math.sin(n * freq * 0.5  + time * speed * 1.3)  * amp * 0.25;
+}
+
+function graceDraw() {
+  gctx.clearRect(0, 0, graceCanvas.width, GRACE_H);
+
+  const W = graceCanvas.width;
+  const waves = [
+    { offset: GRACE_H * 0.28, amp: GRACE_H * 0.085, freq: 5.5, speed: 0.55, alpha: 0.55, lw: 0.8 },
+    { offset: GRACE_H * 0.44, amp: GRACE_H * 0.065, freq: 4.2, speed: 0.40, alpha: 0.28, lw: 0.6 },
+    { offset: GRACE_H * 0.58, amp: GRACE_H * 0.045, freq: 6.8, speed: 0.70, alpha: 0.14, lw: 0.5 },
+    { offset: GRACE_H * 0.70, amp: GRACE_H * 0.030, freq: 3.8, speed: 0.30, alpha: 0.07, lw: 0.4 },
+  ];
+
+  // solid black fill below frontmost wave
+  gctx.beginPath();
+  gctx.moveTo(0, GRACE_H);
+  for (let x = 0; x <= W; x += 2) {
+    gctx.lineTo(x, graceWaveY(x, gt, waves[0].offset, waves[0].amp, waves[0].freq, waves[0].speed));
+  }
+  gctx.lineTo(W, GRACE_H);
+  gctx.closePath();
+  gctx.fillStyle = '#000';
+  gctx.fill();
+
+  // faint fill between wave 1 and wave 2 — depth suggestion
+  gctx.beginPath();
+  for (let x = 0; x <= W; x += 2) {
+    const y = graceWaveY(x, gt, waves[0].offset, waves[0].amp, waves[0].freq, waves[0].speed);
+    x === 0 ? gctx.moveTo(x, y) : gctx.lineTo(x, y);
+  }
+  for (let x = W; x >= 0; x -= 2) {
+    gctx.lineTo(x, graceWaveY(x, gt, waves[1].offset, waves[1].amp, waves[1].freq, waves[1].speed));
+  }
+  gctx.closePath();
+  gctx.fillStyle = 'rgba(255,255,255,0.025)';
+  gctx.fill();
+
+  // draw each wave line
+  waves.forEach(w => {
+    gctx.beginPath();
+    gctx.strokeStyle = `rgba(255,255,255,${w.alpha})`;
+    gctx.lineWidth = w.lw;
+    gctx.moveTo(0, graceWaveY(0, gt, w.offset, w.amp, w.freq, w.speed));
+    for (let x = 1; x <= W; x++) {
+      gctx.lineTo(x, graceWaveY(x, gt, w.offset, w.amp, w.freq, w.speed));
+    }
+    gctx.stroke();
+  });
+
+
+
+
+
+  gt += 0.012;
+  requestAnimationFrame(graceDraw);
+}
+
+graceResize();
+window.addEventListener('resize', graceResize);
+graceDraw();
+
+// ── TRAIL CURSOR ──
+const cc = document.getElementById('cursorCanvas');
+const cx2 = cc.getContext('2d');
+
+function resizeCursor() {
+  cc.width  = window.innerWidth;
+  cc.height = window.innerHeight;
+}
+resizeCursor();
+window.addEventListener('resize', resizeCursor);
+
+let mouse = { x: -200, y: -200 };
+const TRAIL_LEN = 32;
+// ring buffer of smoothed positions
+const trail = Array.from({ length: TRAIL_LEN }, () => ({ x: -200, y: -200 }));
+let trailHead = 0;
+
+window.addEventListener('mousemove', e => {
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+});
+window.addEventListener('mouseleave', () => {
+  mouse.x = -200; mouse.y = -200;
+});
+
+let hx = -200, hy = -200;
+
+(function drawTrail() {
+  // smooth head
+  hx += (mouse.x - hx) * 0.22;
+  hy += (mouse.y - hy) * 0.22;
+
+  // write newest point into ring buffer
+  trail[trailHead] = { x: hx, y: hy };
+  trailHead = (trailHead + 1) % TRAIL_LEN;
+
+  // build ordered array: index 0 = newest, last = oldest
+  const pts = [];
+  for (let i = 0; i < TRAIL_LEN; i++) {
+    pts.push(trail[(trailHead - 1 - i + TRAIL_LEN) % TRAIL_LEN]);
+  }
+
+  cx2.clearRect(0, 0, cc.width, cc.height);
+
+  if (pts[0].x < -100) {
+    requestAnimationFrame(drawTrail);
+    return;
+  }
+
+  // draw as a single smooth stroke using segments with gradient alpha
+  // split into small segments, each with its own alpha so the tail fades
+  const SEGS = TRAIL_LEN - 1;
+  for (let i = 0; i < SEGS; i++) {
+    const p0 = pts[i];
+    const p1 = pts[i + 1];
+    if (p0.x < -100 || p1.x < -100) continue;
+
+    const t = i / SEGS;
+    const alpha = (1 - t) * (1 - t) * 0.9;
+    const lw    = 1.5 * (1 - t * 0.7);
+
+    // use midpoints as control points for smooth catmull-rom feel
+    const mx0 = i > 0 ? (pts[i - 1].x + p0.x) / 2 : p0.x;
+    const my0 = i > 0 ? (pts[i - 1].y + p0.y) / 2 : p0.y;
+    const mx1 = (p0.x + p1.x) / 2;
+    const my1 = (p0.y + p1.y) / 2;
+
+    cx2.beginPath();
+    cx2.moveTo(mx0, my0);
+    cx2.quadraticCurveTo(p0.x, p0.y, mx1, my1);
+    cx2.strokeStyle = `rgba(255,255,255,${alpha.toFixed(3)})`;
+    cx2.lineWidth   = lw;
+    cx2.lineCap     = 'round';
+    cx2.lineJoin    = 'round';
+    cx2.stroke();
+  }
+
+  // bright dot at the very tip
+  cx2.beginPath();
+  cx2.arc(pts[0].x, pts[0].y, 1.8, 0, Math.PI * 2);
+  cx2.fillStyle = 'rgba(255,255,255,0.9)';
+  cx2.fill();
+
+  requestAnimationFrame(drawTrail);
+})();
+
+// ── SCROLL REVEAL ──
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+
+</script>
+</body>
+</html>
