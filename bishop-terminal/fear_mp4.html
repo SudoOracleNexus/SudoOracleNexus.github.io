@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIGIS — Research Division</title>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #000; overflow: hidden; width: 100vw; height: 100vh; font-family: 'Courier Prime', monospace; }
+  #c { display: block; width: 100vw; height: 100vh; }
+
+  #grain {
+    position: fixed; inset: 0; pointer-events: none; z-index: 10; opacity: 0.045;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+    animation: grain-anim 0.08s steps(1) infinite;
+  }
+  @keyframes grain-anim {
+    0%{background-position:0 0}10%{background-position:-10px -20px}20%{background-position:15px 5px}
+    30%{background-position:-5px 10px}40%{background-position:20px -15px}50%{background-position:-15px 20px}
+    60%{background-position:10px -5px}70%{background-position:-20px 15px}80%{background-position:5px -10px}
+    90%{background-position:-10px 0}100%{background-position:0 0}
+  }
+
+  #vignette {
+    position: fixed; inset: 0; pointer-events: none; z-index: 9;
+    background: radial-gradient(ellipse at 50% 50%, transparent 25%, rgba(0,0,0,0.9) 100%);
+  }
+
+  #modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,0.92);
+    align-items: center; justify-content: center;
+  }
+  #modal-overlay.active { display: flex; animation: fade-in 0.2s ease; }
+  @keyframes fade-in { from{opacity:0} to{opacity:1} }
+
+  #modal {
+    position: relative; width: 680px; max-height: 86vh; overflow-y: auto;
+    background: linear-gradient(165deg, #ede5cc 0%, #e0d3ac 45%, #d5c89e 100%);
+    padding: 52px 58px 48px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.95);
+    animation: slide-up 0.28s ease;
+    scrollbar-color: #b8a980 #d4c9a8;
+  }
+  @keyframes slide-up { from{transform:translateY(14px);opacity:0.4} to{transform:translateY(0);opacity:1} }
+
+  #modal-close {
+    position: absolute; top: 18px; right: 22px; background: none;
+    border: 1px solid rgba(61,46,24,0.45); color: #3d2e18;
+    font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 2px;
+    padding: 4px 10px; cursor: pointer; text-transform: uppercase; opacity: 0.5; transition: opacity 0.2s;
+  }
+  #modal-close:hover { opacity: 1; }
+
+  .modal-org { font-family:'Special Elite',cursive; font-size:9px; letter-spacing:4px; text-transform:uppercase; color:#3d2e18; opacity:0.55; margin-bottom:6px; }
+  .modal-title { font-family:'Special Elite',cursive; font-size:22px; color:#1a1208; line-height:1.2; margin-bottom:4px; }
+  .modal-subtitle { font-size:11px; color:#3d2e18; opacity:0.65; letter-spacing:1px; margin-bottom:24px; }
+  .modal-divider { border:none; border-top:1px solid rgba(61,46,24,0.22); margin:20px 0; }
+  .modal-section-title { font-family:'Special Elite',cursive; font-size:11px; letter-spacing:3px; text-transform:uppercase; color:#3d2e18; opacity:0.6; margin-bottom:12px; }
+  .modal-fields { display:grid; grid-template-columns:130px 1fr; gap:5px 12px; font-size:11px; margin-bottom:16px; }
+  .modal-field-label { font-weight:700; text-transform:uppercase; font-size:9px; letter-spacing:1px; color:#3d2e18; opacity:0.6; padding-top:1px; }
+  .modal-field-value { color:#1a1208; line-height:1.5; }
+  .modal-log { background:rgba(0,0,0,0.055); border-left:2px solid rgba(61,46,24,0.35); padding:14px 18px; margin:10px 0; font-size:11px; line-height:1.75; color:#1a1208; }
+  .modal-log-time { font-weight:700; color:#3d2e18; font-size:10px; display:block; margin-bottom:3px; opacity:0.65; }
+  .modal-conclusion { font-size:11.5px; line-height:1.8; color:#1a1208; margin-top:16px; }
+  .modal-conclusion p { margin-bottom:10px; }
+  .modal-stamp { font-family:'Special Elite',cursive; font-size:16px; letter-spacing:3px; text-transform:uppercase; border:3px solid; display:inline-block; padding:6px 18px; margin-top:20px; transform:rotate(-4deg); }
+  .modal-stamp.inconclusive { color:#5a3a00; border-color:#5a3a00; }
+  .modal-stamp.failed { color:#8b1a1a; border-color:#8b1a1a; }
+  .modal-stamp.success { color:#1a4a1a; border-color:#1a4a1a; }
+  .modal-note { font-style:italic; font-size:10.5px; color:#3d2e18; opacity:0.65; margin-top:16px; border-top:1px solid rgba(61,46,24,0.14); padding-top:14px; line-height:1.7; }
+  .initials { text-align:right; margin-top:24px; font-family:'Special Elite',cursive; font-size:13px; color:#3d2e18; opacity:0.45; }
+  .redacted { background:#1a1208; color:transparent; border-radius:1px; padding:0 2px; }
+
+  #hover-hint {
+    position:fixed; bottom:32px; left:50%; transform:translateX(-50%);
+    font-family:'Special Elite',cursive; font-size:11px; letter-spacing:3px;
+    text-transform:uppercase; color:rgba(232,224,200,0.22); pointer-events:none; z-index:11;
+    animation: hint-fade 3s ease 2.5s forwards;
+  }
+  @keyframes hint-fade { 0%{opacity:1} 100%{opacity:0} }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="grain"></div>
+<div id="vignette"></div>
+<div id="hover-hint">— click a document —</div>
+
+<div id="modal-overlay" onclick="closeModal(event)">
+  <div id="modal">
+    <button id="modal-close" onclick="closeModalDirect()">✕ Close</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const reports = [
+  {
+    stamp:'inconclusive', stampText:'Inconclusive',
+    org:'Aigis Foundation — Civilian Compliance Research',
+    title:'Trial Report: CCR-01',
+    subtitle:'Fear Compound Variant 7-C "Enklave" — Claustrophobia Induction',
+    fields:[['Subject ID','████████'],['Designation','CCR-01-F'],['Compound','Variant 7-C "Enklave"'],['Target Fear','Claustrophobia — pathological fear of enclosed or confined spaces'],['Dosage','0.4μg / subcutaneous injection, right forearm'],['Supervising Researcher','K.A. Kuznetsov'],['Trial Duration','6 hours, 14 minutes'],['Date','████████']],
+    logs:[
+      {time:'T+00:12',text:'Subject presents mild perspiration and irregular breathing. Pupil dilation noted. Compound appears to have absorbed without adverse immediate reaction. Environmental triggers introduced — ceiling lowered via hydraulic apparatus to 1.8m.'},
+      {time:'T+00:38',text:'Heart rate elevated to 142 bpm. Subject pressing palms flat against the far wall. Vocalization has ceased. Subject making no eye contact with observation window. Compound interaction with limbic response is measurable and consistent with projected parameters.'},
+      {time:'T+01:15',text:'Ceiling lowered to 1.1m. Subject has curled into lateral fetal position in the corner farthest from the room\'s center. No aggressive response. No engagement with the observer or the space. Full withdrawal. Subject is not present in any meaningful operational sense.'},
+      {time:'T+02:40',text:'Ceiling returned to 2.4m. Subject did not respond. Remained in fetal position for an additional 47 minutes before attempting to stand. Motor function degraded. Affect flat. No aggression window at any point during the enclosure sequence.'},
+      {time:'T+04:00',text:'Attempted secondary stimulation via audio trigger sequence. Subject flinched. Did not reorient toward sound. Did not exhibit threat-response positioning. The fear response is real and measurable — it has simply produced the wrong outcome. Subject turned inward, not outward.'},
+      {time:'T+06:14',text:'Trial concluded. Subject sedated and removed for medical observation. No injuries to subject or staff.'},
+    ],
+    conclusion:`<p>Compound 7-C "Enklave" produces a reliable and measurable claustrophobic response. The compound works. The problem is what the compound works toward.</p><p>The fear reaction in claustrophobic subjects does not produce outward aggression. It produces collapse. The subject became smaller. More still. More internal. The threat response that should theoretically redirect into combat behavior instead folded inward and produced nothing useful operationally.</p><p>My working interpretation: claustrophobia, as a fear mechanism, is fundamentally about <em>containment</em>. The behavioral imperative it triggers is to make oneself smaller and wait for the container to stop. There is no external enemy to attack. There is only the space itself, and you cannot fight a room.</p><p>The compound is not flawed. The fear type is wrong for the application. Recommend discontinuation of this strain for combat-conversion trials. CCR-01 subject is stable. Recommend standard recovery protocol.</p>`,
+    note:"Personal note — not for the record: Subject was given water before removal. I don't know why I'm writing that down. I just know that I am.",
+  },
+  {
+    stamp:'failed', stampText:'Test Failed',
+    org:'Aigis Foundation — Civilian Compliance Research',
+    title:'Trial Report: CCR-02',
+    subtitle:'Fear Compound Variant 12-A "Dermis" — Trypophobia Induction',
+    fields:[['Subject ID','████████'],['Designation','CCR-02-F'],['Compound','Variant 12-A "Dermis"'],['Target Fear','Trypophobia — aversion response to irregular hole or cluster patterns'],['Dosage','0.6μg / subcutaneous injection, left forearm'],['Supervising Researcher','K.A. Kuznetsov'],['Trial Duration','3 hours, 02 minutes (terminated early)'],['Date','████████']],
+    logs:[
+      {time:'T+00:08',text:'Subject appeared calm at intake. No pre-existing anxiety indicators flagged in psych screening. Compound 12-A administered without incident. Visual trigger array activated — pattern set Tier 2, standard cluster display.'},
+      {time:'T+00:22',text:'Subject reaction faster than projected. Severe nausea. Subject has covered both eyes with hands and is pressing hard enough to leave marks. Vocalization — repetitive, low volume. "Don\'t. Don\'t. Don\'t." Not directed at me or at the room. Just a word being held onto.'},
+      {time:'T+00:55',text:'Compound appears to be producing a dermal hallucination effect I did not anticipate and did not model. Subject is scratching at both forearms with increasing urgency. Believes something is present on the skin. There is nothing on the skin. I have reviewed the compound synthesis notes twice. There is no mechanism in 12-A for dermal hallucination. This is a compound-brain interaction I do not have an explanation for yet.'},
+      {time:'T+01:30',text:'Escalation. Subject has broken skin on left forearm. Scratching behavior has become self-injurious. No aggression directed outward. All energy is directed at the subject\'s own body. Trigger display powered down. Response has not diminished.'},
+      {time:'T+02:10',text:'Medical team on standby. The neurological response has moved past the fear-aggression conversion window entirely. There was no window. The subject went from aversion to cortical overload without passing through anything I could have redirected. I\'m documenting this in real time and I do not like what I\'m documenting.'},
+      {time:'T+03:02',text:'Sedation administered. Subject non-responsive. Neurological assessment: significant cortical dysregulation. Prognosis unclear. Trial terminated. Requesting full compound review before 12-A is used again in any context.'},
+    ],
+    conclusion:`<p>Variant 12-A "Dermis" is not safe for trials at current formulation. The compound produced a secondary hallucination effect not accounted for in its design documentation. Whether this is synthesis contamination, an emergent compound-interaction property, or a flaw in the original structural model, I cannot determine without full lab review.</p><p>The aggression conversion pathway never opened. Trypophobia, as it presented here, did not direct outward. The subject's threat response activated entirely against themselves — against the perceived state of their own skin. There is no combat application for that outcome.</p><p>CCR-02 is a failure on two counts: it did not produce the desired behavioral output, and it produced an unanticipated harmful one. Flagging compound for quarantine pending review.</p><p>I am also noting that the subject's psych screening did not flag trypophobia as a pre-existing condition. If the compound is generating the phobia response rather than amplifying an existing one, the implications for the project's theoretical basis are significant. I am leaving that question for the relevant people to answer. I am just the person who noticed it.</p>`,
+    note:"Personal note — I requested a status update on CCR-02 subject from medical. I was told the subject was \"under observation.\" I have submitted the request twice more since. I have not received a substantive answer.",
+  },
+  {
+    stamp:'success', stampText:'Viable',
+    org:'Aigis Foundation — Civilian Compliance Research',
+    title:'Trial Report: CCR-03',
+    subtitle:'Fear Compound Variant 9-B "Veil" — Venustraphobia Induction',
+    fields:[['Subject ID','████████'],['Designation','CCR-03-V'],['Compound','Variant 9-B "Veil"'],['Target Fear','Venustraphobia — pathological fear of beautiful or attractive people'],['Dosage','0.5μg / subcutaneous injection, right forearm'],['Supervising Researcher','K.A. Kuznetsov'],['Trial Duration','4 hours, 51 minutes'],['Date','████████']],
+    logs:[
+      {time:'T+00:15',text:'Compound administered. Subject at baseline. Confederates introduced into observation space per protocol. Subject showed mild discomfort at entry. Shifted weight. Avoidant eye contact. Compound is active.'},
+      {time:'T+00:44',text:"Subject's affect has changed. The discomfort has sharpened into something I would describe, clinically, as threat-perception activation. Subject is tracking both confederates without looking at them directly. Peripheral monitoring. Heart rate 138 bpm. This is different from CCR-01. Subject is not folding inward. Subject is mapping the room."},
+      {time:'T+01:20',text:"Confederate A approached subject as briefed. Subject stepped backward. Confederate A maintained approach as per protocol. The moment Confederate A entered the subject's defined proximate space — something shifted. I watched it happen. The fear didn't stay fear. It rotated into something else. Subject shoved Confederate A with both hands, hard enough to put him into the opposite wall. Then took up a position with their back to the corner and did not move."},
+      {time:'T+01:55',text:"Confederate B approached. Same result. Faster. The response time is accelerating with each interaction — I think the compound is building rather than plateauing. Subject is breathing hard and tracking both confederates constantly. Their posture is defensive but the defensive posture has become indistinguishable from an offensive one. They are ready to move. They are looking for the reason to move."},
+      {time:'T+02:30',text:'Confederate rotation introduced — two new individuals, unfamiliar to subject. The aggression conversion is complete and stable, persisting regardless of whether the stimulus is a known face or a new one. The compound has produced a generalized threat response to the appearance category itself.'},
+      {time:'T+03:40',text:"Confederates rotated out per safety protocol. Subject alone in room. Heart rate declining slowly. Subject sitting against the wall. Arms around knees. Still watching the door. The aggression has not switched off — it has simply found nothing to act on. I'm watching someone wait for the next threat with complete certainty that it is coming."},
+      {time:'T+04:51',text:"Trial concluded. Subject sedated. Full behavioral profile confirmed: fear response triggers immediately and reliably; fear converts to aggression within seconds; aggression is sustained and escalating. Subject fights until the stimulus is removed or until they cannot fight anymore. This is what the project wanted. I am documenting that this is what the project wanted. I am documenting that I built it. I am documenting both of those things on the same line and I am not going to put a comment next to them."},
+    ],
+    conclusion:`<p>Variant 9-B "Veil" is viable for the project's stated application. The fear-to-aggression conversion pathway functions as intended. The compound produces a reliable, repeatable, escalating combat response triggered by the target stimulus category. No sedation or physical restraint was necessary until trial conclusion. Subject was operational throughout.</p><p>The mechanism appears to be a compound-mediated reframing of the venustraphobic threat signal — rather than the fear producing avoidance behavior, the compound redirects the neurological response into the fight branch of the threat-response fork. The subject doesn't stop being afraid. The fear simply becomes fuel for a different output. They are terrified. They are also, as a direct consequence of that terror, very difficult to stop.</p><p>Recommending CCR-03 for full-trial replication. Variant 9-B "Veil" should be considered the working prototype for the civilian compliance program's direct-action application.</p>`,
+    note:"Personal note — not for the record, which means it belongs here: I watched that subject sit against the wall with their arms around their knees, waiting for someone to walk through the door so they could hurt them. I built the thing that made them do that. The compound works. I want to be very precise about both of those sentences and what it means that they are equally true.",
+  }
+];
+
+// ─── RENDERER ─────────────────────────────────────────────────────────────────
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.65;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000000);
+scene.fog = new THREE.FogExp2(0x000000, 0.16);
+
+const camera = new THREE.PerspectiveCamera(42, window.innerWidth/window.innerHeight, 0.1, 100);
+camera.position.set(0, 2.4, 3.0);
+camera.lookAt(0, 0.72, 0);
+
+// ─── ROOM ─────────────────────────────────────────────────────────────────────
+const roomMat = new THREE.MeshLambertMaterial({ color: 0x0a0906, side: THREE.BackSide });
+const room = new THREE.Mesh(new THREE.BoxGeometry(12, 8, 14), roomMat);
+room.position.y = 1;
+scene.add(room);
+
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(12, 14),
+  new THREE.MeshStandardMaterial({ color: 0x0e0c09, roughness: 0.99 })
+);
+floor.rotation.x = -Math.PI / 2;
+floor.receiveShadow = true;
+scene.add(floor);
+
+// ─── TABLE ────────────────────────────────────────────────────────────────────
+const topMat = new THREE.MeshStandardMaterial({ color: 0x1c1408, roughness: 0.85, metalness: 0.04 });
+const legMat = new THREE.MeshStandardMaterial({ color: 0x140f06, roughness: 0.9, metalness: 0.08 });
+const tableGrp = new THREE.Group();
+const tTop = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.07, 1.2), topMat);
+tTop.position.y = 0.83; tTop.castShadow = true; tTop.receiveShadow = true;
+tableGrp.add(tTop);
+[[-1.0,-0.5],[1.0,-0.5],[-1.0,0.5],[1.0,0.5]].forEach(([lx,lz]) => {
+  const leg = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.83, 0.07), legMat);
+  leg.position.set(lx, 0.415, lz); leg.castShadow = true; tableGrp.add(leg);
+});
+scene.add(tableGrp);
+
+// ─── PAPERS ───────────────────────────────────────────────────────────────────
+function makePaperTexture(label, stampColor, stampText) {
+  const cv = document.createElement('canvas'); cv.width = 256; cv.height = 320;
+  const x = cv.getContext('2d');
+  const pg = x.createLinearGradient(0,0,256,320);
+  pg.addColorStop(0,'#ede5cc'); pg.addColorStop(0.5,'#e4d9b4'); pg.addColorStop(1,'#ddd0a8');
+  x.fillStyle = pg; x.fillRect(0,0,256,320);
+  for(let i=0;i<2000;i++){x.fillStyle=`rgba(0,0,0,${Math.random()*0.04})`;x.fillRect(Math.random()*256,Math.random()*320,1,1);}
+  x.strokeStyle='rgba(61,46,24,0.35)'; x.lineWidth=1;
+  x.beginPath(); x.moveTo(18,52); x.lineTo(238,52); x.stroke();
+  x.fillStyle='rgba(26,18,8,0.85)'; x.font='bold 11px Courier New'; x.fillText('AIGIS FOUNDATION',18,26);
+  x.font='9px Courier New'; x.fillStyle='rgba(61,46,24,0.5)'; x.fillText('CIVILIAN COMPLIANCE RESEARCH',18,40);
+  x.fillStyle='rgba(26,18,8,0.8)'; x.font='bold 11px Courier New'; x.fillText('FEAR COMPOUND TRIAL',18,64);
+  x.font='10px Courier New'; x.fillStyle='rgba(26,18,8,0.65)'; x.fillText(label,18,78);
+  const lws=[140,110,155,90,130,105,160,90,140,115];
+  lws.forEach((lw,i)=>{x.fillStyle=`rgba(26,18,8,${0.15+Math.random()*0.1})`;x.fillRect(18,92+i*18,lw,5);});
+  x.save(); x.translate(128,175); x.rotate(-0.28);
+  x.strokeStyle=stampColor+'cc'; x.lineWidth=2.5; x.strokeRect(-52,-13,108,28);
+  x.font='bold 11px Courier New'; x.fillStyle=stampColor+'bb'; x.fillText(stampText,-44,8);
+  x.restore();
+  return new THREE.CanvasTexture(cv);
+}
+
+const paperConfigs = [
+  { x:-0.72, z:-0.05, rotY:-0.25, rotZ:-0.04, idx:0, label:'CCR-01 / CLAUSTROPHOBIA', sc:'#5a3a00', st:'INCONCLUSIVE' },
+  { x: 0.0,  z: 0.1,  rotY: 0.08, rotZ: 0.02, idx:1, label:'CCR-02 / TRYPOPHOBIA',    sc:'#8b1a1a', st:'FAILED'       },
+  { x: 0.72, z:-0.08, rotY: 0.2,  rotZ:-0.03, idx:2, label:'CCR-03 / VENUSTRAPHOBIA', sc:'#1a4a1a', st:'VIABLE'       },
+];
+
+const paperMeshes = [];
+paperConfigs.forEach(pd => {
+  const tex = makePaperTexture(pd.label, pd.sc, pd.st);
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(0.58, 0.004, 0.74),
+    new THREE.MeshStandardMaterial({ map: tex, roughness: 0.9, metalness: 0 })
+  );
+  mesh.position.set(pd.x, 0.872, pd.z);
+  mesh.rotation.y = pd.rotY; mesh.rotation.z = pd.rotZ;
+  mesh.castShadow = true; mesh.receiveShadow = true;
+  mesh.userData.reportIdx = pd.idx;
+  scene.add(mesh);
+  paperMeshes.push(mesh);
+});
+
+// ─── BULB + CABLE ─────────────────────────────────────────────────────────────
+const cableMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.008,0.008,2.6,6), new THREE.MeshBasicMaterial({color:0x0e0c08}));
+cableMesh.position.set(0, 2.7, -0.15); scene.add(cableMesh);
+
+const bulbMat = new THREE.MeshStandardMaterial({ color:0xfffbe0, emissive:0xffe090, emissiveIntensity:10, roughness:0.2 });
+const bulbMesh = new THREE.Mesh(new THREE.SphereGeometry(0.06,12,8), bulbMat);
+bulbMesh.position.set(0, 1.38, -0.15); scene.add(bulbMesh);
+
+const socketMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.06,0.1,8), new THREE.MeshStandardMaterial({color:0x1a1208,roughness:0.8}));
+socketMesh.position.set(0, 1.44, -0.15); scene.add(socketMesh);
+
+// ─── LIGHTS ───────────────────────────────────────────────────────────────────
+const ambient = new THREE.AmbientLight(0x060504, 0.15); scene.add(ambient);
+
+const spotlight = new THREE.SpotLight(0xfff0b0, 12.0);
+spotlight.position.set(0, 1.36, -0.15);
+spotlight.target.position.set(0, 0, 0);
+spotlight.angle = Math.PI / 5.5; spotlight.penumbra = 0.55; spotlight.decay = 2.2; spotlight.distance = 8;
+spotlight.castShadow = true;
+spotlight.shadow.mapSize.width = spotlight.shadow.mapSize.height = 2048;
+spotlight.shadow.camera.near = 0.1; spotlight.shadow.camera.far = 8;
+scene.add(spotlight); scene.add(spotlight.target);
+
+const pointLight = new THREE.PointLight(0xffd080, 3.5, 2.5, 2.2);
+pointLight.position.set(0, 1.35, -0.15); scene.add(pointLight);
+
+const coneH = 1.35;
+const coneMat = new THREE.MeshBasicMaterial({ color:0xfff0a0, transparent:true, opacity:0.06, side:THREE.FrontSide, depthWrite:false });
+const coneMesh = new THREE.Mesh(new THREE.ConeGeometry(0.78, coneH, 32, 1, true), coneMat);
+coneMesh.position.set(0, 1.36 - coneH/2, -0.15); scene.add(coneMesh);
+
+// ─── DUST ─────────────────────────────────────────────────────────────────────
+const DUST = 320, dpos = new Float32Array(DUST*3), dspd = [];
+for(let i=0;i<DUST;i++){
+  dpos[i*3]=(Math.random()-0.5)*1.4; dpos[i*3+1]=Math.random()*1.35+0.1; dpos[i*3+2]=(Math.random()-0.5)*0.8-0.15;
+  dspd.push({x:(Math.random()-0.5)*0.002, y:(Math.random()-0.5)*0.0015, z:(Math.random()-0.5)*0.002});
+}
+const dustGeo = new THREE.BufferGeometry();
+dustGeo.setAttribute('position', new THREE.BufferAttribute(dpos, 3));
+scene.add(new THREE.Points(dustGeo, new THREE.PointsMaterial({color:0xfff8d0,size:0.006,transparent:true,opacity:0.55,depthWrite:false,sizeAttenuation:true})));
+
+// ─── FLICKER ──────────────────────────────────────────────────────────────────
+const baseIntensity = 12.0;
+let flickerTimer=0, flickerActive=false, flickerIdx=0, flickerSchedule=[], nextFlicker=200+Math.random()*300;
+
+function scheduleFlicker() {
+  flickerSchedule = [];
+  const n = 2+Math.floor(Math.random()*4);
+  for(let i=0;i<n;i++){
+    flickerSchedule.push({dur:2+Math.floor(Math.random()*5), level:0.0});
+    flickerSchedule.push({dur:3+Math.floor(Math.random()*8), level:1.0});
+  }
+  if(Math.random()>0.5) flickerSchedule.push({dur:3,level:0},{dur:2,level:0.6},{dur:2,level:0},{dur:4,level:1.0});
+  flickerIdx=0; flickerActive=true;
+}
+
+// ─── RAYCASTER ────────────────────────────────────────────────────────────────
+const raycaster = new THREE.Raycaster(), mouse = new THREE.Vector2();
+window.addEventListener('mousemove', e => {
+  mouse.x = (e.clientX/window.innerWidth)*2-1;
+  mouse.y = -(e.clientY/window.innerHeight)*2+1;
+});
+window.addEventListener('click', e => {
+  if(document.getElementById('modal-overlay').classList.contains('active')) return;
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(paperMeshes);
+  if(hits.length > 0) openModal(hits[0].object.userData.reportIdx);
+});
+
+// ─── ANIMATE ──────────────────────────────────────────────────────────────────
+let frame=0, camT=0;
+const camStartZ=3.0, camEndZ=2.4, camStartY=2.4, camEndY=2.1;
+
+function animate() {
+  requestAnimationFrame(animate); frame++;
+
+  if(camT<1){
+    camT = Math.min(1, camT+0.00012);
+    const t = camT*camT*(3-2*camT);
+    camera.position.z = camStartZ+(camEndZ-camStartZ)*t;
+    camera.position.y = camStartY+(camEndY-camStartY)*t;
+    camera.lookAt(0, 0.72, 0);
+  }
+  camera.position.x = Math.sin(frame*0.0003)*0.018;
+
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObjects(paperMeshes);
+  document.body.style.cursor = hits.length > 0 ? 'pointer' : 'default';
+
+  if(!flickerActive){ nextFlicker--; if(nextFlicker<=0){ scheduleFlicker(); nextFlicker=200+Math.random()*400; } }
+  if(flickerActive){
+    if(flickerIdx < flickerSchedule.length){
+      const s = flickerSchedule[flickerIdx]; flickerTimer++;
+      spotlight.intensity = baseIntensity*s.level; pointLight.intensity = 3.5*s.level;
+      bulbMat.emissiveIntensity = s.level>0?10:0; coneMat.opacity = 0.06*s.level; ambient.intensity = s.level>0?0.15:0;
+      if(flickerTimer>=s.dur){ flickerTimer=0; flickerIdx++; }
+    } else {
+      flickerActive=false;
+      spotlight.intensity=baseIntensity; pointLight.intensity=3.5; bulbMat.emissiveIntensity=10; coneMat.opacity=0.06; ambient.intensity=0.15;
+    }
+  }
+  if(!flickerActive){ const b=1+Math.sin(frame*0.008)*0.02; spotlight.intensity=baseIntensity*b; pointLight.intensity=3.5*b; }
+
+  const p = dustGeo.attributes.position.array;
+  for(let i=0;i<DUST;i++){
+    p[i*3]+=dspd[i].x; p[i*3+1]+=dspd[i].y; p[i*3+2]+=dspd[i].z;
+    dspd[i].x+=(Math.random()-0.5)*0.00008; dspd[i].y+=(Math.random()-0.5)*0.00005;
+    if(p[i*3]<-0.8||p[i*3]>0.8) dspd[i].x*=-1;
+    if(p[i*3+1]<0.05||p[i*3+1]>1.5) dspd[i].y*=-1;
+    if(p[i*3+2]<-0.6||p[i*3+2]>0.3) dspd[i].z*=-1;
+  }
+  dustGeo.attributes.position.needsUpdate = true;
+  coneMesh.rotation.y = frame*0.001;
+  renderer.render(scene, camera);
+}
+animate();
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth/window.innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ─── AUDIO ────────────────────────────────────────────────────────────────────
+const trackFiles = ['Claustrophobia.mp3', 'Trypophobia.mp3', 'Venustraphobia.mp3'];
+const audios = trackFiles.map(src => {
+  const a = new Audio(src);
+  a.loop = true;
+  a.volume = 0;
+  return a;
+});
+
+let currentAudio = null;
+let fadeOutTimer = null;
+
+function fadeIn(audio, duration = 1800) {
+  audio.currentTime = 0;
+  audio.volume = 0;
+  audio.play().catch(() => {});
+  const steps = 60;
+  const interval = duration / steps;
+  const step = 1 / steps;
+  let tick = 0;
+  const iv = setInterval(() => {
+    tick++;
+    audio.volume = Math.min(1, step * tick);
+    if (tick >= steps) clearInterval(iv);
+  }, interval);
+}
+
+function fadeOut(audio, duration = 1500, onDone) {
+  if (!audio) { if (onDone) onDone(); return; }
+  const startVol = audio.volume;
+  const steps = 60;
+  const interval = duration / steps;
+  const step = startVol / steps;
+  let tick = 0;
+  const iv = setInterval(() => {
+    tick++;
+    audio.volume = Math.max(0, startVol - step * tick);
+    if (tick >= steps) {
+      clearInterval(iv);
+      audio.pause();
+      audio.volume = 0;
+      if (onDone) onDone();
+    }
+  }, interval);
+}
+
+function stopMusic() {
+  if (currentAudio) {
+    fadeOut(currentAudio);
+    currentAudio = null;
+  }
+}
+
+// ─── MODAL ────────────────────────────────────────────────────────────────────
+function openModal(idx) {
+  const r = reports[idx];
+  let h = `<div class="modal-org">${r.org}</div><div class="modal-title">${r.title}</div><div class="modal-subtitle">${r.subtitle}</div><hr class="modal-divider"><div class="modal-section-title">Subject & Trial Data</div><div class="modal-fields">`;
+  r.fields.forEach(([l,v]) => { const d=l==='Subject ID'?`<span class="redacted">${v}</span>`:v; h+=`<div class="modal-field-label">${l}</div><div class="modal-field-value">${d}</div>`; });
+  h += `</div><hr class="modal-divider"><div class="modal-section-title">Observation Log</div>`;
+  r.logs.forEach(lg => { h+=`<div class="modal-log"><span class="modal-log-time">${lg.time}</span>${lg.text}</div>`; });
+  h += `<hr class="modal-divider"><div class="modal-section-title">Researcher Conclusion</div><div class="modal-conclusion">${r.conclusion}</div><div class="modal-note">${r.note}</div><div><span class="modal-stamp ${r.stamp}">${r.stampText}</span></div><div class="initials">— K.A.K.</div>`;
+  document.getElementById('modal-content').innerHTML = h;
+  document.getElementById('modal-overlay').classList.add('active');
+  document.getElementById('modal').scrollTop = 0;
+  // fade out any current track, then fade in the new one
+  if (currentAudio && currentAudio !== audios[idx]) {
+    fadeOut(currentAudio, 600, () => { fadeIn(audios[idx]); });
+  } else if (!currentAudio) {
+    fadeIn(audios[idx]);
+  }
+  currentAudio = audios[idx];
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal-overlay')) {
+    document.getElementById('modal-overlay').classList.remove('active');
+    stopMusic();
+  }
+}
+function closeModalDirect() {
+  document.getElementById('modal-overlay').classList.remove('active');
+  stopMusic();
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('modal-overlay').classList.remove('active');
+    stopMusic();
+  }
+});
+</script>
+</body>
+</html>
