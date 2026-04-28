@@ -105,6 +105,8 @@
 
   .terminal-body {
     background: rgba(0,0,0,0.92);
+    position: relative;
+    overflow: hidden;
     border: 1.5px solid #cc8024;
     border-top: none;
     border-radius: 0 0 4px 4px;
@@ -326,6 +328,8 @@ const line3words = [
   {text:'you',   cls:'w3'},
   {text:'a',     cls:'w4'},
   {text:'question.', cls:'w5'},
+  {text:'Didn't', cls:'w6'},
+  {text:'I?', cls:'w7'},
 ];
 
 const wordStyle = `
@@ -390,7 +394,7 @@ function startTypewriter(){
     setTimeout(()=>{
       typeWords(row2, line2words, 55, 80, ()=>{
         typingDone = true;
-        idleTimer = setTimeout(typeFollowup, 4000);
+        idleTimer = setTimeout(typeFollowup, 10000);
       });
     }, 200);
   });
@@ -446,14 +450,15 @@ let spawned = [];
 function rand(a,b){ return Math.random()*(b-a)+a; }
 
 function spawnLine(){
+  const termBody = document.getElementById('termBody');
   if(spawned.length > 40){
     const old = spawned.shift();
     if(old.parentNode) old.parentNode.removeChild(old);
   }
   const el = document.createElement('div');
-  el.style.cssText = `position:fixed;font-family:'Courier New',monospace;font-size:${rand(11,16)}px;color:rgba(204,128,36,${rand(0.4,0.85)});pointer-events:none;opacity:0;white-space:pre;left:${rand(2,60)}%;top:${rand(10,85)}%;transform:rotate(${rand(-3,3)}deg);`;
+  el.style.cssText = `position:absolute;font-family:'Courier New',monospace;font-size:${rand(11,15)}px;color:rgba(204,128,36,${rand(0.4,0.9)});pointer-events:none;opacity:0;white-space:pre;left:${rand(2,75)}%;top:${rand(5,90)}%;transform:rotate(${rand(-2,2)}deg);z-index:20;`;
   el.textContent = responses[Math.floor(Math.random()*responses.length)];
-  document.body.appendChild(el);
+  termBody.appendChild(el);
   spawned.push(el);
   requestAnimationFrame(()=>{
     el.style.transition = 'opacity 0.2s';
@@ -471,7 +476,7 @@ mainText.addEventListener('mouseleave',()=>{
   clearInterval(ghostInterval);
   spawned.forEach(e=>{ e.style.opacity='0'; setTimeout(()=>e.remove(),400); });
   spawned=[];
-  if(!followupDone) idleTimer = setTimeout(typeFollowup, 4000);
+  if(!followupDone) idleTimer = setTimeout(typeFollowup, 10000);
 });
 </script>
 </body>
