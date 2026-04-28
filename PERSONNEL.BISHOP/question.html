@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bishop — Personnel Query</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: #000;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+
+  @keyframes scanroll {
+    from { background-position: 0 0; }
+    to   { background-position: 0 8px; }
+  }
+
+  @keyframes crt-pulse {
+    0%,100%{ opacity:1 }
+    25%    { opacity:0.97 }
+    50%    { opacity:0.94 }
+    75%    { opacity:0.98 }
+  }
+
+  .scanlines {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 3px,
+      rgba(0,0,0,0.18) 3px,
+      rgba(0,0,0,0.18) 4px
+    );
+    animation: scanroll 0.18s linear infinite;
+  }
+
+  .crt-flicker {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    animation: crt-pulse 0.12s ease-in-out infinite;
+  }
+
+  #pixelCanvas {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.55;
+  }
+
+  .terminal-wrap {
+    position: relative;
+    z-index: 10;
+    width: min(780px, 94vw);
+    margin-top: 10vh;
+  }
+
+  .title-bar {
+    background: #cc8024;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 4px 4px 0 0;
+    user-select: none;
+  }
+
+  .title-bar-text {
+    font-size: 12px;
+    font-weight: bold;
+    color: #000;
+    letter-spacing: 0.04em;
+  }
+
+  .title-bar-buttons {
+    display: flex;
+    gap: 6px;
+  }
+
+  .tb-btn {
+    width: 13px;
+    height: 13px;
+    background: #000;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: #cc8024;
+    font-weight: bold;
+    cursor: default;
+  }
+
+  .terminal-body {
+    background: rgba(0,0,0,0.92);
+    border: 1.5px solid #cc8024;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    padding: 18px 20px 24px;
+    min-height: 320px;
+  }
+
+  .line {
+    font-size: 13px;
+    color: #8a5818;
+    margin-bottom: 4px;
+    letter-spacing: 0.03em;
+    white-space: pre;
+  }
+
+  .line.bright { color: #b87020; }
+  .line.dim { color: #3a2808; }
+
+  .divider { color: #3a2808; margin: 6px 0; font-size: 13px; }
+
+  .prompt-line {
+    display: flex;
+    align-items: baseline;
+    gap: 0;
+    margin-top: 18px;
+  }
+
+  .prompt {
+    color: #cc8024;
+    font-size: 13px;
+    white-space: pre;
+    flex-shrink: 0;
+  }
+
+  .output-block {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #1e1200;
+  }
+
+  @keyframes s1 { 0%,100%{transform:translate(0,0) rotate(0deg)} 25%{transform:translate(-2px,1px) rotate(-0.3deg)} 75%{transform:translate(2px,-1px) rotate(0.3deg)} }
+  @keyframes s2 { 0%,100%{transform:translate(0,0) rotate(0deg)} 33%{transform:translate(2px,-2px) rotate(0.5deg)} 66%{transform:translate(-2px,1px) rotate(-0.4deg)} }
+  @keyframes s3 { 0%,100%{transform:translate(0,0) rotate(0deg)} 20%{transform:translate(-3px,1px) rotate(-0.6deg)} 60%{transform:translate(2px,-1px) rotate(0.4deg)} }
+  @keyframes s4 { 0%,100%{transform:translate(0,0) rotate(0deg)} 40%{transform:translate(1px,2px) rotate(0.3deg)} 80%{transform:translate(-2px,-1px) rotate(-0.5deg)} }
+  @keyframes s5 { 0%,100%{transform:translate(0,0) rotate(0deg)} 50%{transform:translate(-2px,2px) rotate(-0.4deg)} }
+
+  @keyframes violent {
+    0%  {transform:translate(0,0) rotate(0deg)}
+    10% {transform:translate(-8px,5px) rotate(-2deg)}
+    20% {transform:translate(9px,-6px) rotate(2.5deg)}
+    30% {transform:translate(-10px,4px) rotate(-3deg)}
+    40% {transform:translate(8px,-5px) rotate(2deg)}
+    50% {transform:translate(-7px,8px) rotate(-2.5deg)}
+    60% {transform:translate(10px,-4px) rotate(3deg)}
+    70% {transform:translate(-8px,6px) rotate(-2deg)}
+    80% {transform:translate(9px,-7px) rotate(2.5deg)}
+    90% {transform:translate(-6px,5px) rotate(-3deg)}
+    100%{transform:translate(0,0) rotate(0deg)}
+  }
+
+  @keyframes flicker {
+    0%,91%,93%,98%,100%{opacity:1}
+    92%{opacity:0.55}
+    99%{opacity:0.4}
+  }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  .word {
+    display: inline-block;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: clamp(18px, 3.5vw, 30px);
+    font-weight: bold;
+    color: #cc8024;
+    animation: flicker 7s infinite;
+    cursor: default;
+    letter-spacing: 0.04em;
+  }
+
+  .w1{animation:s1 0.22s infinite,flicker 7s infinite}
+  .w2{animation:s2 0.31s infinite,flicker 7.4s infinite}
+  .w3{animation:s3 0.18s infinite,flicker 6.8s infinite}
+  .w4{animation:s4 0.27s infinite,flicker 8s infinite}
+  .w5{animation:s5 0.35s infinite,flicker 7.2s infinite}
+  .w6{animation:s1 0.24s infinite,flicker 6.5s infinite}
+  .w7{animation:s3 0.29s infinite,flicker 7.8s infinite}
+
+  .main-text:hover .w1,
+  .main-text:hover .w2,
+  .main-text:hover .w3,
+  .main-text:hover .w4,
+  .main-text:hover .w5,
+  .main-text:hover .w6,
+  .main-text:hover .w7 {
+    animation: violent 0.07s infinite;
+    color: #e8922a;
+    text-shadow: 0 0 12px rgba(255,228,74,0.7);
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 10px;
+    height: 16px;
+    background: #cc8024;
+    vertical-align: middle;
+    animation: blink 1s step-end infinite;
+    margin-left: 2px;
+  }
+
+  .ghost-line {
+    position: absolute;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    color: #cc8024;
+    pointer-events: none;
+    opacity: 0;
+    white-space: pre;
+    transition: opacity 0.3s;
+  }
+
+  @keyframes ghost-fade {
+    0%{opacity:0} 20%{opacity:0.7} 80%{opacity:0.7} 100%{opacity:0}
+  }
+</style>
+</head>
+<body>
+
+
+<div class="scanlines"></div>
+<div class="crt-flicker"></div>
+<canvas id="pixelCanvas"></canvas>
+
+<div class="terminal-wrap">
+  <div class="title-bar">
+    <span class="title-bar-text">C:\VSA\PERSONNEL\file.txt - BISHOP</span>
+    <div class="title-bar-buttons">
+      <div class="tb-btn">_</div>
+      <div class="tb-btn">□</div>
+      <div class="tb-btn">✕</div>
+    </div>
+  </div>
+
+  <div class="terminal-body" id="termBody">
+    <div class="line dim">Vantage System Authority Desktop [Version 5.2.3790]</div>
+    <div class="line dim">(C) Copyright ██-2132 VSA Systems Authority.</div>
+    <div class="divider">────────────────────────────────────────────────────</div>
+    <div class="line bright">C:\VSA\PERSONNEL\file.txt - BISHOP</div>
+    <div class="line dim" style="margin-top:8px">Accessing personnel database...</div>
+    <div class="line dim">Cross-referencing Foundation archives...</div>
+    <div class="line dim">Decryption in progress.................. <span style="color:#cc8024">DONE</span></div>
+
+    <div class="output-block">
+      <div class="line bright">┌─ QUERY RESULT ─────────────────────────────────┐</div>
+      <div class="line bright">│  Subject       : BISHOP, ████ ████             │</div>
+      <div class="line bright">│  Clearance     : Level-1 / Unfiled              │</div>
+      <div class="line bright">│  Status        : SURVEYOR — Site 4              │</div>
+      <div class="line bright">│  File integrity: ██████░░░░ 62%  [DEGRADED]     │</div>
+      <div class="line bright">└────────────────────────────────────────────────┘</div>
+    </div>
+
+    <div class="prompt-line" style="margin-top:22px; margin-bottom:10px;">
+      <span class="prompt">C:\VSA\PERSONNEL&gt; eval_candidate.exe --id BISHOP --pos EXPERIMENTAL_RESEARCH&#10;</span>
+    </div>
+
+    <div class="line dim">Running evaluation protocol...</div>
+    <div class="line dim" style="margin-bottom:14px">Output: <span style="color:#cc8024">QUESTION_PENDING</span></div>
+
+    <div class="main-text" id="mainText" style="padding: 8px 0; cursor:default; user-select:none; min-height: 80px;"></div>
+
+    <div class="prompt-line" style="margin-top:18px;">
+      <span class="prompt">C:\VSA\PERSONNEL&gt; </span><span class="cursor"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+
+/* ── pixel noise ── */
+const pc = document.getElementById('pixelCanvas');
+const ctx = pc.getContext('2d');
+function resizeCanvas(){
+  pc.width = window.innerWidth;
+  pc.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function drawNoise(){
+  ctx.clearRect(0,0,pc.width,pc.height);
+  const count = Math.floor(Math.random()*38)+10;
+  for(let i=0;i<count;i++){
+    const x = Math.floor(Math.random()*pc.width);
+    const y = Math.floor(Math.random()*pc.height);
+    const a = Math.random()*0.85+0.15;
+    ctx.fillStyle = `rgba(204,128,36,${a})`;
+    ctx.fillRect(x,y,2,2);
+  }
+  setTimeout(drawNoise, Math.random()*80+30);
+}
+drawNoise();
+
+/* ── typewriter ── */
+const mainText = document.getElementById('mainText');
+
+const line1words = [
+  {text:'Do',    cls:'w1'},
+  {text:'you',   cls:'w2'},
+  {text:'deserve',cls:'w3'},
+  {text:'this',  cls:'w4'},
+  {text:'position?',cls:'w5'},
+];
+const line2words = [
+  {text:'Huh',   cls:'w6'},
+  {text:'Bishop.',cls:'w7'},
+];
+const line3words = [
+  {text:'I',     cls:'w1'},
+  {text:'asked', cls:'w2'},
+  {text:'you',   cls:'w3'},
+  {text:'a',     cls:'w4'},
+  {text:'question.', cls:'w5'},
+];
+
+const wordStyle = `
+  display:inline-block;
+  font-family:'Courier New',Courier,monospace;
+  font-size:clamp(18px,3.5vw,30px);
+  font-weight:bold;
+  color:#cc8024;
+  letter-spacing:0.04em;
+  cursor:default;
+`;
+
+let typingDone = false;
+let followupDone = false;
+let idleTimer = null;
+
+function makeWordEl(w){
+  const span = document.createElement('span');
+  span.className = 'word ' + w.cls;
+  span.style.cssText = wordStyle;
+  span.textContent = '';
+  return span;
+}
+
+function typeWord(span, text, charDelay, cb){
+  let i = 0;
+  function next(){
+    if(i < text.length){
+      span.textContent += text[i++];
+      setTimeout(next, charDelay + Math.random()*30);
+    } else {
+      if(cb) cb();
+    }
+  }
+  next();
+}
+
+function typeWords(container, words, charDelay, wordGap, onDone){
+  let i = 0;
+  function nextWord(){
+    if(i >= words.length){ if(onDone) onDone(); return; }
+    const w = words[i++];
+    const span = makeWordEl(w);
+    container.appendChild(span);
+    typeWord(span, w.text, charDelay, ()=>{
+      setTimeout(()=>{
+        if(i < words.length) container.appendChild(document.createTextNode('\u00a0'));
+        nextWord();
+      }, wordGap);
+    });
+  }
+  nextWord();
+}
+
+function startTypewriter(){
+  const row1 = document.createElement('div');
+  mainText.appendChild(row1);
+
+  typeWords(row1, line1words, 55, 80, ()=>{
+    const row2 = document.createElement('div');
+    mainText.appendChild(row2);
+    setTimeout(()=>{
+      typeWords(row2, line2words, 55, 80, ()=>{
+        typingDone = true;
+        idleTimer = setTimeout(typeFollowup, 4000);
+      });
+    }, 200);
+  });
+}
+
+function typeFollowup(){
+  if(followupDone) return;
+  followupDone = true;
+  const row3 = document.createElement('div');
+  row3.style.marginTop = '6px';
+  mainText.appendChild(row3);
+  typeWords(row3, line3words, 60, 90, null);
+}
+
+setTimeout(startTypewriter, 800);
+
+/* ── hover ghost lines ── */
+const responses = [
+  '> No.','> Never.','> Absolutely not.','> Not a chance.','> Negative.',
+  '> Denied.','> Rejected.','> Perhaps.','> Maybe.','> Doubtful.',
+  '> I hope not.','> Unlikely.','> Highly unlikely.','> Think again.',
+  '> Are you sure?','> Really?','> Reconsider.','> Not yet.','> Unproven.',
+  '> Insufficient.','> I wonder.','> Do you, though?','> Hmm.','> Interesting.',
+  '> We shall see.','> Careful.','> Look again.','> Not quite.','> Almost.',
+  '> Wrong.','> Try harder.','> Not today.','> Not ever.','> Laughable.',
+  '> Be honest with yourself.','> You already know the answer.',
+  '> The record says otherwise.','> Check your file again.',
+  '> Others were more qualified.','> You are not ready.',
+  '> This was a mistake.','> They will find out.','> It is only a matter of time.',
+  '> Who told you that you could?','> Who told you that you should?',
+  '> Go back.','> Turn around.','> Leave while you still can.',
+  '> You do not belong here.','> This is not your place.',
+  '> Something is missing.','> Something is always missing.',
+  '> The Notes were not enough.','> Clever is not qualified.',
+  '> Passion is not a credential.','> Admiration is not a skill.',
+  '> ERROR: confidence_too_low','> ERROR: experience_threshold_unmet',
+  '> ERROR: subject_self_assessment_inflated',
+  '> WARNING: record_incomplete','> WARNING: gaps_detected',
+  '> WARNING: origin_flagged','> WARNING: clearance_insufficient',
+  '> ALERT: evaluation_failed','> ALERT: recommend_reassignment',
+  '> ALERT: do_not_proceed','> NULL','> NULL','> NULL',
+  '> ACCESS_DENIED','> PERMISSION_REVOKED',
+  '> query returned: FALSE','> query returned: FALSE',
+  '> query returned: UNKNOWN','> query returned: INSUFFICIENT_DATA',
+  '> result: NO','> result: VOID','> result: RECONSIDER',
+  '> [process terminated]','> [file corrupted]','> [subject flagged]',
+  '> 0','> 0','> 0'
+];
+
+let ghostInterval = null;
+let spawned = [];
+
+function rand(a,b){ return Math.random()*(b-a)+a; }
+
+function spawnLine(){
+  if(spawned.length > 40){
+    const old = spawned.shift();
+    if(old.parentNode) old.parentNode.removeChild(old);
+  }
+  const el = document.createElement('div');
+  el.style.cssText = `position:fixed;font-family:'Courier New',monospace;font-size:${rand(11,16)}px;color:rgba(204,128,36,${rand(0.4,0.85)});pointer-events:none;opacity:0;white-space:pre;left:${rand(2,60)}%;top:${rand(10,85)}%;transform:rotate(${rand(-3,3)}deg);`;
+  el.textContent = responses[Math.floor(Math.random()*responses.length)];
+  document.body.appendChild(el);
+  spawned.push(el);
+  requestAnimationFrame(()=>{
+    el.style.transition = 'opacity 0.2s';
+    el.style.opacity = rand(0.5,0.9);
+    setTimeout(()=>{ el.style.opacity='0'; setTimeout(()=>el.remove(),300); }, rand(800,1800));
+  });
+}
+
+mainText.addEventListener('mouseenter',()=>{
+  if(!typingDone) return;
+  clearTimeout(idleTimer);
+  ghostInterval = setInterval(spawnLine, 60);
+});
+mainText.addEventListener('mouseleave',()=>{
+  clearInterval(ghostInterval);
+  spawned.forEach(e=>{ e.style.opacity='0'; setTimeout(()=>e.remove(),400); });
+  spawned=[];
+  if(!followupDone) idleTimer = setTimeout(typeFollowup, 4000);
+});
+</script>
+</body>
+</html>
